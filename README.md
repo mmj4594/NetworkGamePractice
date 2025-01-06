@@ -11,3 +11,22 @@ This project is a practice for learning network programming and multithreading i
 - Develop a simple but functional 2D game as a learning project
 - Explore custom networking systems
 - Experiment with multithreading techniques
+
+## Build Instructions
+1. Create a build directory and configure the project
+```bash
+cd NetworkGamePractice
+mkdir build
+cd build
+cmake ..
+cmake --build .
+```
+2. Run the executable
+```bash
+cd Debug
+./NetworkGamePractice.exe
+```
+
+## Dependencies
+- GLEW: Precompiled binaries included in lib/.
+- GLFW: Precompiled binaries included in lib/.
