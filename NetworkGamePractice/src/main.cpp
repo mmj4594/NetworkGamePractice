@@ -2,7 +2,24 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
-int main() {
+const int SCREEN_WIDTH = 800;
+const int SCREEN_HEIGHT = 600;
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
+	{
+		std::cout << "Pressed Down!\n";
+	}
+}
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+	glViewport(0, 0, width, height);
+}
+
+int main()
+{
 	// Initialize GLFW
 	if (!glfwInit()) {
 		std::cerr << "Failed to initialize GLFW" << std::endl;
@@ -16,27 +33,36 @@ int main() {
 
 	// Create a window
 	GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL Window", nullptr, nullptr);
-	if (!window) {
+	if (!window)
+	{
 		std::cerr << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
 		return -1;
 	}
-
 	glfwMakeContextCurrent(window);
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+	glfwSetKeyCallback(window, key_callback);
 
 	// Initialize GLEW
-	if (glewInit() != GLEW_OK) {
+	if (glewInit() != GLEW_OK)
+	{
 		std::cerr << "Failed to initialize GLEW" << std::endl;
+		glfwTerminate();
 		return -1;
 	}
-
-	std::cout << "OpenGL Initialized Successfully!" << std::endl;
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	// Main loop
-	while (!glfwWindowShouldClose(window)) {
-		glClear(GL_COLOR_BUFFER_BIT);
-		glfwSwapBuffers(window);
+	while (!glfwWindowShouldClose(window))
+	{
 		glfwPollEvents();
+
+		// Clear Screen
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		// Buffer Swap
+		glfwSwapBuffers(window);
 	}
 
 	glfwTerminate();
