@@ -53,6 +53,47 @@ void setupBuffers(unsigned int& VAO, unsigned int& VBO, unsigned int& EBO)
 	glBindVertexArray(0);
 }
 
+// Shader
+const char* vertexShaderSource =
+R"(
+	#version 330 core
+	layout(location = 0) in vec3 aPos;
+	uniform mat4 transform;
+
+	void main()
+	{
+		gl_Position = transform * vec4(aPos, 1.0);
+	}
+)";
+const char* fragmentShaderSource =
+R"(
+	#version 330 core
+	out vec4 FragColor;
+	uniform vec4 color;
+
+	void main()
+	{
+		FragColor = color;
+	}
+)";
+
+unsigned int compileShader(unsigned int type, const char* source)
+{
+	unsigned int shader = glCreateShader(type);
+	glShaderSource(shader, 1, &source, nullptr);
+	glCompileShader(shader);
+
+	int success;
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		char infoLog[512];
+		glGetShaderInfoLog(shader, 512, nullptr, infoLog);
+		std::cerr << (type == GL_VERTEX_SHADER ? "Vertex" : "Fragment") << " shader compilation failed\n" << infoLog << std::endl;
+	}
+	return shader;
+}
+
 int main()
 {
 	// Initialize GLFW
@@ -94,6 +135,18 @@ int main()
 	unsigned int VAO, VBO, EBO;
 	setupBuffers(VAO, VBO, EBO);
 
+	// Shader Compile
+	unsigned int vertexShader = compileShader(GL_VERTEX_SHADER, vertexShaderSource);
+	unsigned int fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentShaderSource);
+
+	// Create Shader Program
+	unsigned int shaderProgram = glCreateProgram();
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+	glLinkProgram(shaderProgram);
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+
 	// Main loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -102,6 +155,19 @@ int main()
 		// Clear Screen
 		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		// Shader Test
+		glUseProgram(shaderProgram);
+		int colorLocation = glGetUniformLocation(shaderProgram, "color");
+		glUniform4f(colorLocation, 0.0f, 1.0f, 0.0f, 1.0f);
+		int transformLocation = glGetUniformLocation(shaderProgram, "transform");
+		float transform[16] = {
+			1.0f, 0.0f, 0.0f, 0.0f,
+			0.0f, 1.0f, 0.0f, 0.0f,
+			0.0f, 0.0f, 1.0f, 0.0f,
+			0.0f, 0.0f, 0.0f, 1.0f
+		};
+		glUniformMatrix4fv(transformLocation, 1, GL_FALSE, transform);
 
 		// VAO Test
 		glBindVertexArray(VAO);
