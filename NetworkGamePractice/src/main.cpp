@@ -6,11 +6,117 @@ constexpr int SCREEN_WIDTH = 800;
 constexpr int SCREEN_HEIGHT = 600;
 constexpr int VERTEX_SIZE = 3;
 
+float player1X = -0.8f, player1Y = -0.8f, player1SpeedY = 0.0f;
+float player2X = 0.8f, player2Y = -0.8f, player2SpeedY = 0.0f;
+float ballX = 0.0f, ballY = 0.0f, ballSpeedX = 0.01f, ballSpeedY = 0.02f;
+int scorePlayer1 = 0, scorePlayer2 = 0;
+constexpr float netX = 0.0f, netY = -0.8f, netWidth = 0.05f, netHeight = 1.0f;
+
+constexpr float GRAVITY = -0.0005f;
+constexpr float JUMP_SPEED = 0.02f;
+bool player1Jumping = false, player2Jumping = false;
+
+void resetRound()
+{
+	ballX = 0.0f;
+	ballY = 0.0f;
+	ballSpeedX = 0.01f * (rand() % 2 == 0 ? 1 : -1);
+	ballSpeedY = 0.02f;
+	player1X = -0.8f;
+	player1Y = -0.8f;
+	player2X = 0.8f;
+	player2Y = -0.8f;
+	player1Jumping = player2Jumping = false;
+	printf("Current Score: [%d : %d]\n", scorePlayer1, scorePlayer2);
+}
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
+	if (key == GLFW_KEY_W && action == GLFW_PRESS && !player1Jumping)
 	{
-		std::cout << "Pressed Down!\n";
+		player1SpeedY = JUMP_SPEED;
+		player1Jumping = true;
+	}
+	if (key == GLFW_KEY_UP && action == GLFW_PRESS && !player2Jumping)
+	{
+		player2SpeedY = JUMP_SPEED;
+		player2Jumping = true;
+	}
+
+	if (key == GLFW_KEY_A && action == GLFW_PRESS) player1X -= 0.02f;
+	if (key == GLFW_KEY_D && action == GLFW_PRESS) player1X += 0.02f;
+	if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) player2X -= 0.02f;
+	if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS) player2X += 0.02f;
+}
+
+bool checkCollision(float obj1X, float obj1Y, float obj1Width, float obj1Height, float obj2X, float obj2Y, float obj2Width, float obj2Height)
+{
+	return obj1X < obj2X + obj2Width
+		&& obj1X + obj1Width > obj2X
+		&& obj1Y < obj2Y + obj2Height
+		&& obj1Y + obj1Height > obj2Y;
+}
+
+void updatePhysics()
+{
+	// player1 Jump
+	if (player1Jumping)
+	{
+		player1Y += player1SpeedY;
+		player1SpeedY += GRAVITY;
+		if (player1Y <= -0.8f)
+		{
+			player1Y = -0.8f;
+			player1Jumping = false;
+		}
+	}
+	// player2 Jump
+	if (player2Jumping)
+	{
+		player2Y += player2SpeedY;
+		player2SpeedY += GRAVITY;
+		if (player2Y <= -0.8f)
+		{
+			player2Y = -0.8f;
+			player2Jumping = false;
+		}
+	}
+
+	// ball physics
+	ballX += ballSpeedX;
+	ballY += ballSpeedY;
+	ballSpeedY += GRAVITY;
+
+	// ball - floor
+	if (ballY <= -1.0f)
+	{
+		if (ballX < 0.0f)
+		{
+			scorePlayer2++;
+		}
+		else
+		{
+			scorePlayer1++;
+		}
+		resetRound();
+	}
+
+	// ball - net
+	if (checkCollision(ballX, ballY, 0.1f, 0.1f, netX - netWidth / 2, netY, netWidth, netHeight))
+	{
+		ballSpeedX = -ballSpeedX;
+	}
+
+	// ball - player
+	if (checkCollision(ballX, ballY, 0.1f, 0.1f, player1X, player1Y, 0.2f, 0.2f))
+	{
+		ballSpeedY = 0.015f;
+		ballSpeedX = 0.01f;
+	}
+	if (checkCollision(ballX, ballY, 0.1f, 0.1f, player2X, player2Y, 0.2f, 0.2f))
+	{
+		ballSpeedY = 0.015f;
+		ballSpeedX = -0.01f;
 	}
 }
 
@@ -94,10 +200,33 @@ unsigned int compileShader(unsigned int type, const char* source)
 	return shader;
 }
 
+void renderObject(unsigned int VAO, unsigned int shaderProgram, float x, float y, float width, float height, float r, float g, float b)
+{
+	glUseProgram(shaderProgram);
+
+	// set color
+	int colorLoc = glGetUniformLocation(shaderProgram, "color");
+	glUniform4f(colorLoc, r, g, b, 1.0f);
+
+	// transform
+	int transformLoc = glGetUniformLocation(shaderProgram, "transform");
+	float transform[16] = {
+		width, 0.0f,  0.0f, 0.0f,
+		0.0f,  height, 0.0f, 0.0f,
+		0.0f,  0.0f,  1.0f, 0.0f,
+		x,     y,     0.0f, 1.0f
+	};
+	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, transform);
+
+	glBindVertexArray(VAO);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+}
+
 int main()
 {
 	// Initialize GLFW
-	if (!glfwInit()) {
+	if (!glfwInit())
+	{
 		std::cerr << "Failed to initialize GLFW" << std::endl;
 		return -1;
 	}
@@ -147,34 +276,27 @@ int main()
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
+	static int frameCount = 0;
+	static double fpsTimer = glfwGetTime();
+
 	// Main loop
 	while (!glfwWindowShouldClose(window))
 	{
-		glfwPollEvents();
+		updatePhysics();
 
 		// Clear Screen
 		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// Shader Test
-		glUseProgram(shaderProgram);
-		int colorLocation = glGetUniformLocation(shaderProgram, "color");
-		glUniform4f(colorLocation, 0.0f, 1.0f, 0.0f, 1.0f);
-		int transformLocation = glGetUniformLocation(shaderProgram, "transform");
-		float transform[16] = {
-			1.0f, 0.0f, 0.0f, 0.0f,
-			0.0f, 1.0f, 0.0f, 0.0f,
-			0.0f, 0.0f, 1.0f, 0.0f,
-			0.0f, 0.0f, 0.0f, 1.0f
-		};
-		glUniformMatrix4fv(transformLocation, 1, GL_FALSE, transform);
-
-		// VAO Test
-		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		// Object Rendering
+		renderObject(VAO, shaderProgram, player1X, player1Y, 0.2f, 0.2f, 1.0f, 0.0f, 0.0f);
+		renderObject(VAO, shaderProgram, player2X, player2Y, 0.2f, 0.2f, 0.0f, 0.0f, 1.0f);
+		renderObject(VAO, shaderProgram, ballX, ballY, 0.1f, 0.1f, 1.0f, 1.0f, 0.0f);
+		renderObject(VAO, shaderProgram, netX, netY, netWidth, netHeight, 1.0f, 1.0f, 1.0f);
 
 		// Buffer Swap
 		glfwSwapBuffers(window);
+		glfwPollEvents();
 	}
 
 	glfwTerminate();
