@@ -16,6 +16,12 @@ constexpr float GRAVITY = -0.0005f;
 constexpr float JUMP_SPEED = 0.02f;
 bool player1Jumping = false, player2Jumping = false;
 
+const int MAX_FPS = 60;
+const float FRAME_TIME = 1.0f / MAX_FPS;
+double previousTime = glfwGetTime();
+double lag = 0.0;
+float timeScale = 1.0f;
+
 void resetRound()
 {
 	ballX = 0.0f;
@@ -276,27 +282,44 @@ int main()
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
-	static int frameCount = 0;
-	static double fpsTimer = glfwGetTime();
-
 	// Main loop
 	while (!glfwWindowShouldClose(window))
 	{
-		updatePhysics();
+		// Apply 60FPS
+		static int frameCount = 0;
+		static double fpsTimer = glfwGetTime();
+		const double currentTime = glfwGetTime();
+		const double elapsedTime = currentTime - previousTime;
+		previousTime = currentTime;
+		lag += elapsedTime * timeScale;
+		while (lag >= FRAME_TIME)
+		{
+			frameCount++;
+			lag -= FRAME_TIME;
+			updatePhysics();
 
-		// Clear Screen
-		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+			// Clear Screen
+			glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
 
-		// Object Rendering
-		renderObject(VAO, shaderProgram, player1X, player1Y, 0.2f, 0.2f, 1.0f, 0.0f, 0.0f);
-		renderObject(VAO, shaderProgram, player2X, player2Y, 0.2f, 0.2f, 0.0f, 0.0f, 1.0f);
-		renderObject(VAO, shaderProgram, ballX, ballY, 0.1f, 0.1f, 1.0f, 1.0f, 0.0f);
-		renderObject(VAO, shaderProgram, netX, netY, netWidth, netHeight, 1.0f, 1.0f, 1.0f);
+			// Object Rendering
+			renderObject(VAO, shaderProgram, player1X, player1Y, 0.2f, 0.2f, 1.0f, 0.0f, 0.0f);
+			renderObject(VAO, shaderProgram, player2X, player2Y, 0.2f, 0.2f, 0.0f, 0.0f, 1.0f);
+			renderObject(VAO, shaderProgram, ballX, ballY, 0.1f, 0.1f, 1.0f, 1.0f, 0.0f);
+			renderObject(VAO, shaderProgram, netX, netY, netWidth, netHeight, 1.0f, 1.0f, 1.0f);
 
-		// Buffer Swap
-		glfwSwapBuffers(window);
-		glfwPollEvents();
+			// Buffer Swap
+			glfwSwapBuffers(window);
+			glfwPollEvents();
+		}
+
+		// print FPS
+		if (currentTime - fpsTimer >= 1.0)
+		{
+			printf("FPS: %d\n", frameCount);
+			frameCount = 0;
+			fpsTimer += 1.0;
+		}
 	}
 
 	glfwTerminate();
