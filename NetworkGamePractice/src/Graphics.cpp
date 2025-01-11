@@ -1,52 +1,118 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include "graphics.h"
-
-// Vertex Data (Square)
-float squareVertices[] = {
-	// x, y, z
-	-0.5f, -0.5f, 0.0f,  // Bottom-left
-	 0.5f, -0.5f, 0.0f,  // Bottom-right
-	 0.5f,  0.5f, 0.0f,  // Top-right
-	-0.5f,  0.5f, 0.0f   // Top-left
-};
-unsigned int squareIndices[] = {
-	0, 1, 2, // Triangle 1
-	2, 3, 0  // Triangle 2
-};
-
-// Shader
-const char* vertexShaderSource =
-R"(
-	#version 330 core
-	layout(location = 0) in vec3 aPos;
-	uniform mat4 transform;
-
-	void main()
-	{
-		gl_Position = transform * vec4(aPos, 1.0);
-	}
-)";
-const char* fragmentShaderSource =
-R"(
-	#version 330 core
-	out vec4 FragColor;
-	uniform vec4 color;
-
-	void main()
-	{
-		FragColor = color;
-	}
-)";
+#include "Graphics.h"
+#include "Game.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 }
 
-void setupBuffers(unsigned int& VAO, unsigned int& VBO, unsigned int& EBO)
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+	Game::Get().OnPressedKey(key, scancode, action, mods);
+}
+
+Graphics& Graphics::Get()
+{
+	static Graphics instance;
+	return instance;
+}
+
+bool Graphics::initializeGraphics()
+{
+	// Initialize GLFW
+	if (!glfwInit())
+	{
+		std::cerr << "Failed to initialize GLFW" << std::endl;
+		return false;
+	}
+
+	// Set OpenGL version (3.3 Core Profile)
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+	// Create a window
+	window = glfwCreateWindow(800, 600, "OpenGL Window", nullptr, nullptr);
+	if (!window)
+	{
+		std::cerr << "Failed to create GLFW window" << std::endl;
+		glfwTerminate();
+		return false;
+	}
+	glfwMakeContextCurrent(window);
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+	glfwSetKeyCallback(window, key_callback);
+
+	// Initialize GLEW
+	if (glewInit() != GLEW_OK)
+	{
+		std::cerr << "Failed to initialize GLEW" << std::endl;
+		glfwTerminate();
+		return false;
+	}
+
+	// Set Viewport Size
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	// VAO/VBO/EBO Setting	
+	setupBuffers(VAO, VBO, EBO);
+
+	// Shader Compile
+	const char* vertexShaderSource =
+	R"(
+		#version 330 core
+		layout(location = 0) in vec3 aPos;
+		uniform mat4 transform;
+
+		void main()
+		{
+			gl_Position = transform * vec4(aPos, 1.0);
+		}
+	)";
+	const char* fragmentShaderSource =
+	R"(
+		#version 330 core
+		out vec4 FragColor;
+		uniform vec4 color;
+
+		void main()
+		{
+			FragColor = color;
+		}
+	)";
+	unsigned int vertexShader = compileShader(GL_VERTEX_SHADER, vertexShaderSource);
+	unsigned int fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentShaderSource);
+
+	// Create Shader Program
+	shaderProgram = glCreateProgram();
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+	glLinkProgram(shaderProgram);
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+
+	return true;
+}
+
+void Graphics::setupBuffers(unsigned int& VAO, unsigned int& VBO, unsigned int& EBO)
+{
+	// Vertex Data (Square)
+	constexpr float squareVertices[] = {
+		// x, y, z
+		-0.5f, -0.5f, 0.0f,  // Bottom-left
+		 0.5f, -0.5f, 0.0f,  // Bottom-right
+		 0.5f,  0.5f, 0.0f,  // Top-right
+		-0.5f,  0.5f, 0.0f   // Top-left
+	};
+	constexpr unsigned int squareIndices[] = {
+		0, 1, 2, // Triangle 1
+		2, 3, 0  // Triangle 2
+	};
+
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 
@@ -66,7 +132,7 @@ void setupBuffers(unsigned int& VAO, unsigned int& VBO, unsigned int& EBO)
 	glBindVertexArray(0);
 }
 
-unsigned int compileShader(unsigned int type, const char* source)
+unsigned int Graphics::compileShader(unsigned int type, const char* source)
 {
 	unsigned int shader = glCreateShader(type);
 	glShaderSource(shader, 1, &source, nullptr);
@@ -83,7 +149,29 @@ unsigned int compileShader(unsigned int type, const char* source)
 	return shader;
 }
 
-void renderObject(unsigned int VAO, unsigned int shaderProgram, float x, float y, float width, float height, float r, float g, float b)
+bool Graphics::shouldClose()
+{
+	return glfwWindowShouldClose(window);
+}
+
+void Graphics::renderFrame(double elapsedTime)
+{
+	// Clear Screen
+	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	// Object Rendering
+	Graphics::Get().renderObject(Game::Get().player1X, Game::Get().player1Y, 0.2f, 0.2f, 1.0f, 0.0f, 0.0f);
+	Graphics::Get().renderObject(Game::Get().player2X, Game::Get().player2Y, 0.2f, 0.2f, 0.0f, 0.0f, 1.0f);
+	Graphics::Get().renderObject(Game::Get().ballX, Game::Get().ballY, 0.1f, 0.1f, 1.0f, 1.0f, 0.0f);
+	Graphics::Get().renderObject(Game::Get().netX, Game::Get().netY, Game::Get().netWidth, Game::Get().netHeight, 1.0f, 1.0f, 1.0f);
+
+	// Buffer Swap
+	glfwSwapBuffers(window);
+	glfwPollEvents();
+}
+
+void Graphics::renderObject(float x, float y, float width, float height, float r, float g, float b)
 {
 	glUseProgram(shaderProgram);
 

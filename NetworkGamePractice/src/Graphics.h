@@ -1,16 +1,26 @@
 #pragma once
 
-constexpr int VERTEX_SIZE = 3;
-
-// Vertex Data (Square)
-extern float squareVertices[];
-extern unsigned int squareIndices[];
-
-// Shader
-extern const char* vertexShaderSource;
-extern const char* fragmentShaderSource;
-
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void setupBuffers(unsigned int& VAO, unsigned int& VBO, unsigned int& EBO);
-unsigned int compileShader(unsigned int type, const char* source);
-void renderObject(unsigned int VAO, unsigned int shaderProgram, float x, float y, float width, float height, float r, float g, float b);
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+
+class Graphics
+{
+public:
+	static Graphics& Get();
+
+public:
+	bool initializeGraphics();
+	void setupBuffers(unsigned int& VAO, unsigned int& VBO, unsigned int& EBO);
+	unsigned int compileShader(unsigned int type, const char* source);
+
+	bool shouldClose();
+	void renderFrame(double elapsedTime);
+	void renderObject(float x, float y, float width, float height, float r, float g, float b);
+
+private:
+	const int VERTEX_SIZE = 3;
+
+	GLFWwindow* window = nullptr;
+	unsigned int VAO, VBO, EBO;
+	unsigned int shaderProgram;
+};
