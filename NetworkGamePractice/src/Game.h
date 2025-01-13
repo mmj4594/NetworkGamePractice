@@ -1,4 +1,8 @@
 #pragma once
+#include "Player.h"
+#include "Ball.h"
+#include "Net.h"
+#include <glm/glm.hpp>
 
 constexpr int SCREEN_WIDTH = 800;
 constexpr int SCREEN_HEIGHT = 600;
@@ -18,16 +22,15 @@ public:
 public:
 	void resetRound();
 	void tick(double elapsedTime);
-	bool checkCollision(float obj1X, float obj1Y, float obj1Width, float obj1Height, float obj2X, float obj2Y, float obj2Width, float obj2Height);
+	bool checkCollision(GameObject obj1, GameObject obj2);
 	void updatePhysics();
 	void OnPressedKey(int key, int scancode, int action, int mods);
 
 public:
-	float player1X = -0.8f, player1Y = -0.8f, player1SpeedY = 0.0f;
-	float player2X = 0.8f, player2Y = -0.8f, player2SpeedY = 0.0f;
-	float ballX = 0.0f, ballY = 0.0f, ballSpeedX = 0.01f, ballSpeedY = 0.02f;
-	int scorePlayer1 = 0, scorePlayer2 = 0;
-	float netX = 0.0f, netY = -0.8f, netWidth = 0.05f, netHeight = 1.0f;
+	Player player1 = Player(1, glm::vec2(-0.8f, -0.8f), 0.2f, 0.2f);
+	Player player2 = Player(2, glm::vec2(0.8f, -0.8f), 0.2f, 0.2f);
+	Ball ball = Ball(glm::vec2(0.f, 0.f), 0.1f, 0.1f);
+	Net net = Net(glm::vec2(0.f, -0.8f), 0.05f, 1.0f);
 
-	bool player1Jumping = false, player2Jumping = false;
+	int scorePlayer1 = 0, scorePlayer2 = 0;
 };

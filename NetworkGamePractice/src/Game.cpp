@@ -11,15 +11,10 @@ Game& Game::Get()
 
 void Game::resetRound()
 {
-	ballX = 0.0f;
-	ballY = 0.0f;
-	ballSpeedX = 0.01f * (rand() % 2 == 0 ? 1 : -1);
-	ballSpeedY = 0.02f;
-	player1X = -0.8f;
-	player1Y = -0.8f;
-	player2X = 0.8f;
-	player2Y = -0.8f;
-	player1Jumping = player2Jumping = false;
+	player1.reset();
+	player2.reset();
+	ball.reset();
+	ball.setSpeed(glm::vec2(0.01f * (rand() % 2 == 0 ? 1 : -1), 0.02f));
 	printf("Current Score: [%d : %d]\n", scorePlayer1, scorePlayer2);
 }
 
@@ -28,48 +23,59 @@ void Game::tick(double elapsedTime)
 	updatePhysics();
 }
 
-bool Game::checkCollision(float obj1X, float obj1Y, float obj1Width, float obj1Height, float obj2X, float obj2Y, float obj2Width, float obj2Height)
+bool Game::checkCollision(GameObject obj1, GameObject obj2)
 {
-	return obj1X < obj2X + obj2Width
-		&& obj1X + obj1Width > obj2X
-		&& obj1Y < obj2Y + obj2Height
-		&& obj1Y + obj1Height > obj2Y;
+	return obj1.getPosition().x < obj2.getPosition().x + obj2.getWidth()
+		&& obj1.getPosition().x + obj1.getWidth() > obj2.getPosition().x
+		&& obj1.getPosition().y < obj2.getPosition().y + obj2.getHeight()
+		&& obj1.getPosition().y + obj1.getHeight() > obj2.getPosition().y;
 }
 
 void Game::updatePhysics()
 {
 	// player1 Jump
-	if (player1Jumping)
+	if (player1.getJumping())
 	{
-		player1Y += player1SpeedY;
-		player1SpeedY += GRAVITY;
-		if (player1Y <= -0.8f)
+		glm::vec2 player1Position = player1.getPosition();
+		glm::vec2 player1Speed = player1.getSpeed();
+		player1Position.y += player1Speed.y;
+		player1Speed.y += GRAVITY;
+		if (player1Position.y <= -0.8f)
 		{
-			player1Y = -0.8f;
-			player1Jumping = false;
+			player1Position.y = -0.8f;
+			player1.setJumping(false);
 		}
+		player1.setPosition(player1Position);
+		player1.setSpeed(player1Speed);
 	}
 	// player2 Jump
-	if (player2Jumping)
+	if (player2.getJumping())
 	{
-		player2Y += player2SpeedY;
-		player2SpeedY += GRAVITY;
-		if (player2Y <= -0.8f)
+		glm::vec2 player2Position = player2.getPosition();
+		glm::vec2 player2Speed = player2.getSpeed();
+		player2Position.y += player2Speed.y;
+		player2Speed.y += GRAVITY;
+		if (player2Position.y <= -0.8f)
 		{
-			player2Y = -0.8f;
-			player2Jumping = false;
+			player2Position.y = -0.8f;
+			player2.setJumping(false);
 		}
+		player2.setPosition(player2Position);
+		player2.setSpeed(player2Speed);
 	}
 
 	// ball physics
-	ballX += ballSpeedX;
-	ballY += ballSpeedY;
-	ballSpeedY += GRAVITY;
+	glm::vec2 ballPosition = ball.getPosition();
+	glm::vec2 ballSpeed = ball.getSpeed();
+	ballPosition += ballSpeed;
+	ballSpeed.y += GRAVITY;
+	ball.setPosition(ballPosition);
+	ball.setSpeed(ballSpeed);
 
 	// ball - floor
-	if (ballY <= -1.0f)
+	if (ballPosition.y <= -1.0f)
 	{
-		if (ballX < 0.0f)
+		if (ballPosition.x < 0.0f)
 		{
 			scorePlayer2++;
 		}
@@ -78,42 +84,46 @@ void Game::updatePhysics()
 			scorePlayer1++;
 		}
 		resetRound();
+		return;
 	}
 
 	// ball - net
-	if (checkCollision(ballX, ballY, 0.1f, 0.1f, netX - netWidth / 2, netY, netWidth, netHeight))
+	if (checkCollision(ball, net))
 	{
-		ballSpeedX = -ballSpeedX;
+		ballSpeed.x = -ballSpeed.x;
+		ball.setSpeed(ballSpeed);
 	}
 
 	// ball - player
-	if (checkCollision(ballX, ballY, 0.1f, 0.1f, player1X, player1Y, 0.2f, 0.2f))
+	if (checkCollision(ball, player1))
 	{
-		ballSpeedY = 0.015f;
-		ballSpeedX = 0.01f;
+		ballSpeed.x = 0.01f;
+		ballSpeed.y = 0.015f;
+		ball.setSpeed(ballSpeed);
 	}
-	if (checkCollision(ballX, ballY, 0.1f, 0.1f, player2X, player2Y, 0.2f, 0.2f))
+	if (checkCollision(ball, player2))
 	{
-		ballSpeedY = 0.015f;
-		ballSpeedX = -0.01f;
+		ballSpeed.x = -0.01f;
+		ballSpeed.y = 0.015f;
+		ball.setSpeed(ballSpeed);
 	}
 }
 
 void Game::OnPressedKey(int key, int scancode, int action, int mods)
 {
-	if (key == GLFW_KEY_W && action == GLFW_PRESS && !player1Jumping)
+	if (key == GLFW_KEY_W && action == GLFW_PRESS && !player1.getJumping())
 	{
-		player1SpeedY = JUMP_SPEED;
-		player1Jumping = true;
+		player1.setSpeed(glm::vec2(player1.getSpeed().x, JUMP_SPEED));
+		player1.setJumping(true);
 	}
-	if (key == GLFW_KEY_UP && action == GLFW_PRESS && !player2Jumping)
+	if (key == GLFW_KEY_UP && action == GLFW_PRESS && !player2.getJumping())
 	{
-		player2SpeedY = JUMP_SPEED;
-		player2Jumping = true;
+		player2.setSpeed(glm::vec2(player2.getSpeed().x, JUMP_SPEED));
+		player2.setJumping(true);
 	}
 
-	if (key == GLFW_KEY_A && action == GLFW_PRESS) player1X -= 0.02f;
-	if (key == GLFW_KEY_D && action == GLFW_PRESS) player1X += 0.02f;
-	if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) player2X -= 0.02f;
-	if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS) player2X += 0.02f;
+	if (key == GLFW_KEY_A && action == GLFW_PRESS) player1.setPosition(glm::vec2(player1.getPosition().x - 0.02f, player1.getPosition().y));
+	if (key == GLFW_KEY_D && action == GLFW_PRESS) player1.setPosition(glm::vec2(player1.getPosition().x + 0.02f, player1.getPosition().y));
+	if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) player2.setPosition(glm::vec2(player2.getPosition().x - 0.02f, player2.getPosition().y));
+	if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS) player2.setPosition(glm::vec2(player2.getPosition().x + 0.02f, player2.getPosition().y));
 }

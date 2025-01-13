@@ -1,4 +1,5 @@
 #pragma once
+#include "GameObject.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -15,7 +16,7 @@ public:
 
 	bool shouldClose();
 	void renderFrame(double elapsedTime);
-	void renderObject(float x, float y, float width, float height, float r, float g, float b);
+	void renderObject(GameObject targetObject);
 
 private:
 	const int VERTEX_SIZE = 3;

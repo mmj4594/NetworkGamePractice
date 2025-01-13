@@ -161,31 +161,31 @@ void Graphics::renderFrame(double elapsedTime)
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Object Rendering
-	Graphics::Get().renderObject(Game::Get().player1X, Game::Get().player1Y, 0.2f, 0.2f, 1.0f, 0.0f, 0.0f);
-	Graphics::Get().renderObject(Game::Get().player2X, Game::Get().player2Y, 0.2f, 0.2f, 0.0f, 0.0f, 1.0f);
-	Graphics::Get().renderObject(Game::Get().ballX, Game::Get().ballY, 0.1f, 0.1f, 1.0f, 1.0f, 0.0f);
-	Graphics::Get().renderObject(Game::Get().netX, Game::Get().netY, Game::Get().netWidth, Game::Get().netHeight, 1.0f, 1.0f, 1.0f);
+	Graphics::Get().renderObject(Game::Get().player1);
+	Graphics::Get().renderObject(Game::Get().player2);
+	Graphics::Get().renderObject(Game::Get().ball);
+	Graphics::Get().renderObject(Game::Get().net);
 
 	// Buffer Swap
 	glfwSwapBuffers(window);
 	glfwPollEvents();
 }
 
-void Graphics::renderObject(float x, float y, float width, float height, float r, float g, float b)
+void Graphics::renderObject(GameObject targetObject)
 {
 	glUseProgram(shaderProgram);
 
 	// set color
 	int colorLoc = glGetUniformLocation(shaderProgram, "color");
-	glUniform4f(colorLoc, r, g, b, 1.0f);
+	glUniform4f(colorLoc, targetObject.getColor().r, targetObject.getColor().g, targetObject.getColor().b, 1.0f);
 
 	// transform
 	int transformLoc = glGetUniformLocation(shaderProgram, "transform");
 	float transform[16] = {
-		width, 0.0f,  0.0f, 0.0f,
-		0.0f,  height, 0.0f, 0.0f,
-		0.0f,  0.0f,  1.0f, 0.0f,
-		x,     y,     0.0f, 1.0f
+		targetObject.getWidth(), 0.0f, 0.0f, 0.0f,
+		0.0f, targetObject.getHeight(), 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		targetObject.getPosition().x, targetObject.getPosition().y, 0.0f, 1.0f
 	};
 	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, transform);
 
