@@ -20,6 +20,11 @@ public:
 	bool getJumping() {return jumping;}
 	void setJumping(bool newJumping) {jumping = newJumping;}
 
+public:
+	void moveLeft();
+	void moveRight();
+	void jump();
+
 private:
 	int playerID = 0;
 	bool jumping = false;

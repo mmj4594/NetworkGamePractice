@@ -7,6 +7,15 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	float left = -width / 2.0f;
+	float right = width / 2.0f;
+	float bottom = -height / 2.0f;
+	float top = height / 2.0f;
+	glOrtho(left, right, bottom, top, -1.0f, 1.0f);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -35,7 +44,7 @@ bool Graphics::initializeGraphics()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Create a window
-	window = glfwCreateWindow(800, 600, "OpenGL Window", nullptr, nullptr);
+	window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "OpenGL Window", nullptr, nullptr);
 	if (!window)
 	{
 		std::cerr << "Failed to create GLFW window" << std::endl;
@@ -57,6 +66,16 @@ bool Graphics::initializeGraphics()
 
 	// Set Viewport Size
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	float left = -SCREEN_WIDTH / 2.0f;
+	float right = SCREEN_WIDTH / 2.0f;
+	float bottom = -SCREEN_HEIGHT / 2.0f;
+	float top = SCREEN_HEIGHT / 2.0f;
+	glOrtho(left, right, bottom, top, -1.0f, 1.0f);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 
 	// VAO/VBO/EBO Setting	
 	setupBuffers(VAO, VBO, EBO);

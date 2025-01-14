@@ -25,10 +25,10 @@ void Game::tick(double elapsedTime)
 
 bool Game::checkCollision(GameObject obj1, GameObject obj2)
 {
-	return obj1.getPosition().x < obj2.getPosition().x + obj2.getWidth()
-		&& obj1.getPosition().x + obj1.getWidth() > obj2.getPosition().x
-		&& obj1.getPosition().y < obj2.getPosition().y + obj2.getHeight()
-		&& obj1.getPosition().y + obj1.getHeight() > obj2.getPosition().y;
+	return obj1.getPosition().x + obj1.getWidth()/2 > obj2.getPosition().x - obj2.getWidth()/2
+		&& obj1.getPosition().x - obj1.getWidth()/2 < obj2.getPosition().x + obj2.getWidth()/2
+		&& obj1.getPosition().y + obj1.getHeight()/2 > obj2.getPosition().y - obj2.getHeight()/2
+		&& obj1.getPosition().y - obj1.getHeight()/2 < obj2.getPosition().y + obj2.getHeight()/2;
 }
 
 void Game::updatePhysics()
@@ -111,19 +111,13 @@ void Game::updatePhysics()
 
 void Game::OnPressedKey(int key, int scancode, int action, int mods)
 {
-	if (key == GLFW_KEY_W && action == GLFW_PRESS && !player1.getJumping())
-	{
-		player1.setSpeed(glm::vec2(player1.getSpeed().x, JUMP_SPEED));
-		player1.setJumping(true);
-	}
-	if (key == GLFW_KEY_UP && action == GLFW_PRESS && !player2.getJumping())
-	{
-		player2.setSpeed(glm::vec2(player2.getSpeed().x, JUMP_SPEED));
-		player2.setJumping(true);
-	}
+	// jump
+	if (key == GLFW_KEY_R && action == GLFW_PRESS && !player1.getJumping()) player1.jump();
+	if (key == GLFW_KEY_UP && action == GLFW_PRESS && !player2.getJumping()) player2.jump();
 
-	if (key == GLFW_KEY_A && action == GLFW_PRESS) player1.setPosition(glm::vec2(player1.getPosition().x - 0.02f, player1.getPosition().y));
-	if (key == GLFW_KEY_D && action == GLFW_PRESS) player1.setPosition(glm::vec2(player1.getPosition().x + 0.02f, player1.getPosition().y));
-	if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) player2.setPosition(glm::vec2(player2.getPosition().x - 0.02f, player2.getPosition().y));
-	if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS) player2.setPosition(glm::vec2(player2.getPosition().x + 0.02f, player2.getPosition().y));
+	// move
+	if (key == GLFW_KEY_D && (action == GLFW_PRESS || action == GLFW_REPEAT)) player1.moveLeft();
+	if (key == GLFW_KEY_G && (action == GLFW_PRESS || action == GLFW_REPEAT)) player1.moveRight();
+	if (key == GLFW_KEY_LEFT && (action == GLFW_PRESS || action == GLFW_REPEAT)) player2.moveLeft();
+	if (key == GLFW_KEY_RIGHT && (action == GLFW_PRESS || action == GLFW_REPEAT)) player2.moveRight();
 }

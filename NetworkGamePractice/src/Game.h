@@ -1,11 +1,12 @@
 #pragma once
+
+#include <glm/glm.hpp>
 #include "Player.h"
 #include "Ball.h"
 #include "Net.h"
-#include <glm/glm.hpp>
 
 constexpr int SCREEN_WIDTH = 800;
-constexpr int SCREEN_HEIGHT = 600;
+constexpr int SCREEN_HEIGHT = 800;
 
 constexpr float GRAVITY = -0.0005f;
 constexpr float JUMP_SPEED = 0.02f;
@@ -27,9 +28,9 @@ public:
 	void OnPressedKey(int key, int scancode, int action, int mods);
 
 public:
-	Player player1 = Player(1, glm::vec2(-0.8f, -0.8f), 0.2f, 0.2f);
-	Player player2 = Player(2, glm::vec2(0.8f, -0.8f), 0.2f, 0.2f);
-	Ball ball = Ball(glm::vec2(0.f, 0.f), 0.1f, 0.1f);
+	Player player1 = Player(1, glm::vec2(-0.8f, -0.8f), 0.15f, 0.15f);
+	Player player2 = Player(2, glm::vec2(0.8f, -0.8f), 0.15f, 0.15f);
+	Ball ball = Ball(glm::vec2(0.f, 0.f), 0.13f, 0.13f);
 	Net net = Net(glm::vec2(0.f, -0.8f), 0.05f, 1.0f);
 
 	int scorePlayer1 = 0, scorePlayer2 = 0;

@@ -12,6 +12,8 @@ int main()
 		return -1;
 	}
 
+	Game::Get().resetRound();
+
 	// Main loop
 	while (!Graphics::Get().shouldClose())
 	{
