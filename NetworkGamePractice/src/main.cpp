@@ -12,6 +12,7 @@ int main()
 		return -1;
 	}
 
+	Game::Get().beginPlay();
 	Game::Get().resetRound();
 
 	// Main loop

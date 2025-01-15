@@ -9,6 +9,17 @@ Game& Game::Get()
 	return instance;
 }
 
+void Game::beginPlay()
+{
+	player1.beginPlay();
+	player2.beginPlay();
+	ball.beginPlay();
+	net.beginPlay();
+	leftWall.beginPlay();
+	rightWall.beginPlay();
+	floor.beginPlay();
+}
+
 void Game::resetRound()
 {
 	player1.reset();
@@ -33,31 +44,29 @@ bool Game::checkCollision(GameObject obj1, GameObject obj2)
 
 void Game::updatePhysics()
 {
-	// player1 Jump
-	if (player1.getJumping())
+	// player1
 	{
 		glm::vec2 player1Position = player1.getPosition();
 		glm::vec2 player1Speed = player1.getSpeed();
 		player1Position.y += player1Speed.y;
 		player1Speed.y += GRAVITY;
-		if (player1Position.y <= -0.8f)
+		if (player1Position.y - player1.getHeight() / 2 <= floor.getPosition().y + floor.getHeight() / 2)
 		{
-			player1Position.y = -0.8f;
+			player1Position.y = floor.getPosition().y + floor.getHeight() / 2 + player1.getHeight() / 2;
 			player1.setJumping(false);
 		}
 		player1.setPosition(player1Position);
 		player1.setSpeed(player1Speed);
 	}
-	// player2 Jump
-	if (player2.getJumping())
+	// player2
 	{
 		glm::vec2 player2Position = player2.getPosition();
 		glm::vec2 player2Speed = player2.getSpeed();
 		player2Position.y += player2Speed.y;
 		player2Speed.y += GRAVITY;
-		if (player2Position.y <= -0.8f)
+		if (player2Position.y - player2.getHeight() / 2 <= floor.getPosition().y + floor.getHeight() / 2 )
 		{
-			player2Position.y = -0.8f;
+			player2Position.y = floor.getPosition().y + floor.getHeight() / 2 + player2.getHeight() / 2;
 			player2.setJumping(false);
 		}
 		player2.setPosition(player2Position);
@@ -73,7 +82,7 @@ void Game::updatePhysics()
 	ball.setSpeed(ballSpeed);
 
 	// ball - floor
-	if (ballPosition.y <= -1.0f)
+	if (checkCollision(ball, floor))
 	{
 		if (ballPosition.x < 0.0f)
 		{
@@ -105,6 +114,13 @@ void Game::updatePhysics()
 	{
 		ballSpeed.x = -0.01f;
 		ballSpeed.y = 0.015f;
+		ball.setSpeed(ballSpeed);
+	}
+
+	// ball - wall
+	if (checkCollision(ball, leftWall) || checkCollision(ball, rightWall))
+	{
+		ballSpeed.x = -ballSpeed.x;
 		ball.setSpeed(ballSpeed);
 	}
 }

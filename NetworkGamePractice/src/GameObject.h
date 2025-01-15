@@ -6,10 +6,11 @@ class GameObject
 public:
 	GameObject() {}
 	GameObject(glm::vec2 position_, float width_, float height_) : position(position_), initialPosition(position_), width(width_), height(height_) {}
+	virtual void beginPlay() {}
 
 public:
 	glm::vec2 getPosition() {return position;}
-	void setPosition(glm::vec2 newPosition) {position = newPosition;}
+	void setPosition(glm::vec2 newPosition);
 
 	glm::vec2 getSpeed() {return speed;}
 	void setSpeed(glm::vec2 newSpeed) {speed = newSpeed;}

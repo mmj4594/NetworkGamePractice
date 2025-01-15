@@ -184,6 +184,9 @@ void Graphics::renderFrame(double elapsedTime)
 	Graphics::Get().renderObject(Game::Get().player2);
 	Graphics::Get().renderObject(Game::Get().ball);
 	Graphics::Get().renderObject(Game::Get().net);
+	Graphics::Get().renderObject(Game::Get().leftWall);
+	Graphics::Get().renderObject(Game::Get().rightWall);
+	Graphics::Get().renderObject(Game::Get().floor);
 
 	// Buffer Swap
 	glfwSwapBuffers(window);

@@ -10,6 +10,7 @@ class Player : public GameObject
 public:
 	Player() {}
 	Player(int playerID_, glm::vec2 position_, float width_, float height_);
+	void beginPlay() override;
 
 	void reset() override;
 
@@ -28,4 +29,6 @@ public:
 private:
 	int playerID = 0;
 	bool jumping = false;
+	float leftBoundary = 0.f;
+	float rightBoundary = 0.f;
 };
