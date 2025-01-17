@@ -13,8 +13,8 @@ public:
 	void setPosition(glm::vec2 newPosition) {position = newPosition;}
 
 	glm::vec2 getSpeed() {return speed;}
-	void setSpeed(glm::vec2 newSpeed) {speed = newSpeed;}
-	void addImpulse(glm::vec2 impulse) {speed += impulse;}	
+	void setSpeed(glm::vec2 newSpeed);
+	void addImpulse(glm::vec2 impulse) {setSpeed(speed + impulse);}	
 	glm::vec2 getMaxSpeed() {return maxSpeed;}
 	void setMaxSpeed(glm::vec2 newMaxSpeed) {maxSpeed = newMaxSpeed;}
 	glm::vec2 getMinSpeed() {return minSpeed;}

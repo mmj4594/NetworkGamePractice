@@ -18,15 +18,24 @@ public:
 	void updateSpeed(float elapsedTime) override;
 
 public:
+	void updateState(float elapsedTime);
+
 	int getPlayerID() {return playerID;}
 	void setPlayerID(int newPlayerID) {playerID = newPlayerID;}
 
 	void jump();
 	bool getJumping() {return jumping;}
 
+	void slide(bool right);
+	bool getSliding() {return sliding;}
+
 private:
 	int playerID = 0;
+
 	bool jumping = false;
+	bool sliding = false;
+	float slidingTimer = 0.0f;
+
 	float leftBoundary = 0.f;
 	float rightBoundary = 0.f;
 	float bottomBoundary = 0.f;

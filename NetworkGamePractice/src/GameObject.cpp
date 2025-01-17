@@ -1,5 +1,16 @@
 #include "GameObject.h"
 
+void GameObject::setSpeed(glm::vec2 newSpeed)
+{
+	speed = newSpeed;
+
+	// max/min speed
+	if (speed.x < minSpeed.x) speed.x = minSpeed.x;
+	if (speed.y < minSpeed.y) speed.y = minSpeed.y;
+	if (speed.x > maxSpeed.x) speed.x = maxSpeed.x;
+	if (speed.y > maxSpeed.y) speed.y = maxSpeed.y;
+}
+
 void GameObject::reset()
 {
 	position = initialPosition;
@@ -13,11 +24,5 @@ void GameObject::updatePosition(float elapsedTime)
 
 void GameObject::updateSpeed(float elapsedTime)
 {
-	speed += (acc * elapsedTime);
-
-	// max/min speed
-	if (speed.x < minSpeed.x) speed.x = minSpeed.x;
-	if (speed.y < minSpeed.y) speed.y = minSpeed.y;
-	if (speed.x > maxSpeed.x) speed.x = maxSpeed.x;
-	if (speed.y > maxSpeed.y) speed.y = maxSpeed.y;
+	setSpeed(speed + (acc * elapsedTime));
 }

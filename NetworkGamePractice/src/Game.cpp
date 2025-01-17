@@ -46,9 +46,11 @@ void Game::updatePhysics(float elapsedTime)
 {
 	player1.updatePosition(elapsedTime);
 	player1.updateSpeed(elapsedTime);
+	player1.updateState(elapsedTime);
 
 	player2.updatePosition(elapsedTime);
 	player2.updateSpeed(elapsedTime);
+	player2.updateState(elapsedTime);
 
 	ball.updatePosition(elapsedTime);
 	ball.updateSpeed(elapsedTime);
@@ -97,31 +99,71 @@ void Game::updatePhysics(float elapsedTime)
 
 void Game::onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	// jump
-	if (key == GLFW_KEY_R && action == GLFW_PRESS && !player1.getJumping()) player1.jump();
-	if (key == GLFW_KEY_UP && action == GLFW_PRESS && !player2.getJumping()) player2.jump();
-
-	// player1 move
+	// player1
 	static bool DPressed = false;
 	static bool GPressed = false;
 	if (key == GLFW_KEY_D && action == GLFW_PRESS) DPressed = true;
 	if (key == GLFW_KEY_D && action == GLFW_RELEASE) DPressed = false;
 	if (key == GLFW_KEY_G && action == GLFW_PRESS) GPressed = true;
 	if (key == GLFW_KEY_G && action == GLFW_RELEASE) GPressed = false;
-	if (DPressed && GPressed) player1.setAcc(glm::vec2(0, player1.getAcc().y));
-	else if (DPressed) player1.setAcc(glm::vec2(-PLAYER_MOVE_ACC, player1.getAcc().y));
-	else if (GPressed) player1.setAcc(glm::vec2(PLAYER_MOVE_ACC, player1.getAcc().y));
-	else player1.setAcc(glm::vec2(0, player1.getAcc().y));
+	if(!player1.getSliding())
+	{
+		// jump
+		if (key == GLFW_KEY_R && action == GLFW_PRESS && !player1.getJumping()) player1.jump();
 
-	// player2 move
+		// move
+		if (DPressed && GPressed) player1.setAcc(glm::vec2(0, player1.getAcc().y));
+		else if (DPressed) player1.setAcc(glm::vec2(-PLAYER_MOVE_ACC, player1.getAcc().y));
+		else if (GPressed) player1.setAcc(glm::vec2(PLAYER_MOVE_ACC, player1.getAcc().y));
+		else player1.setAcc(glm::vec2(0, player1.getAcc().y));
+
+		// slide
+		if (key == GLFW_KEY_Z && action == GLFW_PRESS && !player1.getJumping())
+		{
+			if (DPressed) 
+			{
+				player1.slide(false);
+				DPressed = GPressed = false;
+			}
+			else if (GPressed)
+			{
+				player1.slide(true);
+				DPressed = GPressed = false;
+			}
+		}
+	}
+
+	// player2
 	static bool leftPressed = false;
 	static bool rightPressed = false;
 	if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) leftPressed = true;
 	if (key == GLFW_KEY_LEFT && action == GLFW_RELEASE) leftPressed = false;
 	if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS) rightPressed = true;
 	if (key == GLFW_KEY_RIGHT && action == GLFW_RELEASE) rightPressed = false;
-	if (leftPressed && rightPressed) player2.setAcc(glm::vec2(0, player2.getAcc().y));
-	else if (leftPressed) player2.setAcc(glm::vec2(-PLAYER_MOVE_ACC, player2.getAcc().y));
-	else if (rightPressed) player2.setAcc(glm::vec2(PLAYER_MOVE_ACC, player2.getAcc().y));
-	else player2.setAcc(glm::vec2(0, player2.getAcc().y));
+	if(!player2.getSliding())
+	{
+		// jump
+		if (key == GLFW_KEY_UP && action == GLFW_PRESS && !player2.getJumping()) player2.jump();
+
+		// move
+		if (leftPressed && rightPressed) player2.setAcc(glm::vec2(0, player2.getAcc().y));
+		else if (leftPressed) player2.setAcc(glm::vec2(-PLAYER_MOVE_ACC, player2.getAcc().y));
+		else if (rightPressed) player2.setAcc(glm::vec2(PLAYER_MOVE_ACC, player2.getAcc().y));
+		else player2.setAcc(glm::vec2(0, player2.getAcc().y));
+
+		// slide
+		if (key == GLFW_KEY_ENTER && action == GLFW_PRESS && !player2.getJumping())
+		{
+			if (leftPressed)
+			{
+				player2.slide(false);
+				leftPressed = rightPressed = false;
+			}
+			else if (rightPressed)
+			{
+				player2.slide(true);
+				leftPressed = rightPressed = false;
+			}
+		}
+	}
 }

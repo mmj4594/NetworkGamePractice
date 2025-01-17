@@ -2,6 +2,7 @@
 #include "Net.h"
 #include "Block.h"
 #include "Game.h"
+#include <iostream>
 
 Player::Player(int playerID_, glm::vec2 position_, float width_, float height_) : GameObject(position_, width_, height_)
 {
@@ -31,6 +32,9 @@ void Player::beginPlay()
 void Player::reset()
 {
 	__super::reset();
+
+	jumping = true;
+	sliding = false;
 }
 
 void Player::updatePosition(float elapsedTime)
@@ -40,23 +44,22 @@ void Player::updatePosition(float elapsedTime)
 	if (getPosition().x < leftBoundary)
 	{
 		setPosition(glm::vec2(leftBoundary, getPosition().y));
+		setSpeed(glm::vec2(0, getSpeed().y));
 		setAcc(glm::vec2(0, getAcc().y));
 	}
 	if (getPosition().x > rightBoundary)
 	{
 		setPosition(glm::vec2(rightBoundary, getPosition().y));
-
+		setSpeed(glm::vec2(0, getSpeed().y));
 		setAcc(glm::vec2(0, getAcc().y));
 	}
 	if (getPosition().y <= bottomBoundary)
 		setPosition(glm::vec2(getPosition().x, bottomBoundary));
-
-	jumping = getPosition().y - getHeight() / 2 > Game::Get().floor.getPosition().y + Game::Get().floor.getHeight() / 2;
 }
 
 void Player::updateSpeed(float elapsedTime)
 {
-	setSpeed(getSpeed() + (getAcc() * elapsedTime));
+	__super::updateSpeed(elapsedTime);
 
 	// friction
 	if (getAcc().x == 0.f)
@@ -75,18 +78,39 @@ void Player::updateSpeed(float elapsedTime)
 		setSpeed(tempSpeed);
 	}
 
-	// max/min speed
-	if (getSpeed().x < getMinSpeed().x) setSpeed(glm::vec2(getMinSpeed().x, getSpeed().y));
-	if (getSpeed().y < getMinSpeed().y) setSpeed(glm::vec2(getSpeed().x, getMinSpeed().y));
-	if (getSpeed().x > getMaxSpeed().x) setSpeed(glm::vec2(getMaxSpeed().x, getSpeed().y));
-	if (getSpeed().y > getMaxSpeed().y) setSpeed(glm::vec2(getSpeed().x, getMaxSpeed().y));
-
 	// handle on land
 	if (!jumping)
+	{
 		setSpeed(glm::vec2(getSpeed().x, 0.f));
+	}
+}
+
+void Player::updateState(float elapsedTime)
+{
+	if (jumping && getPosition().y <= bottomBoundary)
+		jumping = false;
+
+	if (sliding)
+	{
+		slidingTimer += elapsedTime;
+		if (slidingTimer >= PLAYER_SLIDING_DURATION)
+		{
+			sliding = false;
+			slidingTimer = 0.0f;
+		}
+	}
 }
 
 void Player::jump()
 {
+	jumping = true;
 	addImpulse(glm::vec2(0.f, PLYAER_JUMP_SPEED));
+}
+
+void Player::slide(bool right)
+{
+	sliding = true;
+	slidingTimer = 0.0f;
+	setSpeed(glm::vec2(right ? PLAYER_SLIDING_SPEED : -PLAYER_SLIDING_SPEED, 0));
+	setAcc(glm::vec2(0, getAcc().y));
 }
