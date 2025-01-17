@@ -34,7 +34,7 @@ int main()
 
 		while (tickTimer >= FRAME_TIME)
 		{
-			Game::Get().tick(tickTimer);
+			Game::Get().tick(static_cast<float>(tickTimer));
 			tickTimer -= FRAME_TIME;
 		}
 

@@ -11,7 +11,11 @@ Player::Player(int playerID_, glm::vec2 position_, float width_, float height_) 
 
 void Player::beginPlay()
 {
-	if(playerID == 1)
+	setMaxSpeed(PLAYER_MAX_SPEED);
+	setMinSpeed(PLAYER_MIN_SPEED);
+	setAcc(glm::vec2(0.f, GRAVITY));
+
+	if (playerID == 1)
 	{
 		leftBoundary = Game::Get().leftWall.getPosition().x + Game::Get().leftWall.getWidth() / 2 + getWidth() / 2;
 		rightBoundary = Game::Get().net.getPosition().x - Game::Get().net.getWidth() / 2 - getWidth() / 2;
@@ -21,32 +25,68 @@ void Player::beginPlay()
 		leftBoundary = Game::Get().net.getPosition().x + Game::Get().net.getWidth() / 2 + getWidth() / 2;
 		rightBoundary = Game::Get().rightWall.getPosition().x - Game::Get().rightWall.getWidth() / 2 - getWidth() / 2;
 	}
+	bottomBoundary = Game::Get().floor.getPosition().y + Game::Get().floor.getHeight() / 2 + getHeight() / 2;
 }
 
 void Player::reset()
 {
 	__super::reset();
-	jumping = false;
 }
 
-void Player::moveLeft()
+void Player::updatePosition(float elapsedTime)
 {
-	setPosition(glm::vec2(getPosition().x - 0.02f, getPosition().y));
+	__super::updatePosition(elapsedTime);
 
-	if (getPosition().x <= leftBoundary)
+	if (getPosition().x < leftBoundary)
+	{
 		setPosition(glm::vec2(leftBoundary, getPosition().y));
+		setAcc(glm::vec2(0, getAcc().y));
+	}
+	if (getPosition().x > rightBoundary)
+	{
+		setPosition(glm::vec2(rightBoundary, getPosition().y));
+
+		setAcc(glm::vec2(0, getAcc().y));
+	}
+	if (getPosition().y <= bottomBoundary)
+		setPosition(glm::vec2(getPosition().x, bottomBoundary));
+
+	jumping = getPosition().y - getHeight() / 2 > Game::Get().floor.getPosition().y + Game::Get().floor.getHeight() / 2;
 }
 
-void Player::moveRight()
+void Player::updateSpeed(float elapsedTime)
 {
-	setPosition(glm::vec2(getPosition().x + 0.02f, getPosition().y));
+	setSpeed(getSpeed() + (getAcc() * elapsedTime));
 
-	if (getPosition().x >= rightBoundary)
-		setPosition(glm::vec2(rightBoundary, getPosition().y));
+	// friction
+	if (getAcc().x == 0.f)
+	{
+		glm::vec2 tempSpeed = getSpeed();
+		if (tempSpeed.x > 0.f)
+		{
+			tempSpeed.x -= PLAYER_FRICTION * elapsedTime;
+			if (tempSpeed.x < 0.f) tempSpeed.x = 0.f;
+		}
+		else if (tempSpeed.x < 0.f)
+		{
+			tempSpeed.x += PLAYER_FRICTION * elapsedTime;
+			if (tempSpeed.x > 0.f) tempSpeed.x = 0.f;
+		}
+		setSpeed(tempSpeed);
+	}
+
+	// max/min speed
+	if (getSpeed().x < getMinSpeed().x) setSpeed(glm::vec2(getMinSpeed().x, getSpeed().y));
+	if (getSpeed().y < getMinSpeed().y) setSpeed(glm::vec2(getSpeed().x, getMinSpeed().y));
+	if (getSpeed().x > getMaxSpeed().x) setSpeed(glm::vec2(getMaxSpeed().x, getSpeed().y));
+	if (getSpeed().y > getMaxSpeed().y) setSpeed(glm::vec2(getSpeed().x, getMaxSpeed().y));
+
+	// handle on land
+	if (!jumping)
+		setSpeed(glm::vec2(getSpeed().x, 0.f));
 }
 
 void Player::jump()
 {
-	setSpeed(glm::vec2(getSpeed().x, JUMP_SPEED));
-	jumping = true;
+	addImpulse(glm::vec2(0.f, PLYAER_JUMP_SPEED));
 }

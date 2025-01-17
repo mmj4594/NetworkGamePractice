@@ -9,12 +9,20 @@
 constexpr int SCREEN_WIDTH = 800;
 constexpr int SCREEN_HEIGHT = 800;
 
-constexpr float GRAVITY = -0.0005f;
-constexpr float JUMP_SPEED = 0.02f;
+constexpr float GRAVITY = -1.0f;
+constexpr glm::vec2 BALL_MAX_SPEED = glm::vec2(1.f, 1.f);
+constexpr glm::vec2 BALL_MIN_SPEED = glm::vec2(-1.f, -1.f);
+constexpr glm::vec2 PLAYER_MAX_SPEED = glm::vec2(1.f, 1.f);
+constexpr glm::vec2 PLAYER_MIN_SPEED = glm::vec2(-1.f, -1.f);
+constexpr float PLYAER_JUMP_SPEED = 1.0f;
+constexpr float PLAYER_FRICTION = 5.f;
+constexpr float PLAYER_MOVE_ACC = 5.f;
 
 constexpr int MAX_FPS = 60;
 constexpr float FRAME_TIME = 1.0f / MAX_FPS;
 constexpr float TIME_SCALE = 1.0f;
+
+struct GLFWwindow;
 
 class Game
 {
@@ -24,10 +32,10 @@ public:
 public:
 	void beginPlay();
 	void resetRound();
-	void tick(double elapsedTime);
+	void tick(float elapsedTime);
 	bool checkCollision(GameObject obj1, GameObject obj2);
-	void updatePhysics();
-	void OnPressedKey(int key, int scancode, int action, int mods);
+	void updatePhysics(float elapsedTime);
+	void onKey(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 public:
 	Player player1 = Player(1, glm::vec2(-0.8f, -0.8f), 0.15f, 0.15f);
