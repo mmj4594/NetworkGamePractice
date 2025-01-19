@@ -1,6 +1,7 @@
 #pragma once
-#include "GameObject.h"
+
 #include <glm/glm.hpp>
+#include "GameObject.h"
 
 const glm::vec3 BALL_COLOR = glm::vec3(1.0f, 1.0f, 0.0f);
 

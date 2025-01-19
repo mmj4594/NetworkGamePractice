@@ -88,7 +88,10 @@ void Player::updateSpeed(float elapsedTime)
 void Player::updateState(float elapsedTime)
 {
 	if (jumping && getPosition().y <= bottomBoundary)
+	{
 		jumping = false;
+		resetReserveSpike();
+	}
 
 	if (sliding)
 	{
@@ -97,6 +100,8 @@ void Player::updateState(float elapsedTime)
 		{
 			sliding = false;
 			slidingTimer = 0.0f;
+			setMaxSpeed(PLAYER_MAX_SPEED);
+			setMinSpeed(PLAYER_MIN_SPEED);
 		}
 	}
 }
@@ -111,6 +116,8 @@ void Player::slide(bool right)
 {
 	sliding = true;
 	slidingTimer = 0.0f;
+	setMaxSpeed(PLAYER_SLIDING_MAX_SPEED);
+	setMinSpeed(PLAYER_SLIDING_MIN_SPEED);
 	setSpeed(glm::vec2(right ? PLAYER_SLIDING_SPEED : -PLAYER_SLIDING_SPEED, 0));
 	setAcc(glm::vec2(0, getAcc().y));
 }

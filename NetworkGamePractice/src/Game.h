@@ -10,15 +10,17 @@ constexpr int SCREEN_WIDTH = 800;
 constexpr int SCREEN_HEIGHT = 800;
 
 constexpr float GRAVITY = -1.0f;
-constexpr glm::vec2 BALL_MAX_SPEED = glm::vec2(1.f, 1.f);
+constexpr glm::vec2 BALL_MAX_SPEED = glm::vec2(3.f, 3.f);
 constexpr glm::vec2 BALL_MIN_SPEED = glm::vec2(-1.f, -1.f);
-constexpr glm::vec2 PLAYER_MAX_SPEED = glm::vec2(2.f, 2.f);
-constexpr glm::vec2 PLAYER_MIN_SPEED = glm::vec2(-2.f, -2.f);
+constexpr glm::vec2 PLAYER_MAX_SPEED = glm::vec2(1.f, 1.f);
+constexpr glm::vec2 PLAYER_MIN_SPEED = glm::vec2(-1.f, -1.f);
+constexpr glm::vec2 PLAYER_SLIDING_MAX_SPEED = glm::vec2(2.f, 2.f);
+constexpr glm::vec2 PLAYER_SLIDING_MIN_SPEED = glm::vec2(-2.f, -2.f);
 constexpr float PLYAER_JUMP_SPEED = 1.0f;
 constexpr float PLAYER_SLIDING_SPEED = 2.f;
 constexpr float PLAYER_SLIDING_DURATION = 0.7f;
 constexpr float PLAYER_FRICTION = 5.f;
-constexpr float PLAYER_MOVE_ACC = 4.f;
+constexpr float PLAYER_MOVE_ACC = 5.f;
 
 constexpr int MAX_FPS = 60;
 constexpr float FRAME_TIME = 1.0f / MAX_FPS;
