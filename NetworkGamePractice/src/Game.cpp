@@ -70,6 +70,13 @@ void Game::updatePhysics(float elapsedTime)
 		return;
 	}
 
+	// ball - ceil
+	if (checkCollision(ball, ceil))
+	{
+		ball.setSpeed(glm::vec2(ball.getSpeed().x, -ball.getSpeed().y));
+		return;
+	}
+
 	// ball - net
 	if (checkCollision(ball, net))
 	{
@@ -128,7 +135,50 @@ void Game::updatePhysics(float elapsedTime)
 	}
 	if (checkCollision(ball, player2))
 	{
-		ball.setSpeed(glm::vec2(-1.f, 1.5f));
+		if (player2.getSpikeReserved())
+		{
+			switch (player2.getSpikeDirection())
+			{
+				case SpikeDirection::None:
+				{
+					ball.addImpulse(glm::vec2(-1.f, 0.f));
+				}
+				break;
+				case SpikeDirection::Front:
+				{
+					ball.addImpulse(glm::vec2(-3.f, 0.f));
+				}
+				break;
+				case SpikeDirection::Up:
+				{
+					ball.addImpulse(glm::vec2(0.3f, 3.f));
+				}
+				break;
+				case SpikeDirection::Down:
+				{
+					ball.addImpulse(glm::vec2(0.3f, -3.f));
+				}
+				break;
+				case SpikeDirection::Front_Up:
+				{
+					ball.addImpulse(glm::vec2(-1.f, 3.f));
+				}
+				break;
+				case SpikeDirection::Front_Down:
+				{
+					ball.addImpulse(glm::vec2(-1.f, -3.f));
+				}
+				break;
+				default:
+				{
+					std::cerr << "Unhandled Spike Direction!" << std::endl;
+				}
+			}
+		}
+		else
+		{
+			ball.setSpeed(glm::vec2(1.f, 1.5f));
+		}
 		return;
 	}
 

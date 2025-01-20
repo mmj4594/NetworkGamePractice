@@ -49,6 +49,7 @@ public:
 	Block leftWall = Block(glm::vec2(-1.0f, 0.f), 0.05f, 2.f);
 	Block rightWall = Block(glm::vec2(1.f, 0.f), 0.05f, 2.f);
 	Block floor = Block(glm::vec2(0.f, -1.f), 2.f, 0.05f);
+	Block ceil = Block(glm::vec2(0.f, 1.f), 2.f, 0.05f);
 
 	int scorePlayer1 = 0, scorePlayer2 = 0;
 };

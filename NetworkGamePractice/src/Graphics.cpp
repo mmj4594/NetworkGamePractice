@@ -187,6 +187,7 @@ void Graphics::renderFrame(double elapsedTime)
 	Graphics::Get().renderObject(Game::Get().leftWall);
 	Graphics::Get().renderObject(Game::Get().rightWall);
 	Graphics::Get().renderObject(Game::Get().floor);
+	Graphics::Get().renderObject(Game::Get().ceil);
 
 	// Buffer Swap
 	glfwSwapBuffers(window);
