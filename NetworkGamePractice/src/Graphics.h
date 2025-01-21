@@ -24,4 +24,8 @@ private:
 	GLFWwindow* window = nullptr;
 	unsigned int VAO, VBO, EBO;
 	unsigned int shaderProgram;
+
+	int colorLoc;
+	int transformLoc;
+	int projectionLoc;
 };

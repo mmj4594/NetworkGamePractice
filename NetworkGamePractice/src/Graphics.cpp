@@ -3,19 +3,13 @@
 #include <iostream>
 #include "Graphics.h"
 #include "Game.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-	glViewport(0, 0, width, height);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	float left = -width / 2.0f;
-	float right = width / 2.0f;
-	float bottom = -height / 2.0f;
-	float top = height / 2.0f;
-	glOrtho(left, right, bottom, top, -1.0f, 1.0f);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	glfwSetWindowSize(window, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -44,6 +38,7 @@ bool Graphics::initializeGraphics()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Create a window
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 	window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "OpenGL Window", nullptr, nullptr);
 	if (!window)
 	{
@@ -66,14 +61,9 @@ bool Graphics::initializeGraphics()
 
 	// Set Viewport Size
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	float left = -SCREEN_WIDTH / 2.0f;
-	float right = SCREEN_WIDTH / 2.0f;
-	float bottom = -SCREEN_HEIGHT / 2.0f;
-	float top = SCREEN_HEIGHT / 2.0f;
-	glOrtho(left, right, bottom, top, -1.0f, 1.0f);
+	glOrtho(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT, -1.0f, 1.0f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
@@ -86,10 +76,11 @@ bool Graphics::initializeGraphics()
 		#version 330 core
 		layout(location = 0) in vec3 aPos;
 		uniform mat4 transform;
+		uniform mat4 projection;
 
 		void main()
 		{
-			gl_Position = transform * vec4(aPos, 1.0);
+			gl_Position = projection * transform * vec4(aPos, 1.0);
 		}
 	)";
 	const char* fragmentShaderSource =
@@ -113,6 +104,10 @@ bool Graphics::initializeGraphics()
 	glLinkProgram(shaderProgram);
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
+
+	colorLoc = glGetUniformLocation(shaderProgram, "color");
+	transformLoc = glGetUniformLocation(shaderProgram, "transform");
+	projectionLoc = glGetUniformLocation(shaderProgram, "projection");
 
 	return true;
 }
@@ -196,21 +191,26 @@ void Graphics::renderFrame(double elapsedTime)
 
 void Graphics::renderObject(GameObject targetObject)
 {
+	if (shaderProgram == 0 || VAO == 0)
+	{
+		std::cerr << "renderObject: Shader program or VAO is not initialized\n";
+		return;
+	}
+
 	glUseProgram(shaderProgram);
 
 	// set color
-	int colorLoc = glGetUniformLocation(shaderProgram, "color");
 	glUniform4f(colorLoc, targetObject.getColor().r, targetObject.getColor().g, targetObject.getColor().b, 1.0f);
 
 	// transform
-	int transformLoc = glGetUniformLocation(shaderProgram, "transform");
-	float transform[16] = {
-		targetObject.getWidth(), 0.0f, 0.0f, 0.0f,
-		0.0f, targetObject.getHeight(), 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, 0.0f,
-		targetObject.getPosition().x, targetObject.getPosition().y, 0.0f, 1.0f
-	};
-	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, transform);
+	glm::mat4 transform = glm::mat4(1.0f);
+	transform = glm::translate(transform, glm::vec3(targetObject.getPosition(), 0.0f));
+	transform = glm::scale(transform, glm::vec3(targetObject.getWidth(), targetObject.getHeight(), 1.0f));
+	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+
+	// projection
+	glm::mat4 projection = glm::ortho(0.f, (float)SCREEN_WIDTH, 0.f, (float)SCREEN_HEIGHT, -1.f, 1.f);
+	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

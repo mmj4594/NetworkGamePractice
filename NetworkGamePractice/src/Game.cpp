@@ -25,7 +25,7 @@ void Game::resetRound()
 	player1.reset();
 	player2.reset();
 	ball.reset();
-	ball.addImpulse(glm::vec2(0.3f * (rand() % 2 == 0 ? 1 : -1), 1.0f));
+	ball.setSpeed(glm::vec2(BALL_INITIAL_SPEED.x * (rand() % 2 == 0 ? 1 : -1), BALL_INITIAL_SPEED.y));
 	printf("Current Score: [%d : %d]\n", scorePlayer1, scorePlayer2);
 }
 
