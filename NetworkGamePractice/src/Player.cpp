@@ -12,21 +12,20 @@ Player::Player(int playerID_, glm::vec2 position_, float width_, float height_) 
 
 void Player::beginPlay()
 {
-	setMaxSpeed(PLAYER_MAX_SPEED);
-	setMinSpeed(PLAYER_MIN_SPEED);
+	setSpeedRange(PLAYER_SPEED_RANGE);
 	setAcc(glm::vec2(0.f, GRAVITY));
 
 	if (playerID == 1)
 	{
-		leftBoundary = Game::Get().leftWall.getPosition().x + Game::Get().leftWall.getWidth() / 2 + getWidth() / 2;
-		rightBoundary = Game::Get().net.getPosition().x - Game::Get().net.getWidth() / 2 - getWidth() / 2;
+		leftBoundary = Game::Get().leftWall.getRight() + getWidth() / 2;
+		rightBoundary = Game::Get().net.getLeft() - getWidth() / 2;
 	}
 	else
 	{
-		leftBoundary = Game::Get().net.getPosition().x + Game::Get().net.getWidth() / 2 + getWidth() / 2;
-		rightBoundary = Game::Get().rightWall.getPosition().x - Game::Get().rightWall.getWidth() / 2 - getWidth() / 2;
+		leftBoundary = Game::Get().net.getRight() + getWidth() / 2;
+		rightBoundary = Game::Get().rightWall.getLeft() - getWidth() / 2;
 	}
-	bottomBoundary = Game::Get().floor.getPosition().y + Game::Get().floor.getHeight() / 2 + getHeight() / 2;
+	bottomBoundary = Game::Get().floor.getTop() + getHeight() / 2;
 }
 
 void Player::reset()
@@ -100,8 +99,7 @@ void Player::updateState(float elapsedTime)
 		{
 			sliding = false;
 			slidingTimer = 0.0f;
-			setMaxSpeed(PLAYER_MAX_SPEED);
-			setMinSpeed(PLAYER_MIN_SPEED);
+			setSpeedRange(PLAYER_SPEED_RANGE);
 		}
 	}
 }
@@ -116,8 +114,7 @@ void Player::slide(bool right)
 {
 	sliding = true;
 	slidingTimer = 0.0f;
-	setMaxSpeed(PLAYER_SLIDING_MAX_SPEED);
-	setMinSpeed(PLAYER_SLIDING_MIN_SPEED);
+	setSpeedRange(PLAYER_SLIDING_SPEED_RANGE);
 	setSpeed(glm::vec2(right ? PLAYER_SLIDING_SPEED : -PLAYER_SLIDING_SPEED, 0));
 	setAcc(glm::vec2(0, getAcc().y));
 }

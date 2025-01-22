@@ -25,12 +25,12 @@ void Game::resetRound()
 	player1.reset();
 	player2.reset();
 	ball.reset();
-	ball.setSpeed(glm::vec2(BALL_INITIAL_SPEED.x * (rand() % 2 == 0 ? 1 : -1), BALL_INITIAL_SPEED.y));
 	printf("Current Score: [%d : %d]\n", scorePlayer1, scorePlayer2);
 }
 
 void Game::tick(float elapsedTime)
 {
+	updatePosition(elapsedTime);
 	updatePhysics(elapsedTime);
 }
 
@@ -42,7 +42,7 @@ bool Game::checkCollision(GameObject obj1, GameObject obj2)
 		&& obj1.getPosition().y - obj1.getHeight()/2 < obj2.getPosition().y + obj2.getHeight()/2;
 }
 
-void Game::updatePhysics(float elapsedTime)
+void Game::updatePosition(float elapsedTime)
 {
 	player1.updatePosition(elapsedTime);
 	player1.updateSpeed(elapsedTime);
@@ -54,7 +54,10 @@ void Game::updatePhysics(float elapsedTime)
 
 	ball.updatePosition(elapsedTime);
 	ball.updateSpeed(elapsedTime);
+}
 
+void Game::updatePhysics(float elapsedTime)
+{
 	// ball - floor
 	if (checkCollision(ball, floor))
 	{
@@ -73,120 +76,205 @@ void Game::updatePhysics(float elapsedTime)
 	// ball - ceil
 	if (checkCollision(ball, ceil))
 	{
-		ball.setSpeed(glm::vec2(ball.getSpeed().x, -ball.getSpeed().y));
-		return;
+		ball.setPosition(glm::vec2(ball.getPosition().x, ceil.getBottom() - ball.getHeight() / 2));
+		ball.setSpeed(glm::vec2(ball.getSpeed().x, 0.f));
 	}
 
 	// ball - net
 	if (checkCollision(ball, net))
 	{
-		ball.setSpeed(glm::vec2(-ball.getSpeed().x, ball.getSpeed().y));
-		return;
+		float overlapX = std::min(ball.getRight(), net.getRight()) - std::max(ball.getLeft(), net.getLeft());
+		float overlapY = std::min(ball.getTop(), net.getTop()) - std::max(ball.getBottom(), net.getBottom());
+		if(overlapX > overlapY)
+		{
+			ball.setPosition(glm::vec2(ball.getPosition().x, net.getTop() + ball.getHeight() / 2));
+			ball.setSpeed(glm::vec2(ball.getSpeed().x, std::abs(ball.getSpeed().y)));
+		}
+		else if (net.getPosition().x < ball.getPosition().x)
+		{
+			ball.setPosition(glm::vec2(net.getRight() + ball.getWidth() / 2, ball.getPosition().y));
+			ball.setSpeed(glm::vec2(-ball.getSpeed().x, ball.getSpeed().y));
+		}
+		else if (net.getPosition().x > ball.getPosition().x)
+		{
+			ball.setPosition(glm::vec2(net.getLeft() - ball.getWidth() / 2, ball.getPosition().y));
+			ball.setSpeed(glm::vec2(-ball.getSpeed().x, ball.getSpeed().y));
+		}
 	}
 
-	// ball - player
+	// ball - player1
 	if (checkCollision(ball, player1))
 	{
-		if(player1.getSpikeReserved())
+		// position
 		{
-			switch (player1.getSpikeDirection())
+			float overlapX = std::min(ball.getRight(), player1.getRight()) - std::max(ball.getLeft(), player1.getLeft());
+			float overlapY = std::min(ball.getTop(), player1.getTop()) - std::max(ball.getBottom(), player1.getBottom());
+			if (overlapX > overlapY)
 			{
-				case SpikeDirection::None:
-				{
-					ball.addImpulse(glm::vec2(1.f, 0.f));
-				}
-				break;
-				case SpikeDirection::Front:
-				{
-					ball.addImpulse(glm::vec2(3.f, 0.f));
-				}
-				break;
-				case SpikeDirection::Up:
-				{
-					ball.addImpulse(glm::vec2(0.3f, 3.f));
-				}
-				break;
-				case SpikeDirection::Down:
-				{
-					ball.addImpulse(glm::vec2(0.3f, -3.f));
-				}
-				break;
-				case SpikeDirection::Front_Up:
-				{
-					ball.addImpulse(glm::vec2(1.f, 3.f));
-				}
-				break;
-				case SpikeDirection::Front_Down:
-				{
-					ball.addImpulse(glm::vec2(1.f, -3.f));
-				}
-				break;
-				default:
-				{
-					std::cerr << "Unhandled Spike Direction!" << std::endl;
-				}
+				ball.setPosition(glm::vec2(ball.getPosition().x, player1.getTop() + ball.getHeight() / 2));
+			}
+			else if (player1.getPosition().x < ball.getPosition().x)
+			{
+				ball.setPosition(glm::vec2(player1.getRight() + ball.getWidth() / 2, ball.getPosition().y));
+			}
+			else if (player1.getPosition().x > ball.getPosition().x)
+			{
+				ball.setPosition(glm::vec2(player1.getLeft() - ball.getWidth() / 2, ball.getPosition().y));
 			}
 		}
-		else
+
+		// speed
 		{
-			ball.setSpeed(glm::vec2(1.f, 1.5f));
+			glm::vec2 newBallSpeed = ball.getSpeed();
+
+			// spike
+			if(player1.getSpikeReserved())
+			{
+				switch (player1.getSpikeDirection())
+				{
+					case SpikeDirection::None:
+					{
+						newBallSpeed.x = BALL_SPIKE_SPEED;
+						newBallSpeed.y = 0.f;
+					}
+					break;
+					case SpikeDirection::Front:
+					{
+						newBallSpeed.x = BALL_SPIKE_SPEED * 2;
+						newBallSpeed.y = 0.f;
+					}
+					break;
+					case SpikeDirection::Up:
+					{
+						newBallSpeed.x = BALL_SPIKE_SPEED;
+						newBallSpeed.y = std::abs(ball.getSpeed().y * 2);
+					}
+					break;
+					case SpikeDirection::Down:
+					{
+						newBallSpeed.x = BALL_SPIKE_SPEED;
+						newBallSpeed.y = -std::abs(ball.getSpeed().y * 2);
+					}
+					break;
+					case SpikeDirection::Front_Up:
+					{
+						newBallSpeed.x = BALL_SPIKE_SPEED * 2;
+						newBallSpeed.y = std::abs(ball.getSpeed().y * 2);
+					}
+					break;
+					case SpikeDirection::Front_Down:
+					{
+						newBallSpeed.x = BALL_SPIKE_SPEED * 2;
+						newBallSpeed.y = -std::abs(ball.getSpeed().y * 2);
+					}
+					break;
+					default:
+					{
+						std::cerr << "Unhandled Spike Direction!" << std::endl;
+					}
+				}
+			}
+			// normal collision
+			else
+			{
+				newBallSpeed.x = COLLISION_IMPACT_FACTOR * (ball.getPosition().x - player1.getPosition().x);
+				newBallSpeed.y = std::abs(ball.getSpeed().y);
+			}
+			ball.setSpeed(newBallSpeed);
 		}
-		return;
 	}
+
+	// ball - player2
 	if (checkCollision(ball, player2))
 	{
-		if (player2.getSpikeReserved())
+		// position
 		{
-			switch (player2.getSpikeDirection())
+			float overlapX = std::min(ball.getRight(), player2.getRight()) - std::max(ball.getLeft(), player2.getLeft());
+			float overlapY = std::min(ball.getTop(), player2.getTop()) - std::max(ball.getBottom(), player2.getBottom());
+			if (overlapX > overlapY)
 			{
-				case SpikeDirection::None:
-				{
-					ball.addImpulse(glm::vec2(-1.f, 0.f));
-				}
-				break;
-				case SpikeDirection::Front:
-				{
-					ball.addImpulse(glm::vec2(-3.f, 0.f));
-				}
-				break;
-				case SpikeDirection::Up:
-				{
-					ball.addImpulse(glm::vec2(0.3f, 3.f));
-				}
-				break;
-				case SpikeDirection::Down:
-				{
-					ball.addImpulse(glm::vec2(0.3f, -3.f));
-				}
-				break;
-				case SpikeDirection::Front_Up:
-				{
-					ball.addImpulse(glm::vec2(-1.f, 3.f));
-				}
-				break;
-				case SpikeDirection::Front_Down:
-				{
-					ball.addImpulse(glm::vec2(-1.f, -3.f));
-				}
-				break;
-				default:
-				{
-					std::cerr << "Unhandled Spike Direction!" << std::endl;
-				}
+				ball.setPosition(glm::vec2(ball.getPosition().x, player2.getTop() + ball.getHeight() / 2));
+			}
+			else if (player2.getPosition().x < ball.getPosition().x)
+			{
+				ball.setPosition(glm::vec2(player2.getRight() + ball.getWidth() / 2, ball.getPosition().y));
+			}
+			else if(player2.getPosition().x > ball.getPosition().x)
+			{
+				ball.setPosition(glm::vec2(player2.getLeft() - ball.getWidth() / 2, ball.getPosition().y));
 			}
 		}
-		else
+
+		// speed
 		{
-			ball.setSpeed(glm::vec2(1.f, 1.5f));
+			glm::vec2 newBallSpeed = ball.getSpeed();
+
+			// spike
+			if (player2.getSpikeReserved())
+			{
+				switch (player2.getSpikeDirection())
+				{
+					case SpikeDirection::None:
+					{
+						newBallSpeed.x = -BALL_SPIKE_SPEED;
+						newBallSpeed.y = 0.f;
+					}
+					break;
+					case SpikeDirection::Front:
+					{
+						newBallSpeed.x = -BALL_SPIKE_SPEED * 2;
+						newBallSpeed.y = 0.f;
+					}
+					break;
+					case SpikeDirection::Up:
+					{
+						newBallSpeed.x = -BALL_SPIKE_SPEED;
+						newBallSpeed.y = std::abs(ball.getSpeed().y * 2);
+					}
+					break;
+					case SpikeDirection::Down:
+					{
+						newBallSpeed.x = -BALL_SPIKE_SPEED;
+						newBallSpeed.y = -std::abs(ball.getSpeed().y * 2);
+					}
+					break;
+					case SpikeDirection::Front_Up:
+					{
+						newBallSpeed.x = -BALL_SPIKE_SPEED * 2;
+						newBallSpeed.y = std::abs(ball.getSpeed().y * 2);
+					}
+					break;
+					case SpikeDirection::Front_Down:
+					{
+						newBallSpeed.x = -BALL_SPIKE_SPEED * 2;
+						newBallSpeed.y = -std::abs(ball.getSpeed().y * 2);
+					}
+					default:
+					{
+						std::cerr << "Unhandled Spike Direction!" << std::endl;
+					}
+				}
+			}
+			// normal collision
+			else
+			{
+				newBallSpeed.x = COLLISION_IMPACT_FACTOR * (ball.getPosition().x - player2.getPosition().x);
+				newBallSpeed.y = std::abs(ball.getSpeed().y);
+			}
+			ball.setSpeed(newBallSpeed);
 		}
-		return;
 	}
 
 	// ball - wall
-	if (checkCollision(ball, leftWall) || checkCollision(ball, rightWall))
+	if (checkCollision(ball, leftWall))
 	{
+		ball.setPosition(glm::vec2(leftWall.getRight() + ball.getWidth() / 2, ball.getPosition().y));
 		ball.setSpeed(glm::vec2(-ball.getSpeed().x, ball.getSpeed().y));
-		return;
+	}
+	if (checkCollision(ball, rightWall))
+	{
+		ball.setPosition(glm::vec2(rightWall.getLeft() - ball.getWidth() / 2, ball.getPosition().y));
+		ball.setSpeed(glm::vec2(-ball.getSpeed().x, ball.getSpeed().y));
 	}
 }
 

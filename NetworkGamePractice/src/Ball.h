@@ -11,5 +11,8 @@ public:
 	Ball() {}
 	Ball(glm::vec2 position_, float width_, float height_);
 	void beginPlay() override;
+
+public:
+	void reset() override;
 };
 

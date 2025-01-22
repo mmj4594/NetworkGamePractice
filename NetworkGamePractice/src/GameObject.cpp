@@ -5,16 +5,16 @@ void GameObject::setSpeed(glm::vec2 newSpeed)
 	speed = newSpeed;
 
 	// max/min speed
-	if (speed.x < minSpeed.x) speed.x = minSpeed.x;
-	if (speed.y < minSpeed.y) speed.y = minSpeed.y;
-	if (speed.x > maxSpeed.x) speed.x = maxSpeed.x;
-	if (speed.y > maxSpeed.y) speed.y = maxSpeed.y;
+	if (speed.x < speedRange.x) speed.x = speedRange.x;
+	if (speed.y < speedRange.x) speed.y = speedRange.x;
+	if (speed.x > speedRange.y) speed.x = speedRange.y;
+	if (speed.y > speedRange.y) speed.y = speedRange.y;
 }
 
 void GameObject::reset()
 {
 	position = initialPosition;
-	glm::vec2 speed = glm::vec2(0.f);
+	speed = glm::vec2(0.f);
 }
 
 void GameObject::updatePosition(float elapsedTime)
