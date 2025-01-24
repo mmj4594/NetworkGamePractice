@@ -19,7 +19,7 @@ public:
 	glm::vec2 getInitialPosition() {return initialPosition;}
 
 	glm::vec2 getSpeed() {return speed;}
-	void setSpeed(glm::vec2 newSpeed);
+	virtual void setSpeed(glm::vec2 newSpeed);
 	void addImpulse(glm::vec2 impulse) {setSpeed(speed + impulse);}	
 	glm::vec2 getSpeedRange() {return speedRange;}
 	void setSpeedRange(glm::vec2 newSpeedRange) {speedRange = newSpeedRange;}

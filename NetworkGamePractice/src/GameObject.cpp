@@ -6,9 +6,7 @@ void GameObject::setSpeed(glm::vec2 newSpeed)
 
 	// max/min speed
 	if (speed.x < speedRange.x) speed.x = speedRange.x;
-	if (speed.y < speedRange.x) speed.y = speedRange.x;
 	if (speed.x > speedRange.y) speed.x = speedRange.y;
-	if (speed.y > speedRange.y) speed.y = speedRange.y;
 }
 
 void GameObject::reset()

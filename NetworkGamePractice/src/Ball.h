@@ -14,5 +14,12 @@ public:
 
 public:
 	void reset() override;
+
+public:
+	void setIgnorePlayerCollision(bool newIgnorePlayerCollision) {ignorePlayerCollision = newIgnorePlayerCollision;}
+	bool getIgnorePlayerCollision() {return ignorePlayerCollision;}
+
+private:
+	bool ignorePlayerCollision = false;
 };
 
