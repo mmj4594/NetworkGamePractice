@@ -19,11 +19,11 @@ cd NetworkGamePractice
 mkdir build
 cd build
 cmake ..
-cmake --build .
+cmake --build . --config Release
 ```
 2. Run the executable
 ```bash
-cd Debug
+cd Release
 ./NetworkGamePractice.exe
 ```
 
