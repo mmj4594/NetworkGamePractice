@@ -21,6 +21,9 @@ constexpr float PLAYER_FRICTION = 2000.f;
 constexpr float PLAYER_MOVE_ACC = 1000.f;
 constexpr float COLLISION_IMPACT_FACTOR = 8.f;
 
+
+constexpr int MAX_ROUNDS = 15;
+
 constexpr int MAX_FPS = 60;
 constexpr float FRAME_TIME = 1.0f / MAX_FPS;
 constexpr float TIME_SCALE = 1.0f;
