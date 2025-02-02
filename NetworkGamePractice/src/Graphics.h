@@ -23,6 +23,7 @@ public:
 	bool initializeGraphics();
 	void setupObjectBuffers();
 	void setupTextBuffers();
+	unsigned int loadShader(const char* vertexPath, const char* fragmentPath);
 	unsigned int compileShader(unsigned int type, const char* source);
 	std::string getCurrentExeDir();
 	bool loadFont(const char* fontPath);

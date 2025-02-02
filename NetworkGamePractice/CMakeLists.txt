@@ -14,6 +14,7 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
 set(LIBRARY_DIR ${CMAKE_SOURCE_DIR}/lib)
 set(RESOURCES_DIR ${CMAKE_SOURCE_DIR}/resources)
+set(SHADERS_DIR ${CMAKE_SOURCE_DIR}/shaders)
 include_directories(${INCLUDE_DIR} "${INCLUDE_DIR}/freetype")
 link_directories(${LIBRARY_DIR})
 file(GLOB_RECURSE SOURCES "src/*.cpp")
@@ -31,6 +32,13 @@ add_custom_command(TARGET NetworkGamePractice POST_BUILD
     ${LIBRARY_DIR}/glfw3.dll
     ${LIBRARY_DIR}/freetype.dll
     $<TARGET_FILE_DIR:NetworkGamePractice>
+)
+
+# 셰이더 복사
+add_custom_command(TARGET NetworkGamePractice POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${SHADERS_DIR}
+    $<TARGET_FILE_DIR:NetworkGamePractice>/shaders
 )
 
 # 필요 리소스 복사

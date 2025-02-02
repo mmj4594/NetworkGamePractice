@@ -5,6 +5,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <fstream>
+#include <sstream>
 #include <iostream>
 #include <string>
 #include <ft2build.h>
@@ -91,87 +93,18 @@ bool Graphics::initializeGraphics()
 	setupObjectBuffers();
 	setupTextBuffers();
 
-	// Shader Compile (object)
-	const char* objectVertexShaderSource =
-	R"(
-		#version 330 core
-		layout(location = 0) in vec3 aPos;
-		uniform mat4 transform;
-		uniform mat4 projection;
-
-		void main()
-		{
-			gl_Position = projection * transform * vec4(aPos, 1.0);
-		}
-	)";
-	const char* objectFragmentShaderSource =
-	R"(
-		#version 330 core
-		out vec4 FragColor;
-		uniform vec3 objectColor;
-
-		void main()
-		{
-			FragColor = vec4(objectColor, 1.0);
-		}
-	)";
-	unsigned int objectVertexShader = compileShader(GL_VERTEX_SHADER, objectVertexShaderSource);
-	unsigned int objectFragmentShader = compileShader(GL_FRAGMENT_SHADER, objectFragmentShaderSource);
-
-	// Create Shader Program (object)
-	objectShaderProgram = glCreateProgram();
-	glAttachShader(objectShaderProgram, objectVertexShader);
-	glAttachShader(objectShaderProgram, objectFragmentShader);
-	glLinkProgram(objectShaderProgram);
-	glDeleteShader(objectVertexShader);
-	glDeleteShader(objectFragmentShader);
-
+	// Load Shader (object)
+	std::string objectVertexShaderPath = getCurrentExeDir() + "\\shaders\\ObjectVertexShader.glsl";
+	std::string objectFragmentShaderPath = getCurrentExeDir() + "\\shaders\\ObjectFragmentShader.glsl";
+	objectShaderProgram = loadShader(objectVertexShaderPath.c_str(), objectFragmentShaderPath.c_str());
 	objectTransformLoc = glGetUniformLocation(objectShaderProgram, "transform");
 	objectProjectionLoc = glGetUniformLocation(objectShaderProgram, "projection");
 	objectColorLoc = glGetUniformLocation(objectShaderProgram, "objectColor");
 
-	// Shader Compile (text)
-	const char* textVertexShaderSource =
-	R"(
-		#version 330 core
-		layout(location = 0) in vec4 vertex; // <vec2 pos, vec2 tex>
-		out vec2 TexCoords;
-
-		uniform mat4 transform;
-		uniform mat4 projection;
-
-		void main()
-		{
-			gl_Position = projection * transform * vec4(vertex.xy, 0.0, 1.0);
-			TexCoords = vertex.zw;
-		}
-	)";
-	const char* textFragmentShaderSource =
-	R"(
-		#version 330 core
-		in vec2 TexCoords;
-		out vec4 FragColor;
-
-		uniform sampler2D text;
-		uniform vec3 textColor;
-
-		void main()
-		{
-			vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);
-			FragColor = vec4(textColor, 1.0) * sampled;
-		}
-	)";
-	unsigned int textVertexShader = compileShader(GL_VERTEX_SHADER, textVertexShaderSource);
-	unsigned int textFragmentShader = compileShader(GL_FRAGMENT_SHADER, textFragmentShaderSource);
-
-	// Create Shader Program (text)
-	textShaderProgram = glCreateProgram();
-	glAttachShader(textShaderProgram, textVertexShader);
-	glAttachShader(textShaderProgram, textFragmentShader);
-	glLinkProgram(textShaderProgram);
-	glDeleteShader(textVertexShader);
-	glDeleteShader(textFragmentShader);
-
+	// Load Shader (text)
+	std::string textVertexShaderPath = getCurrentExeDir() + "\\shaders\\TextVertexShader.glsl";
+	std::string textFragmentShaderPath = getCurrentExeDir() + "\\shaders\\TextFragmentShader.glsl";
+	textShaderProgram = loadShader(textVertexShaderPath.c_str(), textFragmentShaderPath.c_str());
 	textTransformLoc = glGetUniformLocation(textShaderProgram, "transform");
 	textProjectionLoc = glGetUniformLocation(textShaderProgram, "projection");
 	textColorLoc = glGetUniformLocation(textShaderProgram, "textColor");
@@ -234,6 +167,36 @@ void Graphics::setupTextBuffers()
 	// Unbind
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+}
+
+unsigned int Graphics::loadShader(const char* vertexPath, const char* fragmentPath)
+{
+	std::ifstream vertexShaderFile;
+	std::ifstream fragmentShaderFile;
+	vertexShaderFile.open(vertexPath);
+	fragmentShaderFile.open(fragmentPath);
+
+	std::stringstream vertexShaderStream, fragmentShaderStream;
+	vertexShaderStream << vertexShaderFile.rdbuf();
+	fragmentShaderStream << fragmentShaderFile.rdbuf();
+
+	vertexShaderFile.close();
+	fragmentShaderFile.close();
+
+	std::string vertexShaderCode = vertexShaderStream.str();
+	std::string fragmentShaderCode = fragmentShaderStream.str();
+	unsigned int vertexShader = compileShader(GL_VERTEX_SHADER, vertexShaderCode.c_str());
+	unsigned int fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentShaderCode.c_str());
+
+	// Create Shader Program
+	unsigned int resultShaderProgram = glCreateProgram();
+	glAttachShader(resultShaderProgram, vertexShader);
+	glAttachShader(resultShaderProgram, fragmentShader);
+	glLinkProgram(resultShaderProgram);
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+
+	return resultShaderProgram;
 }
 
 unsigned int Graphics::compileShader(unsigned int type, const char* source)
