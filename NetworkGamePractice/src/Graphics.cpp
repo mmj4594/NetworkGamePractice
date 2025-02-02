@@ -8,6 +8,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -244,7 +245,7 @@ bool Graphics::loadFont(const char* fontPath)
 		return false;
 	}
 
-	FT_Set_Pixel_Sizes(face, 0, 48);
+	FT_Set_Pixel_Sizes(face, 0, TEXT_SIZE);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -291,10 +292,10 @@ bool Graphics::shouldClose()
 	return glfwWindowShouldClose(window);
 }
 
-void Graphics::renderFrame(double elapsedTime)
+void Graphics::renderFrame(float elapsedTime)
 {
 	// Clear Screen
-	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+	glClearColor(BACKGROUND_COLOR.x, BACKGROUND_COLOR.y, BACKGROUND_COLOR.z, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Object Rendering
@@ -308,7 +309,11 @@ void Graphics::renderFrame(double elapsedTime)
 	renderObject(Game::Get().ceil);
 
 	// Text Rendering
-	renderText("Hello World", 100.f, 100.f, 1.f, glm::vec3(1.0f, 1.0f, 1.0f));
+	std::ostringstream fpsString;
+	fpsString << std::fixed << std::setprecision(1) << (1.0f / elapsedTime);
+	renderText((fpsString.str() + " FPS").c_str(), 20.f, 570.f, 0.25f, FPS_TEXT_COLOR);
+	renderText(std::to_string(Game::Get().scorePlayer1), Game::Get().player1.getInitialPosition().x, 500.f, 1.f, SCORE_TEXT_COLOR);
+	renderText(std::to_string(Game::Get().scorePlayer2), Game::Get().player2.getInitialPosition().x, 500.f, 1.f, SCORE_TEXT_COLOR);
 
 	// Buffer Swap
 	glfwSwapBuffers(window);

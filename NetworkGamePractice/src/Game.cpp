@@ -165,7 +165,7 @@ void Game::updatePhysics(float elapsedTime)
 				// normal collision
 				else
 				{
-					newBallSpeed.x = COLLISION_IMPACT_FACTOR * (ball.getPosition().x - player1.getPosition().x);
+					newBallSpeed.x = NORMAL_COLLISION_IMPACT_FACTOR * (ball.getPosition().x - player1.getPosition().x);
 					newBallSpeed.y = std::abs(ball.getSpeed().y);
 				}
 				ball.setSpeed(newBallSpeed);
@@ -235,7 +235,7 @@ void Game::updatePhysics(float elapsedTime)
 				// normal collision
 				else
 				{
-					newBallSpeed.x = COLLISION_IMPACT_FACTOR * (ball.getPosition().x - player2.getPosition().x);
+					newBallSpeed.x = NORMAL_COLLISION_IMPACT_FACTOR * (ball.getPosition().x - player2.getPosition().x);
 					newBallSpeed.y = std::abs(ball.getSpeed().y);
 				}
 				ball.setSpeed(newBallSpeed);

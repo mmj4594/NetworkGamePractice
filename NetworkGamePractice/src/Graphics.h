@@ -29,7 +29,7 @@ public:
 	bool loadFont(const char* fontPath);
 
 	bool shouldClose();
-	void renderFrame(double elapsedTime);
+	void renderFrame(float elapsedTime);
 	void renderObject(GameObject targetObject);
 	void renderText(std::string text, float x, float y, float scale, glm::vec3 color);
 

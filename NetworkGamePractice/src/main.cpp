@@ -21,8 +21,6 @@ int main()
 	// Main loop
 	while (!Graphics::Get().shouldClose())
 	{
-		static int fpsCount = 0;
-		static double fpsTimer = 0.0;
 		static double tickTimer = 0.0;
 		static double renderTimer = 0.0;
 
@@ -31,7 +29,6 @@ int main()
 		const double elapsedTime = currentTime - previousTime;
 		previousTime = currentTime;
 
-		fpsTimer += elapsedTime;
 		tickTimer += (elapsedTime * TIME_SCALE);
 		renderTimer += elapsedTime;
 
@@ -43,16 +40,8 @@ int main()
 
 		while (renderTimer >= FRAME_TIME)
 		{
-			Graphics::Get().renderFrame(renderTimer);
-			fpsCount++;
+			Graphics::Get().renderFrame(static_cast<float>(renderTimer));
 			renderTimer -= FRAME_TIME;
-		}
-
-		while (fpsTimer >= 1.0)
-		{
-			printf("FPS: %d\n", fpsCount);
-			fpsCount = 0;
-			fpsTimer -= 1.0;
 		}
 	}
 
