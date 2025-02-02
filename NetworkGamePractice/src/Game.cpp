@@ -61,7 +61,7 @@ void Game::updatePhysics(float elapsedTime)
 	// ball - floor
 	if (checkCollision(ball, floor))
 	{
-		if (ball.getPosition().x < 0.0f)
+		if (ball.getPosition().x < SCREEN_WIDTH / 2)
 		{
 			scorePlayer2++;
 		}
