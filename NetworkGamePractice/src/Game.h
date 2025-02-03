@@ -25,15 +25,33 @@ constexpr float NET_WIDTH = 6.f;
 constexpr float NET_HEIGHT = 200.f;
 constexpr float BLOCK_THICKNESS = 30.f;
 
-constexpr int MAX_ROUNDS = 15;
-
 constexpr int MAX_FPS = 60;
 constexpr float FRAME_TIME = 1.0f / MAX_FPS;
 constexpr float TIME_SCALE = 1.0f;
 
+constexpr int MAX_SCORE = 15;
+constexpr float ROUND_END_TIME_SCALE = 0.15f;
+constexpr float ROUND_WAIT_TIME = 2.0f;
+constexpr float ROUND_END_TIME = 2.0f * ROUND_END_TIME_SCALE;
+enum class GameState
+{
+	None,
+	Playing,
+	End,
+};
+enum class RoundState
+{
+	None,
+	Ready,
+	Playing,
+	End,
+};
+
 constexpr int TEXT_SIZE = 48;
 constexpr glm::vec3 FPS_TEXT_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);
 constexpr glm::vec3 SCORE_TEXT_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);
+constexpr glm::vec3 READY_TEXT_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);
+constexpr glm::vec3 GAME_SET_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);
 constexpr glm::vec3 BACKGROUND_COLOR = glm::vec3(0.3f, 0.3f, 0.3f);
 constexpr glm::vec3 P1_COLOR = glm::vec3(1.0f, 0.0f, 0.0f);
 constexpr glm::vec3 P2_COLOR = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -50,7 +68,9 @@ public:
 
 public:
 	void beginPlay();
-	void resetRound();
+	void readyRound();
+	void startRound();
+	void endRound();
 	void tick(float elapsedTime);
 	bool checkCollision(GameObject obj1, GameObject obj2);
 	void updatePosition(float elapsedTime);
@@ -58,9 +78,9 @@ public:
 	void onKey(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 public:
-	Player player1 = Player(1, glm::vec2(70.f, 37.5f), 75.f, 75.f);
-	Player player2 = Player(2, glm::vec2(SCREEN_WIDTH - 70.f, 37.5f), 75.f, 75.f);
-	Ball ball = Ball(glm::vec2(100.f, 600.f), 60.f, 60.f);
+	Player player1 = Player(1, glm::vec2(70.f, BLOCK_THICKNESS / 2 + 37.5f), 75.f, 75.f);
+	Player player2 = Player(2, glm::vec2(SCREEN_WIDTH - 70.f, BLOCK_THICKNESS / 2 + 37.5f), 75.f, 75.f);
+	Ball ball = Ball(glm::vec2(100.f, SCREEN_HEIGHT - BLOCK_THICKNESS / 2 - 30.f), 60.f, 60.f);
 	Net net = Net(glm::vec2(SCREEN_WIDTH / 2, NET_HEIGHT / 2), NET_WIDTH, NET_HEIGHT);
 	Block leftWall = Block(glm::vec2(0.f, SCREEN_HEIGHT / 2), BLOCK_THICKNESS, SCREEN_HEIGHT);
 	Block rightWall = Block(glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT / 2), BLOCK_THICKNESS, SCREEN_HEIGHT);
@@ -68,4 +88,12 @@ public:
 	Block ceil = Block(glm::vec2(SCREEN_WIDTH / 2, SCREEN_HEIGHT), SCREEN_WIDTH, BLOCK_THICKNESS);
 
 	int scorePlayer1 = 0, scorePlayer2 = 0;
+	GameState currentGameState = GameState::None;
+	RoundState currentRoundState = RoundState::None;
+	float currentTimeScale = TIME_SCALE;
+	int lastRoundWinnerPlayerID = -1;
+
+private:
+	float roundWaitTimer = 0.f;
+	float roundEndTimer = 0.f;
 };

@@ -32,7 +32,7 @@ void Player::reset()
 {
 	__super::reset();
 
-	jumping = true;
+	jumping = false;
 	sliding = false;
 }
 

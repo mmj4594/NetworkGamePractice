@@ -15,5 +15,12 @@ void Ball::beginPlay()
 void Ball::reset()
 {
 	__super::reset();
-	setPosition(glm::vec2((rand() % 2 == 0 ? getInitialPosition().x : SCREEN_WIDTH - getInitialPosition().x), getInitialPosition().y));
+	if (Game::Get().lastRoundWinnerPlayerID == -1)
+	{
+		setPosition(glm::vec2((rand() % 2 == 0 ? getInitialPosition().x : SCREEN_WIDTH - getInitialPosition().x), getInitialPosition().y));
+	}
+	else
+	{
+		setPosition(glm::vec2(Game::Get().lastRoundWinnerPlayerID == 1 ? getInitialPosition().x : SCREEN_WIDTH - getInitialPosition().x, getInitialPosition().y));
+	}
 }

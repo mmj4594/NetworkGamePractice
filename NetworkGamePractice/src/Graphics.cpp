@@ -312,8 +312,12 @@ void Graphics::renderFrame(float elapsedTime)
 	std::ostringstream fpsString;
 	fpsString << std::fixed << std::setprecision(1) << (1.0f / elapsedTime);
 	renderText((fpsString.str() + " FPS").c_str(), 20.f, 570.f, 0.25f, FPS_TEXT_COLOR);
-	renderText(std::to_string(Game::Get().scorePlayer1), Game::Get().player1.getInitialPosition().x, 500.f, 1.f, SCORE_TEXT_COLOR);
-	renderText(std::to_string(Game::Get().scorePlayer2), Game::Get().player2.getInitialPosition().x, 500.f, 1.f, SCORE_TEXT_COLOR);
+	renderText(std::to_string(Game::Get().scorePlayer1), Game::Get().player1.getInitialPosition().x - Game::Get().player1.getWidth() / 3, 500.f, 1.f, SCORE_TEXT_COLOR);
+	renderText(std::to_string(Game::Get().scorePlayer2), Game::Get().player2.getInitialPosition().x - Game::Get().player2.getWidth() / 3, 500.f, 1.f, SCORE_TEXT_COLOR);
+	if (Game::Get().currentRoundState == RoundState::Ready)
+		renderText("Ready?", SCREEN_WIDTH / 2 - 80, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, READY_TEXT_COLOR);
+	if (Game::Get().currentGameState == GameState::End)
+		renderText("Game Set!", SCREEN_WIDTH / 2 - 115, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, GAME_SET_COLOR);
 
 	// Buffer Swap
 	glfwSwapBuffers(window);

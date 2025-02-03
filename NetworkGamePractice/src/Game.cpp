@@ -18,20 +18,70 @@ void Game::beginPlay()
 	leftWall.beginPlay();
 	rightWall.beginPlay();
 	floor.beginPlay();
+
+	currentGameState = GameState::Playing;
+	readyRound();
 }
 
-void Game::resetRound()
+void Game::readyRound()
 {
+	currentRoundState = RoundState::Ready;
+	currentTimeScale = TIME_SCALE;
 	player1.reset();
 	player2.reset();
 	ball.reset();
-	printf("Current Score: [%d : %d]\n", scorePlayer1, scorePlayer2);
+	roundWaitTimer = 0.f;
+}
+
+void Game::startRound()
+{
+	currentRoundState = RoundState::Playing;
+	currentTimeScale = TIME_SCALE;
+}
+
+void Game::endRound()
+{
+	currentRoundState = RoundState::End;
+
+	// game set
+	if (scorePlayer1 >= MAX_SCORE || scorePlayer2 >= MAX_SCORE)
+	{
+		currentGameState = GameState::End;
+	}
+	else
+	{
+		currentTimeScale = ROUND_END_TIME_SCALE;
+		roundEndTimer = 0.f;
+	}
 }
 
 void Game::tick(float elapsedTime)
 {
-	updatePosition(elapsedTime);
-	updatePhysics(elapsedTime);
+	if( currentRoundState != RoundState::Ready)
+	{
+		updatePosition(elapsedTime);
+		updatePhysics(elapsedTime);
+	}
+
+	if (currentRoundState == RoundState::Ready)
+	{
+		roundWaitTimer += elapsedTime;
+		if (roundWaitTimer >= ROUND_WAIT_TIME)
+		{
+			startRound();
+		}
+	}
+	else if (currentRoundState == RoundState::End)
+	{
+		if(currentGameState != GameState::End)
+		{
+			roundEndTimer += elapsedTime;
+			if (roundEndTimer >= ROUND_END_TIME)
+			{
+				readyRound();
+			}
+		}
+	}
 }
 
 bool Game::checkCollision(GameObject obj1, GameObject obj2)
@@ -61,16 +111,24 @@ void Game::updatePhysics(float elapsedTime)
 	// ball - floor
 	if (checkCollision(ball, floor))
 	{
-		if (ball.getPosition().x < SCREEN_WIDTH / 2)
+		if( currentGameState == GameState::Playing && currentRoundState == RoundState::Playing )
 		{
-			scorePlayer2++;
+			if (ball.getPosition().x < SCREEN_WIDTH / 2)
+			{
+				scorePlayer2++;
+				lastRoundWinnerPlayerID = player2.getPlayerID();
+			}
+			else
+			{
+				scorePlayer1++;
+				lastRoundWinnerPlayerID = player1.getPlayerID();
+			}
+			endRound();
+			return;
 		}
-		else
-		{
-			scorePlayer1++;
-		}
-		resetRound();
-		return;
+
+		ball.setPosition(glm::vec2(ball.getPosition().x, floor.getTop() + ball.getHeight() / 2));
+		ball.setSpeed(glm::vec2(ball.getSpeed().x, std::abs(ball.getSpeed().y)));
 	}
 
 	// ball - ceil
@@ -263,8 +321,20 @@ void Game::updatePhysics(float elapsedTime)
 
 void Game::onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	// player1
 	static bool DPressed = false, GPressed = false, RPressed = false, FPressed = false;
+	static bool leftPressed = false, rightPressed = false, upPressed = false, downPressed = false;
+
+	if (currentGameState != GameState::Playing || currentRoundState != RoundState::Playing)
+	{
+		DPressed = false, GPressed = false, RPressed = false, FPressed = false;
+		player1.setAcc(glm::vec2(0, player1.getAcc().y));
+
+		leftPressed = false, rightPressed = false, upPressed = false, downPressed = false;
+		player2.setAcc(glm::vec2(0, player2.getAcc().y));
+		return;
+	}
+
+	// player1
 	if (key == GLFW_KEY_D && action == GLFW_PRESS) DPressed = true;
 	if (key == GLFW_KEY_D && action == GLFW_RELEASE) DPressed = false;
 	if (key == GLFW_KEY_G && action == GLFW_PRESS) GPressed = true;
@@ -323,7 +393,6 @@ void Game::onKey(GLFWwindow* window, int key, int scancode, int action, int mods
 	}
 
 	// player2
-	static bool leftPressed = false, rightPressed = false, upPressed = false, downPressed = false;
 	if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) leftPressed = true;
 	if (key == GLFW_KEY_LEFT && action == GLFW_RELEASE) leftPressed = false;
 	if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS) rightPressed = true;

@@ -16,7 +16,6 @@ int main()
 	}
 
 	Game::Get().beginPlay();
-	Game::Get().resetRound();
 
 	// Main loop
 	while (!Graphics::Get().shouldClose())
@@ -29,7 +28,7 @@ int main()
 		const double elapsedTime = currentTime - previousTime;
 		previousTime = currentTime;
 
-		tickTimer += (elapsedTime * TIME_SCALE);
+		tickTimer += (elapsedTime * Game::Get().currentTimeScale);
 		renderTimer += elapsedTime;
 
 		while (tickTimer >= FRAME_TIME)
