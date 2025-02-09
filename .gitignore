@@ -6,6 +6,7 @@
 *.sln
 *.vcxproj
 *.vcxproj.filters
+*.filters
 
 # 빌드 파일
 bin/
