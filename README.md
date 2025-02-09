@@ -15,7 +15,7 @@ This project is a practice for learning network programming and multithreading i
 ## Build Instructions
 1. Create a build directory and configure the project
 ```bash
-cd NetworkGamePractice
+cd Client
 mkdir build
 cd build
 cmake ..
@@ -24,7 +24,7 @@ cmake --build . --config Release
 2. Run the executable
 ```bash
 cd Release
-./NetworkGamePractice.exe
+./Client.exe
 ```
 
 ## Dependencies
