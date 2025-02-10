@@ -12,7 +12,7 @@ This project is a practice for learning network programming and multithreading i
 - Explore custom networking systems
 - Experiment with multithreading techniques
 
-## Build Instructions
+## Client Build Instructions
 1. Create a build directory and configure the project
 ```bash
 cd Client
@@ -25,6 +25,21 @@ cmake --build . --config Release
 ```bash
 cd Release
 ./Client.exe
+```
+
+## Server Build Instructions
+1. Create a build directory and configure the project
+```bash
+cd Server
+mkdir build
+cd build
+cmake ..
+cmake --build . --config Release
+```
+2. Run the executable
+```bash
+cd Release
+./Server.exe
 ```
 
 ## Dependencies
