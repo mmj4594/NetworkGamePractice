@@ -4,12 +4,19 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <string>
+#include <chrono>
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #include "Graphics.h"
 #include "Game.h"
 
 #pragma comment(lib, "ws2_32.lib")
+
+float getCurrentTime()
+{
+	using namespace std::chrono;
+	return duration<float>(steady_clock::now().time_since_epoch()).count();
+}
 
 int main()
 {
@@ -62,8 +69,8 @@ int main()
 			static double tickTimer = 0.0;
 			static double renderTimer = 0.0;
 
-			static double previousTime = 0.0;
-			const double currentTime = glfwGetTime();
+			static double previousTime = getCurrentTime();
+			const double currentTime = getCurrentTime();
 			const double elapsedTime = currentTime - previousTime;
 			previousTime = currentTime;
 
