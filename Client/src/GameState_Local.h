@@ -63,9 +63,6 @@ constexpr glm::vec3 BLOCK_COLOR = glm::vec3(0.0f, 0.0f, 0.0f);
 class GameState_Local : public GameState
 {
 public:
-	static GameState_Local& Get();
-
-public:
 	void beginPlay() override;
 	void tick(float elapsedTime) override;
 	void onKey(GLFWwindow* window, int key, int scancode, int action, int mods) override;

@@ -3,12 +3,6 @@
 #include <iostream>
 #include "GameState_Local.h"
 
-GameState_Local& GameState_Local::Get()
-{
-	static GameState_Local instance;
-	return instance;
-}
-
 void GameState_Local::beginPlay()
 {
 	player1.beginPlay();

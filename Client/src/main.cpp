@@ -61,7 +61,7 @@ int main()
 			return -1;
 		}
 
-		GameState::Get<GameState_Local>()->beginPlay();
+		GameState::Get<GameState_Local>().beginPlay();
 
 		// Main loop
 		while (!Graphics::Get().shouldClose())
@@ -74,12 +74,12 @@ int main()
 			const double elapsedTime = currentTime - previousTime;
 			previousTime = currentTime;
 
-			tickTimer += (elapsedTime * GameState::Get<GameState_Local>()->currentTimeScale);
+			tickTimer += (elapsedTime * GameState::Get<GameState_Local>().currentTimeScale);
 			renderTimer += elapsedTime;
 
 			while (tickTimer >= FRAME_TIME)
 			{
-				GameState::Get<GameState_Local>()->tick(static_cast<float>(tickTimer));
+				GameState::Get<GameState_Local>().tick(static_cast<float>(tickTimer));
 				tickTimer -= FRAME_TIME;
 			}
 

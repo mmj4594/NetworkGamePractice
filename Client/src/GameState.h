@@ -6,11 +6,12 @@ class GameState
 {
 public:
 	template<typename T>
-	static T* Get()
+	static T& Get()
 	{
 		static T instance;
-		return dynamic_cast<T*>(&instance);
+		return instance;
 	}
+
 public:
 	virtual void beginPlay() = 0;
 	virtual void tick(float elapsedTime) = 0;

@@ -22,7 +22,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	GameState::Get<GameState_Local>()->onKey(window, key, scancode, action, mods);
+	GameState::Get<GameState_Local>().onKey(window, key, scancode, action, mods);
 }
 
 Graphics& Graphics::Get()
@@ -299,24 +299,24 @@ void Graphics::renderFrame(float elapsedTime)
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Object Rendering
-	renderObject(GameState::Get<GameState_Local>()->player1);
-	renderObject(GameState::Get<GameState_Local>()->player2);
-	renderObject(GameState::Get<GameState_Local>()->ball);
-	renderObject(GameState::Get<GameState_Local>()->net);
-	renderObject(GameState::Get<GameState_Local>()->leftWall);
-	renderObject(GameState::Get<GameState_Local>()->rightWall);
-	renderObject(GameState::Get<GameState_Local>()->floor);
-	renderObject(GameState::Get<GameState_Local>()->ceil);
+	renderObject(GameState::Get<GameState_Local>().player1);
+	renderObject(GameState::Get<GameState_Local>().player2);
+	renderObject(GameState::Get<GameState_Local>().ball);
+	renderObject(GameState::Get<GameState_Local>().net);
+	renderObject(GameState::Get<GameState_Local>().leftWall);
+	renderObject(GameState::Get<GameState_Local>().rightWall);
+	renderObject(GameState::Get<GameState_Local>().floor);
+	renderObject(GameState::Get<GameState_Local>().ceil);
 
 	// Text Rendering
 	std::ostringstream fpsString;
 	fpsString << std::fixed << std::setprecision(1) << (1.0f / elapsedTime);
 	renderText((fpsString.str() + " FPS").c_str(), 20.f, 570.f, 0.25f, FPS_TEXT_COLOR);
-	renderText(std::to_string(GameState::Get<GameState_Local>()->scorePlayer1), GameState::Get<GameState_Local>()->player1.getInitialPosition().x - GameState::Get<GameState_Local>()->player1.getWidth() / 3, 500.f, 1.f, SCORE_TEXT_COLOR);
-	renderText(std::to_string(GameState::Get<GameState_Local>()->scorePlayer2), GameState::Get<GameState_Local>()->player2.getInitialPosition().x - GameState::Get<GameState_Local>()->player2.getWidth() / 3, 500.f, 1.f, SCORE_TEXT_COLOR);
-	if (GameState::Get<GameState_Local>()->currentRoundState == RoundPlayState::Ready)
+	renderText(std::to_string(GameState::Get<GameState_Local>().scorePlayer1), GameState::Get<GameState_Local>().player1.getInitialPosition().x - GameState::Get<GameState_Local>().player1.getWidth() / 3, 500.f, 1.f, SCORE_TEXT_COLOR);
+	renderText(std::to_string(GameState::Get<GameState_Local>().scorePlayer2), GameState::Get<GameState_Local>().player2.getInitialPosition().x - GameState::Get<GameState_Local>().player2.getWidth() / 3, 500.f, 1.f, SCORE_TEXT_COLOR);
+	if (GameState::Get<GameState_Local>().currentRoundState == RoundPlayState::Ready)
 		renderText("Ready?", SCREEN_WIDTH / 2 - 80, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, READY_TEXT_COLOR);
-	if (GameState::Get<GameState_Local>()->currentGameState == GamePlayState::End)
+	if (GameState::Get<GameState_Local>().currentGameState == GamePlayState::End)
 		renderText("Game Set!", SCREEN_WIDTH / 2 - 115, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, GAME_SET_COLOR);
 
 	// Buffer Swap

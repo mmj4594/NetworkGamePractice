@@ -17,15 +17,15 @@ void Player::beginPlay()
 
 	if (playerID == 1)
 	{
-		leftBoundary = GameState::Get<GameState_Local>()->leftWall.getRight() + getWidth() / 2;
-		rightBoundary = GameState::Get<GameState_Local>()->net.getLeft() - getWidth() / 2;
+		leftBoundary = GameState::Get<GameState_Local>().leftWall.getRight() + getWidth() / 2;
+		rightBoundary = GameState::Get<GameState_Local>().net.getLeft() - getWidth() / 2;
 	}
 	else
 	{
-		leftBoundary = GameState::Get<GameState_Local>()->net.getRight() + getWidth() / 2;
-		rightBoundary = GameState::Get<GameState_Local>()->rightWall.getLeft() - getWidth() / 2;
+		leftBoundary = GameState::Get<GameState_Local>().net.getRight() + getWidth() / 2;
+		rightBoundary = GameState::Get<GameState_Local>().rightWall.getLeft() - getWidth() / 2;
 	}
-	bottomBoundary = GameState::Get<GameState_Local>()->floor.getTop() + getHeight() / 2;
+	bottomBoundary = GameState::Get<GameState_Local>().floor.getTop() + getHeight() / 2;
 }
 
 void Player::reset()
