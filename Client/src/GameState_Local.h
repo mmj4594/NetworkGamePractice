@@ -5,6 +5,7 @@
 #include "Ball.h"
 #include "Net.h"
 #include "Block.h"
+#include "GameState.h"
 
 constexpr int SCREEN_WIDTH = 900;
 constexpr int SCREEN_HEIGHT = 600;
@@ -33,13 +34,13 @@ constexpr int MAX_SCORE = 15;
 constexpr float ROUND_END_TIME_SCALE = 0.15f;
 constexpr float ROUND_WAIT_TIME = 2.0f;
 constexpr float ROUND_END_TIME = 2.0f * ROUND_END_TIME_SCALE;
-enum class GameState
+enum class GamePlayState
 {
 	None,
 	Playing,
 	End,
 };
-enum class RoundState
+enum class RoundPlayState
 {
 	None,
 	Ready,
@@ -59,23 +60,23 @@ constexpr glm::vec3 BALL_COLOR = glm::vec3(1.0f, 1.0f, 0.0f);
 constexpr glm::vec3 NET_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);
 constexpr glm::vec3 BLOCK_COLOR = glm::vec3(0.0f, 0.0f, 0.0f);
 
-struct GLFWwindow;
-
-class Game
+class GameState_Local : public GameState
 {
 public:
-	static Game& Get();
+	static GameState_Local& Get();
 
 public:
-	void beginPlay();
+	void beginPlay() override;
+	void tick(float elapsedTime) override;
+	void onKey(GLFWwindow* window, int key, int scancode, int action, int mods) override;
+
+public:
 	void readyRound();
 	void startRound();
 	void endRound();
-	void tick(float elapsedTime);
 	bool checkCollision(GameObject obj1, GameObject obj2);
 	void updatePosition(float elapsedTime);
 	void updatePhysics(float elapsedTime);
-	void onKey(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 public:
 	Player player1 = Player(1, glm::vec2(70.f, BLOCK_THICKNESS / 2 + 37.5f), 75.f, 75.f);
@@ -88,8 +89,8 @@ public:
 	Block ceil = Block(glm::vec2(SCREEN_WIDTH / 2, SCREEN_HEIGHT), SCREEN_WIDTH, BLOCK_THICKNESS);
 
 	int scorePlayer1 = 0, scorePlayer2 = 0;
-	GameState currentGameState = GameState::None;
-	RoundState currentRoundState = RoundState::None;
+	GamePlayState currentGameState = GamePlayState::None;
+	RoundPlayState currentRoundState = RoundPlayState::None;
 	float currentTimeScale = TIME_SCALE;
 	int lastRoundWinnerPlayerID = -1;
 

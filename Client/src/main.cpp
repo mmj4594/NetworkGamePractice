@@ -8,7 +8,7 @@
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #include "Graphics.h"
-#include "Game.h"
+#include "GameState_Local.h"
 
 #pragma comment(lib, "ws2_32.lib")
 
@@ -61,7 +61,7 @@ int main()
 			return -1;
 		}
 
-		Game::Get().beginPlay();
+		GameState::Get<GameState_Local>()->beginPlay();
 
 		// Main loop
 		while (!Graphics::Get().shouldClose())
@@ -74,12 +74,12 @@ int main()
 			const double elapsedTime = currentTime - previousTime;
 			previousTime = currentTime;
 
-			tickTimer += (elapsedTime * Game::Get().currentTimeScale);
+			tickTimer += (elapsedTime * GameState::Get<GameState_Local>()->currentTimeScale);
 			renderTimer += elapsedTime;
 
 			while (tickTimer >= FRAME_TIME)
 			{
-				Game::Get().tick(static_cast<float>(tickTimer));
+				GameState::Get<GameState_Local>()->tick(static_cast<float>(tickTimer));
 				tickTimer -= FRAME_TIME;
 			}
 
