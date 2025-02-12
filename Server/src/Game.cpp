@@ -30,12 +30,15 @@ void Game::readyRound()
 	player2.reset();
 	ball.reset();
 	roundWaitTimer = 0.f;
+
+	std::cout << "Ready Round! Round Wait Time: " << ROUND_WAIT_TIME << std::endl;
 }
 
 void Game::startRound()
 {
 	currentRoundState = RoundState::Playing;
 	currentTimeScale = TIME_SCALE;
+	std::cout << "Start Round!" << std::endl;
 }
 
 void Game::endRound()
@@ -52,6 +55,8 @@ void Game::endRound()
 		currentTimeScale = ROUND_END_TIME_SCALE;
 		roundEndTimer = 0.f;
 	}
+
+	std::cout << "Finish Round! Player1: " << scorePlayer1 << ", Player2: " << scorePlayer2 << std::endl << std::endl;
 }
 
 void Game::tick(float elapsedTime)
