@@ -1,5 +1,5 @@
 #include "Ball.h"
-#include "GameState_Local.h"
+#include "GameMode_Local.h"
 
 Ball::Ball(glm::vec2 position_, float width_, float height_) : GameObject(position_, width_, height_)
 {
@@ -15,12 +15,12 @@ void Ball::beginPlay()
 void Ball::reset()
 {
 	__super::reset();
-	if (GameState::Get<GameState_Local>().lastRoundWinnerPlayerID == -1)
+	if (GameMode::Get<GameMode_Local>()->lastRoundWinnerPlayerID == -1)
 	{
 		setPosition(glm::vec2((rand() % 2 == 0 ? getInitialPosition().x : SCREEN_WIDTH - getInitialPosition().x), getInitialPosition().y));
 	}
 	else
 	{
-		setPosition(glm::vec2(GameState::Get<GameState_Local>().lastRoundWinnerPlayerID == 1 ? getInitialPosition().x : SCREEN_WIDTH - getInitialPosition().x, getInitialPosition().y));
+		setPosition(glm::vec2(GameMode::Get<GameMode_Local>()->lastRoundWinnerPlayerID == 1 ? getInitialPosition().x : SCREEN_WIDTH - getInitialPosition().x, getInitialPosition().y));
 	}
 }

@@ -1,5 +1,5 @@
 #include "Net.h"
-#include "GameState_Local.h"
+#include "GameMode_Local.h"
 
 Net::Net(glm::vec2 position_, float width_, float height_) : GameObject(position_, width_, height_)
 {

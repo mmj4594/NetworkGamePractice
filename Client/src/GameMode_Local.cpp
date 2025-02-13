@@ -1,9 +1,15 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <fstream>
+#include <sstream>
 #include <iostream>
-#include "GameState_Local.h"
+#include <iomanip>
+#include <string>
+#include "GameMode_Local.h"
+#include "GameModeManager.h"
+#include "Graphics.h"
 
-void GameState_Local::beginPlay()
+void GameMode_Local::beginPlay()
 {
 	player1.beginPlay();
 	player2.beginPlay();
@@ -13,19 +19,23 @@ void GameState_Local::beginPlay()
 	rightWall.beginPlay();
 	floor.beginPlay();
 
-	currentGameState = GamePlayState::Playing;
+	currentGameState = GameStateType::Playing;
 	readyRound();
 }
 
-void GameState_Local::tick(float elapsedTime)
+void GameMode_Local::endPlay()
 {
-	if (currentRoundState != RoundPlayState::Ready)
+}
+
+void GameMode_Local::tick(float elapsedTime)
+{
+	if (currentRoundState != RoundStateType::Ready)
 	{
 		updatePosition(elapsedTime);
 		updatePhysics(elapsedTime);
 	}
 
-	if (currentRoundState == RoundPlayState::Ready)
+	if (currentRoundState == RoundStateType::Ready)
 	{
 		roundWaitTimer += elapsedTime;
 		if (roundWaitTimer >= ROUND_WAIT_TIME)
@@ -33,9 +43,9 @@ void GameState_Local::tick(float elapsedTime)
 			startRound();
 		}
 	}
-	else if (currentRoundState == RoundPlayState::End)
+	else if (currentRoundState == RoundStateType::End)
 	{
-		if (currentGameState != GamePlayState::End)
+		if (currentGameState != GameStateType::End)
 		{
 			roundEndTimer += elapsedTime;
 			if (roundEndTimer >= ROUND_END_TIME)
@@ -46,12 +56,36 @@ void GameState_Local::tick(float elapsedTime)
 	}
 }
 
-void GameState_Local::onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
+void GameMode_Local::renderFrame(float elapsedTime)
+{
+	// Object Rendering
+	Graphics::Get().renderObject(player1);
+	Graphics::Get().renderObject(player2);
+	Graphics::Get().renderObject(ball);
+	Graphics::Get().renderObject(net);
+	Graphics::Get().renderObject(leftWall);
+	Graphics::Get().renderObject(rightWall);
+	Graphics::Get().renderObject(floor);
+	Graphics::Get().renderObject(ceil);
+
+	// Text Rendering
+	std::ostringstream fpsString;
+	fpsString << std::fixed << std::setprecision(1) << (1.0f / elapsedTime);
+	Graphics::Get().renderText((fpsString.str() + " FPS").c_str(), 20.f, 570.f, 0.25f, FPS_TEXT_COLOR);
+	Graphics::Get().renderText(std::to_string(scorePlayer1), player1.getInitialPosition().x - player1.getWidth() / 3, 500.f, 1.f, SCORE_TEXT_COLOR);
+	Graphics::Get().renderText(std::to_string(scorePlayer2), player2.getInitialPosition().x - player2.getWidth() / 3, 500.f, 1.f, SCORE_TEXT_COLOR);
+	if (currentRoundState == RoundStateType::Ready)
+		Graphics::Get().renderText("Ready?", SCREEN_WIDTH / 2 - 80, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, READY_TEXT_COLOR);
+	if (currentGameState == GameStateType::End)
+		Graphics::Get().renderText("Game Set!", SCREEN_WIDTH / 2 - 115, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, GAME_SET_COLOR);
+}
+
+void GameMode_Local::onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	static bool DPressed = false, GPressed = false, RPressed = false, FPressed = false;
 	static bool leftPressed = false, rightPressed = false, upPressed = false, downPressed = false;
 
-	if (currentGameState != GamePlayState::Playing || currentRoundState != RoundPlayState::Playing)
+	if (currentGameState != GameStateType::Playing || currentRoundState != RoundStateType::Playing)
 	{
 		DPressed = false, GPressed = false, RPressed = false, FPressed = false;
 		player1.setAcc(glm::vec2(0, player1.getAcc().y));
@@ -101,16 +135,16 @@ void GameState_Local::onKey(GLFWwindow* window, int key, int scancode, int actio
 		// spike direction
 		if (!DPressed && !GPressed && !RPressed && !FPressed)
 		{
-			player1.setSpikeDirection(SpikeDirection::None);
+			player1.setSpikeDirection(SpikeDirectionType::None);
 		}
 		else if (DPressed || GPressed)
 		{
-			if (RPressed) player1.setSpikeDirection(SpikeDirection::Front_Up);
-			else if (FPressed) player1.setSpikeDirection(SpikeDirection::Front_Down);
-			else player1.setSpikeDirection(SpikeDirection::Front);
+			if (RPressed) player1.setSpikeDirection(SpikeDirectionType::Front_Up);
+			else if (FPressed) player1.setSpikeDirection(SpikeDirectionType::Front_Down);
+			else player1.setSpikeDirection(SpikeDirectionType::Front);
 		}
-		else if (RPressed) player1.setSpikeDirection(SpikeDirection::Up);
-		else if (FPressed) player1.setSpikeDirection(SpikeDirection::Down);
+		else if (RPressed) player1.setSpikeDirection(SpikeDirectionType::Up);
+		else if (FPressed) player1.setSpikeDirection(SpikeDirectionType::Down);
 
 		// spike
 		if (key == GLFW_KEY_Z && action == GLFW_PRESS)
@@ -159,16 +193,16 @@ void GameState_Local::onKey(GLFWwindow* window, int key, int scancode, int actio
 		// spike direction
 		if (!leftPressed && !rightPressed && !upPressed && !downPressed)
 		{
-			player2.setSpikeDirection(SpikeDirection::None);
+			player2.setSpikeDirection(SpikeDirectionType::None);
 		}
 		else if (leftPressed || rightPressed)
 		{
-			if (upPressed) player2.setSpikeDirection(SpikeDirection::Front_Up);
-			else if (downPressed) player2.setSpikeDirection(SpikeDirection::Front_Down);
-			else player2.setSpikeDirection(SpikeDirection::Front);
+			if (upPressed) player2.setSpikeDirection(SpikeDirectionType::Front_Up);
+			else if (downPressed) player2.setSpikeDirection(SpikeDirectionType::Front_Down);
+			else player2.setSpikeDirection(SpikeDirectionType::Front);
 		}
-		else if (upPressed) player2.setSpikeDirection(SpikeDirection::Up);
-		else if (downPressed) player2.setSpikeDirection(SpikeDirection::Down);
+		else if (upPressed) player2.setSpikeDirection(SpikeDirectionType::Up);
+		else if (downPressed) player2.setSpikeDirection(SpikeDirectionType::Down);
 
 		// spike
 		if (key == GLFW_KEY_ENTER && action == GLFW_PRESS)
@@ -179,39 +213,39 @@ void GameState_Local::onKey(GLFWwindow* window, int key, int scancode, int actio
 }
 
 
-void GameState_Local::readyRound()
+void GameMode_Local::readyRound()
 {
-	currentRoundState = RoundPlayState::Ready;
-	currentTimeScale = TIME_SCALE;
+	currentRoundState = RoundStateType::Ready;
+	GameModeManager::Get().currentTimeScale = BASIC_TIME_SCALE;
 	player1.reset();
 	player2.reset();
 	ball.reset();
 	roundWaitTimer = 0.f;
 }
 
-void GameState_Local::startRound()
+void GameMode_Local::startRound()
 {
-	currentRoundState = RoundPlayState::Playing;
-	currentTimeScale = TIME_SCALE;
+	currentRoundState = RoundStateType::Playing;
+	GameModeManager::Get().currentTimeScale = BASIC_TIME_SCALE;
 }
 
-void GameState_Local::endRound()
+void GameMode_Local::endRound()
 {
-	currentRoundState = RoundPlayState::End;
+	currentRoundState = RoundStateType::End;
 
 	// game set
 	if (scorePlayer1 >= MAX_SCORE || scorePlayer2 >= MAX_SCORE)
 	{
-		currentGameState = GamePlayState::End;
+		currentGameState = GameStateType::End;
 	}
 	else
 	{
-		currentTimeScale = ROUND_END_TIME_SCALE;
+		GameModeManager::Get().currentTimeScale = ROUND_END_TIME_SCALE;
 		roundEndTimer = 0.f;
 	}
 }
 
-bool GameState_Local::checkCollision(GameObject obj1, GameObject obj2)
+bool GameMode_Local::checkCollision(GameObject obj1, GameObject obj2)
 {
 	return obj1.getPosition().x + obj1.getWidth()/2 > obj2.getPosition().x - obj2.getWidth()/2
 		&& obj1.getPosition().x - obj1.getWidth()/2 < obj2.getPosition().x + obj2.getWidth()/2
@@ -219,7 +253,7 @@ bool GameState_Local::checkCollision(GameObject obj1, GameObject obj2)
 		&& obj1.getPosition().y - obj1.getHeight()/2 < obj2.getPosition().y + obj2.getHeight()/2;
 }
 
-void GameState_Local::updatePosition(float elapsedTime)
+void GameMode_Local::updatePosition(float elapsedTime)
 {
 	player1.updatePosition(elapsedTime);
 	player1.updateSpeed(elapsedTime);
@@ -233,12 +267,12 @@ void GameState_Local::updatePosition(float elapsedTime)
 	ball.updateSpeed(elapsedTime);
 }
 
-void GameState_Local::updatePhysics(float elapsedTime)
+void GameMode_Local::updatePhysics(float elapsedTime)
 {
 	// ball - floor
 	if (checkCollision(ball, floor))
 	{
-		if( currentGameState == GamePlayState::Playing && currentRoundState == RoundPlayState::Playing )
+		if( currentGameState == GameStateType::Playing && currentRoundState == RoundStateType::Playing )
 		{
 			if (ball.getPosition().x < SCREEN_WIDTH / 2)
 			{
@@ -319,27 +353,27 @@ void GameState_Local::updatePhysics(float elapsedTime)
 				{
 					switch (player1.getSpikeDirection())
 					{
-						case SpikeDirection::None:
+						case SpikeDirectionType::None:
 							newBallSpeed.x = BALL_SPIKE_SPEED;
 							newBallSpeed.y = 0.f;
 							break;
-						case SpikeDirection::Front:
+						case SpikeDirectionType::Front:
 							newBallSpeed.x = BALL_SPIKE_SPEED * 2;
 							newBallSpeed.y = 0.f;
 							break;
-						case SpikeDirection::Up:
+						case SpikeDirectionType::Up:
 							newBallSpeed.x = BALL_SPIKE_SPEED;
 							newBallSpeed.y = std::abs(ball.getSpeed().y * 2);
 							break;
-						case SpikeDirection::Down:
+						case SpikeDirectionType::Down:
 							newBallSpeed.x = BALL_SPIKE_SPEED;
 							newBallSpeed.y = -std::abs(ball.getSpeed().y * 2);
 							break;
-						case SpikeDirection::Front_Up:
+						case SpikeDirectionType::Front_Up:
 							newBallSpeed.x = BALL_SPIKE_SPEED * 2;
 							newBallSpeed.y = std::abs(ball.getSpeed().y * 2);
 							break;
-						case SpikeDirection::Front_Down:
+						case SpikeDirectionType::Front_Down:
 							newBallSpeed.x = BALL_SPIKE_SPEED * 2;
 							newBallSpeed.y = -std::abs(ball.getSpeed().y * 2);
 							break;
@@ -390,27 +424,27 @@ void GameState_Local::updatePhysics(float elapsedTime)
 				{
 					switch (player2.getSpikeDirection())
 					{
-						case SpikeDirection::None:
+						case SpikeDirectionType::None:
 							newBallSpeed.x = -BALL_SPIKE_SPEED;
 							newBallSpeed.y = 0.f;
 							break;
-						case SpikeDirection::Front:
+						case SpikeDirectionType::Front:
 							newBallSpeed.x = -BALL_SPIKE_SPEED * 2;
 							newBallSpeed.y = 0.f;
 							break;
-						case SpikeDirection::Up:
+						case SpikeDirectionType::Up:
 							newBallSpeed.x = -BALL_SPIKE_SPEED;
 							newBallSpeed.y = std::abs(ball.getSpeed().y * 2);
 							break;
-						case SpikeDirection::Down:
+						case SpikeDirectionType::Down:
 							newBallSpeed.x = -BALL_SPIKE_SPEED;
 							newBallSpeed.y = -std::abs(ball.getSpeed().y * 2);
 							break;
-						case SpikeDirection::Front_Up:
+						case SpikeDirectionType::Front_Up:
 							newBallSpeed.x = -BALL_SPIKE_SPEED * 2;
 							newBallSpeed.y = std::abs(ball.getSpeed().y * 2);
 							break;
-						case SpikeDirection::Front_Down:
+						case SpikeDirectionType::Front_Down:
 							newBallSpeed.x = -BALL_SPIKE_SPEED * 2;
 							newBallSpeed.y = -std::abs(ball.getSpeed().y * 2);
 						default:

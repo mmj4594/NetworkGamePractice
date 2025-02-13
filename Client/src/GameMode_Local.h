@@ -5,7 +5,7 @@
 #include "Ball.h"
 #include "Net.h"
 #include "Block.h"
-#include "GameState.h"
+#include "GameMode.h"
 
 constexpr int SCREEN_WIDTH = 900;
 constexpr int SCREEN_HEIGHT = 600;
@@ -26,21 +26,17 @@ constexpr float NET_WIDTH = 6.f;
 constexpr float NET_HEIGHT = 200.f;
 constexpr float BLOCK_THICKNESS = 30.f;
 
-constexpr int MAX_FPS = 60;
-constexpr float FRAME_TIME = 1.0f / MAX_FPS;
-constexpr float TIME_SCALE = 1.0f;
-
 constexpr int MAX_SCORE = 15;
 constexpr float ROUND_END_TIME_SCALE = 0.15f;
 constexpr float ROUND_WAIT_TIME = 2.0f;
 constexpr float ROUND_END_TIME = 2.0f * ROUND_END_TIME_SCALE;
-enum class GamePlayState
+enum class GameStateType
 {
 	None,
 	Playing,
 	End,
 };
-enum class RoundPlayState
+enum class RoundStateType
 {
 	None,
 	Ready,
@@ -60,11 +56,13 @@ constexpr glm::vec3 BALL_COLOR = glm::vec3(1.0f, 1.0f, 0.0f);
 constexpr glm::vec3 NET_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);
 constexpr glm::vec3 BLOCK_COLOR = glm::vec3(0.0f, 0.0f, 0.0f);
 
-class GameState_Local : public GameState
+class GameMode_Local : public GameMode
 {
 public:
 	void beginPlay() override;
+	void endPlay() override;
 	void tick(float elapsedTime) override;
+	void renderFrame(float elapsedTime) override;
 	void onKey(GLFWwindow* window, int key, int scancode, int action, int mods) override;
 
 public:
@@ -86,9 +84,8 @@ public:
 	Block ceil = Block(glm::vec2(SCREEN_WIDTH / 2, SCREEN_HEIGHT), SCREEN_WIDTH, BLOCK_THICKNESS);
 
 	int scorePlayer1 = 0, scorePlayer2 = 0;
-	GamePlayState currentGameState = GamePlayState::None;
-	RoundPlayState currentRoundState = RoundPlayState::None;
-	float currentTimeScale = TIME_SCALE;
+	GameStateType currentGameState = GameStateType::None;
+	RoundStateType currentRoundState = RoundStateType::None;
 	int lastRoundWinnerPlayerID = -1;
 
 private:

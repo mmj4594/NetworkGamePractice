@@ -1,7 +1,7 @@
 #include "Player.h"
 #include "Net.h"
 #include "Block.h"
-#include "GameState_Local.h"
+#include "GameMode_Local.h"
 #include <iostream>
 
 Player::Player(int playerID_, glm::vec2 position_, float width_, float height_) : GameObject(position_, width_, height_)
@@ -17,15 +17,15 @@ void Player::beginPlay()
 
 	if (playerID == 1)
 	{
-		leftBoundary = GameState::Get<GameState_Local>().leftWall.getRight() + getWidth() / 2;
-		rightBoundary = GameState::Get<GameState_Local>().net.getLeft() - getWidth() / 2;
+		leftBoundary = GameMode::Get<GameMode_Local>()->leftWall.getRight() + getWidth() / 2;
+		rightBoundary = GameMode::Get<GameMode_Local>()->net.getLeft() - getWidth() / 2;
 	}
 	else
 	{
-		leftBoundary = GameState::Get<GameState_Local>().net.getRight() + getWidth() / 2;
-		rightBoundary = GameState::Get<GameState_Local>().rightWall.getLeft() - getWidth() / 2;
+		leftBoundary = GameMode::Get<GameMode_Local>()->net.getRight() + getWidth() / 2;
+		rightBoundary = GameMode::Get<GameMode_Local>()->rightWall.getLeft() - getWidth() / 2;
 	}
-	bottomBoundary = GameState::Get<GameState_Local>().floor.getTop() + getHeight() / 2;
+	bottomBoundary = GameMode::Get<GameMode_Local>()->floor.getTop() + getHeight() / 2;
 }
 
 void Player::reset()
