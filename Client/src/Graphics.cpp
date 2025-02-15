@@ -333,7 +333,7 @@ void Graphics::renderObject(GameObject targetObject)
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
-void Graphics::renderText(std::string text, float x, float y, float scale, glm::vec3 color)
+void Graphics::renderText(std::string text, float x, float y, float scale, glm::vec3 color, bool centerAligned)
 {
 	if (textShaderProgram == 0 || textVAO == 0)
 	{
@@ -356,6 +356,20 @@ void Graphics::renderText(std::string text, float x, float y, float scale, glm::
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(textVAO);
+
+	if (centerAligned)
+	{
+		float textWidth = 0.f;
+		for (char c : text)
+		{
+			if (FontCharacters.find(c) != FontCharacters.end())
+			{
+				textWidth += (FontCharacters[c].Advance >> 6) * scale;
+			}
+		}
+
+		x -= textWidth / 2.0f;
+	}
 
 	for (char c : text)
 	{

@@ -9,13 +9,6 @@ constexpr int MAX_FPS = 60;
 constexpr float FRAME_TIME = 1.0f / MAX_FPS;
 constexpr float BASIC_TIME_SCALE = 1.0f;
 
-enum class GameModeType
-{
-	Lobby,
-	Local,
-	Online
-};
-
 struct GLFWwindow;
 
 class GameModeManager

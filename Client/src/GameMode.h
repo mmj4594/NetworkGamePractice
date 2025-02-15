@@ -2,6 +2,13 @@
 
 struct GLFWwindow;
 
+enum class GameModeType
+{
+	Lobby,
+	Local,
+	Online
+};
+
 class GameMode
 {
 public:

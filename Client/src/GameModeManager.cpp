@@ -11,8 +11,8 @@ void GameModeManager::beginPlay()
 {
 	changeGameMode(GameModeType::Lobby);
 
-	// ÀÓ½Ã ÄÚµå. º¯°æ ÇÊ¿ä.
-	changeGameMode(GameModeType::Local);
+	// ìž„ì‹œ ì½”ë“œ. ë³€ê²½ í•„ìš”.
+	//changeGameMode(GameModeType::Local);
 }
 
 void GameModeManager::endPlay()

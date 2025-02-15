@@ -30,6 +30,7 @@ constexpr int MAX_SCORE = 15;
 constexpr float ROUND_END_TIME_SCALE = 0.15f;
 constexpr float ROUND_WAIT_TIME = 2.0f;
 constexpr float ROUND_END_TIME = 2.0f * ROUND_END_TIME_SCALE;
+
 enum class GameStateType
 {
 	None,
@@ -44,12 +45,10 @@ enum class RoundStateType
 	End,
 };
 
-constexpr int TEXT_SIZE = 48;
 constexpr glm::vec3 FPS_TEXT_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);
 constexpr glm::vec3 SCORE_TEXT_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);
 constexpr glm::vec3 READY_TEXT_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);
-constexpr glm::vec3 GAME_SET_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);
-constexpr glm::vec3 BACKGROUND_COLOR = glm::vec3(0.3f, 0.3f, 0.3f);
+constexpr glm::vec3 GAME_SET_TEXT_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);
 constexpr glm::vec3 P1_COLOR = glm::vec3(1.0f, 0.0f, 0.0f);
 constexpr glm::vec3 P2_COLOR = glm::vec3(0.0f, 0.0f, 1.0f);
 constexpr glm::vec3 BALL_COLOR = glm::vec3(1.0f, 1.0f, 0.0f);

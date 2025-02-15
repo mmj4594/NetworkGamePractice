@@ -72,12 +72,12 @@ void GameMode_Local::renderFrame(float elapsedTime)
 	std::ostringstream fpsString;
 	fpsString << std::fixed << std::setprecision(1) << (1.0f / elapsedTime);
 	Graphics::Get().renderText((fpsString.str() + " FPS").c_str(), 20.f, 570.f, 0.25f, FPS_TEXT_COLOR);
-	Graphics::Get().renderText(std::to_string(scorePlayer1), player1.getInitialPosition().x - player1.getWidth() / 3, 500.f, 1.f, SCORE_TEXT_COLOR);
-	Graphics::Get().renderText(std::to_string(scorePlayer2), player2.getInitialPosition().x - player2.getWidth() / 3, 500.f, 1.f, SCORE_TEXT_COLOR);
+	Graphics::Get().renderText(std::to_string(scorePlayer1), player1.getInitialPosition().x, 500.f, 1.f, SCORE_TEXT_COLOR, true);
+	Graphics::Get().renderText(std::to_string(scorePlayer2), player2.getInitialPosition().x, 500.f, 1.f, SCORE_TEXT_COLOR, true);
 	if (currentRoundState == RoundStateType::Ready)
-		Graphics::Get().renderText("Ready?", SCREEN_WIDTH / 2 - 80, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, READY_TEXT_COLOR);
+		Graphics::Get().renderText("Ready?", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, READY_TEXT_COLOR, true);
 	if (currentGameState == GameStateType::End)
-		Graphics::Get().renderText("Game Set!", SCREEN_WIDTH / 2 - 115, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, GAME_SET_COLOR);
+		Graphics::Get().renderText("Game Set!", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, GAME_SET_TEXT_COLOR, true);
 }
 
 void GameMode_Local::onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
