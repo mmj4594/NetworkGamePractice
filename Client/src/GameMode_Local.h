@@ -5,10 +5,7 @@
 #include "Ball.h"
 #include "Net.h"
 #include "Block.h"
-#include "GameMode.h"
-
-constexpr int SCREEN_WIDTH = 900;
-constexpr int SCREEN_HEIGHT = 600;
+#include "GameModeManager.h"
 
 constexpr float GRAVITY = -1000.f;
 constexpr glm::vec2 BALL_SPEED_RANGE = glm::vec2(-2000.f, 2000.f);
@@ -45,7 +42,6 @@ enum class RoundStateType
 	End,
 };
 
-constexpr glm::vec3 FPS_TEXT_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);
 constexpr glm::vec3 SCORE_TEXT_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);
 constexpr glm::vec3 READY_TEXT_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);
 constexpr glm::vec3 GAME_SET_TEXT_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);

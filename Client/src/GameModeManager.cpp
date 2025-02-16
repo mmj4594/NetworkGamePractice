@@ -1,4 +1,7 @@
 #include <iostream>
+#include "GameMode_Lobby.h"
+#include "GameMode_Local.h"
+#include "GameMode_Online.h"
 #include "GameModeManager.h"
 
 GameModeManager& GameModeManager::Get()
@@ -10,15 +13,14 @@ GameModeManager& GameModeManager::Get()
 void GameModeManager::beginPlay()
 {
 	changeGameMode(GameModeType::Lobby);
-
-	// 임시 코드. 변경 필요.
-	//changeGameMode(GameModeType::Local);
 }
 
 void GameModeManager::endPlay()
 {
 	if (currentGameMode)
 		currentGameMode->endPlay();
+
+	currentGameMode = nullptr;
 }
 
 void GameModeManager::tick(float elapsedTime)

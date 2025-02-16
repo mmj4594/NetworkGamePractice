@@ -1,5 +1,6 @@
 #pragma once
 
+#include <WinSock2.h>
 #include "GameMode.h"
 
 class GameMode_Online : public GameMode
@@ -10,4 +11,7 @@ public:
 	void tick(float elapsedTime) override;
 	void renderFrame(float elapsedTime) override;
 	void onKey(GLFWwindow* window, int key, int scancode, int action, int mods) override;
+
+private:
+	SOCKET clientSocket;
 };

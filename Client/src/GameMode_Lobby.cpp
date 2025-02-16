@@ -8,8 +8,6 @@
 #include "GameMode_Lobby.h"
 #include "GameModeManager.h"
 #include "Graphics.h"
-#include <iostream>
-#include <string>
 
 void GameMode_Lobby::beginPlay()
 {
