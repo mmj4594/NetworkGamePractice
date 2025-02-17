@@ -8,8 +8,6 @@
 #include "Graphics.h"
 #include "GameModeManager.h"
 
-#pragma comment(lib, "ws2_32.lib")
-
 float getCurrentTime()
 {
 	using namespace std::chrono;

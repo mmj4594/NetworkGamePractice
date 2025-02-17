@@ -4,10 +4,13 @@
 #include <iomanip>
 #include <string>
 #include <thread>
+#include <WinSock2.h>
 #include <WS2tcpip.h>
 #include "GameMode_Online.h"
 #include "GameModeManager.h"
 #include "Graphics.h"
+
+#pragma comment(lib, "ws2_32.lib")
 
 constexpr int BUFFER_SIZE = 1024;
 
@@ -74,7 +77,7 @@ void GameMode_Online::onKey(GLFWwindow* window, int key, int scancode, int actio
 
 void GameMode_Online::receiveMessageFromServer()
 {
-	while ( true )
+	while (true)
 	{
 		fd_set readSet;
 		FD_ZERO(&readSet);
