@@ -8,6 +8,8 @@
 #include "GameModeManager.h"
 #include "Graphics.h"
 
+constexpr int BUFFER_SIZE = 1024;
+
 void GameMode_Online::beginPlay()
 {
 	// Connnect to Server
@@ -32,14 +34,30 @@ void GameMode_Online::beginPlay()
 	}
 	std::cout << "Connected to Server!" << std::endl;
 
-	// Send Message to Server
-	const char* message = "Hello, Server!";
-	send(clientSocket, message, static_cast<int>(strlen(message)), 0);
+	// Loop
+	while (true)
+	{
+		fd_set readSet;
+		FD_ZERO(&readSet);
+		FD_SET(clientSocket, &readSet);
 
-	//// Receive Message from Server
-	//char buffer[1024] = { 0 };
-	//recv(clientSocket, buffer, sizeof(buffer), 0);
-	//std::cout << "Message from Server: " << buffer << std::endl;
+		// Get Data From Server
+		select(static_cast<int>(clientSocket) + 1, &readSet, nullptr, nullptr, nullptr);
+		if ( FD_ISSET(clientSocket, &readSet) )
+		{
+			char buffer[BUFFER_SIZE] = { 0 };
+			int bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
+			if ( bytesReceived <= 0 )
+			{
+				std::cout << "Disconnect Server!" << std::endl;
+				break;
+			}
+			else
+			{
+				std::cout << "Message from Server: " << buffer << std::endl;
+			}
+		}
+	}
 }
 
 void GameMode_Online::endPlay()
@@ -51,6 +69,10 @@ void GameMode_Online::endPlay()
 
 void GameMode_Online::tick(float elapsedTime)
 {
+	// Send Data to Server
+	const char* message = "Hello, Server!";
+	send(clientSocket, message, static_cast<int>(strlen(message)), 0);
+	std::cout << "Send Message to Server: " << message << std::endl;
 }
 
 void GameMode_Online::renderFrame(float elapsedTime)

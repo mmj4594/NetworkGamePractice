@@ -90,7 +90,7 @@ int main()
 						{
 							std::cout << "Message from Client " << i << ": " << buffer << std::endl;
 							const char* message = "Hello, Client!";
-							send(clientSockets[i], message, static_cast<int>(strlen(message)), 0);
+							send(i, message, static_cast<int>(strlen(message)), 0);
 							std::cout << "Send Message to Client " << i << ": " << message << std::endl;
 						}
 					}
