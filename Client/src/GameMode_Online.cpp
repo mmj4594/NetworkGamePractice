@@ -3,6 +3,7 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <thread>
 #include <WS2tcpip.h>
 #include "GameMode_Online.h"
 #include "GameModeManager.h"
@@ -34,8 +35,46 @@ void GameMode_Online::beginPlay()
 	}
 	std::cout << "Connected to Server!" << std::endl;
 
-	// Loop
-	while (true)
+	// Start Message Receiving Thread
+	receiveMessageThread = std::thread(&GameMode_Online::receiveMessageFromServer, this);
+}
+
+void GameMode_Online::endPlay()
+{
+	// Close Sockets
+	closesocket(clientSocket);
+	WSACleanup();
+
+	// Wait for Thread
+	if (receiveMessageThread.joinable())
+	{
+		receiveMessageThread.join();
+	}
+}
+
+void GameMode_Online::tick(float elapsedTime)
+{
+	//// Send Data to Server
+	//const char* message = "Hello, Server!";
+	//send(clientSocket, message, static_cast<int>(strlen(message)), 0);
+	//std::cout << "Send Message to Server: " << message << std::endl;
+}
+
+void GameMode_Online::renderFrame(float elapsedTime)
+{
+	// Text Rendering
+	std::ostringstream fpsString;
+	fpsString << std::fixed << std::setprecision(1) << ( 1.0f / elapsedTime );
+	Graphics::Get().renderText(( fpsString.str() + " FPS" ).c_str(), 20.f, 570.f, 0.25f, FPS_TEXT_COLOR);
+}
+
+void GameMode_Online::onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+}
+
+void GameMode_Online::receiveMessageFromServer()
+{
+	while ( true )
 	{
 		fd_set readSet;
 		FD_ZERO(&readSet);
@@ -58,31 +97,4 @@ void GameMode_Online::beginPlay()
 			}
 		}
 	}
-}
-
-void GameMode_Online::endPlay()
-{
-	// Close Sockets
-	closesocket(clientSocket);
-	WSACleanup();
-}
-
-void GameMode_Online::tick(float elapsedTime)
-{
-	// Send Data to Server
-	const char* message = "Hello, Server!";
-	send(clientSocket, message, static_cast<int>(strlen(message)), 0);
-	std::cout << "Send Message to Server: " << message << std::endl;
-}
-
-void GameMode_Online::renderFrame(float elapsedTime)
-{
-	// Text Rendering
-	std::ostringstream fpsString;
-	fpsString << std::fixed << std::setprecision(1) << ( 1.0f / elapsedTime );
-	Graphics::Get().renderText(( fpsString.str() + " FPS" ).c_str(), 20.f, 570.f, 0.25f, FPS_TEXT_COLOR);
-}
-
-void GameMode_Online::onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
 }

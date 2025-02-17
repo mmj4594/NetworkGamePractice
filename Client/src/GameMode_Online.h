@@ -1,5 +1,6 @@
 #pragma once
 
+#include <thread>
 #include <WinSock2.h>
 #include "GameMode.h"
 
@@ -12,6 +13,10 @@ public:
 	void renderFrame(float elapsedTime) override;
 	void onKey(GLFWwindow* window, int key, int scancode, int action, int mods) override;
 
+public:
+	void receiveMessageFromServer();
+
 private:
 	SOCKET clientSocket;
+	std::thread receiveMessageThread;
 };
