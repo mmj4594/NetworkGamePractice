@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <map>
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #include "SharedData.h"
@@ -70,8 +71,8 @@ void Server::receiveMessageFromClients()
 				if (i == serverSocket)
 				{
 					SOCKET clientSocket = accept(serverSocket, nullptr, nullptr);
-					clientSockets[connectedPlayers] = clientSocket;
 					connectedPlayers++;
+					clientSocketToPlayerID[static_cast<int>(clientSocket)] = connectedPlayers;
 					FD_SET(clientSocket, &masterSet);
 					if (clientSocket > maxSocket)
 						maxSocket = static_cast<int>(clientSocket);
@@ -95,10 +96,10 @@ void Server::receiveMessageFromClients()
 					}
 					else
 					{
-						std::cout << "Message from Client " << i << ": " << buffer << std::endl;
-						const char* message = "Hello, Client!";
-						send(i, message, static_cast<int>(strlen(message)), 0);
-						std::cout << "Send Message to Client " << i << ": " << message << std::endl;
+						PlayerInput playerInput;
+						deserialize(buffer, playerInput);
+						std::cout << "Player " << clientSocketToPlayerID[i] << " Sent Input! "
+							<< playerInput.key << ", " << playerInput.scancode << ", " << playerInput.action << ", " << playerInput.mods << std::endl;
 					}
 				}
 			}

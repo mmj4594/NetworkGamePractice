@@ -1,6 +1,7 @@
 #pragma once
 
 #include <thread>
+#include <map>
 #include <WinSock2.h>
 
 constexpr int MAX_PLAYERS = 2;
@@ -17,7 +18,7 @@ public:
 
 private:
 	SOCKET serverSocket;
-	SOCKET clientSockets[MAX_PLAYERS];
 	int connectedPlayers = 0;
+	std::map<int, int> clientSocketToPlayerID;
 	std::thread receiveMessageThread;
 };

@@ -1,17 +1,8 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include "SharedData.h"
 #include "GameObject.h"
-
-enum class SpikeDirection
-{
-	None,
-	Front,
-	Up,
-	Down,
-	Front_Up,
-	Front_Down,
-};
 
 class Player : public GameObject
 {
@@ -40,8 +31,8 @@ public:
 	void reserveSpike() {spikeReserved = true;}
 	void resetReserveSpike() {spikeReserved = false;}
 	bool getSpikeReserved() {return spikeReserved;}
-	void setSpikeDirection(SpikeDirection direction) {spikeDirection = direction;}
-	SpikeDirection getSpikeDirection() {return spikeDirection;}
+	void setSpikeDirection(SpikeDirectionType direction) {spikeDirection = direction;}
+	SpikeDirectionType getSpikeDirection() {return spikeDirection;}
 
 private:
 	int playerID = 0;
@@ -50,7 +41,7 @@ private:
 	bool sliding = false;
 	float slidingTimer = 0.0f;
 	bool spikeReserved = false;
-	SpikeDirection spikeDirection = SpikeDirection::None;
+	SpikeDirectionType spikeDirection = SpikeDirectionType::None;
 
 	float leftBoundary = 0.f;
 	float rightBoundary = 0.f;

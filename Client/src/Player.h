@@ -1,17 +1,8 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include "SharedData.h"
 #include "GameObject.h"
-
-enum class SpikeDirectionType
-{
-	None,
-	Front,
-	Up,
-	Down,
-	Front_Up,
-	Front_Down,
-};
 
 class Player : public GameObject
 {

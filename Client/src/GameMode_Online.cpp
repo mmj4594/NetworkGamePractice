@@ -72,6 +72,10 @@ void GameMode_Online::renderFrame(float elapsedTime)
 
 void GameMode_Online::onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+	PlayerInput playerInput(key, scancode, action, mods);
+	char buffer[sizeof(PlayerInput)];
+	serialize(playerInput, buffer);
+	send(clientSocket, buffer, static_cast<int>(sizeof(buffer)), 0);
 }
 
 void GameMode_Online::receiveMessageFromServer()

@@ -40,6 +40,7 @@ void GameMode_Lobby::renderFrame(float elapsedTime)
 
 void GameMode_Lobby::onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+	std::cout << key << " " << action << std::endl;
 	if (key == GLFW_KEY_ENTER && action == GLFW_PRESS)
 	{
 		GameModeManager::Get().changeGameMode(selectedGameMode);

@@ -1,9 +1,29 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <cstring>
 
 #pragma region Network
 constexpr int BUFFER_SIZE = 1024;
+struct PlayerInput
+{
+	PlayerInput() {}
+	PlayerInput(int _key, int _scancode, int _action, int _mods) : key(_key), scancode(_scancode), action(_action), mods(_mods) {}
+
+	int key = 0;
+	int scancode = 0;
+	int action = 0;
+	int mods = 0;
+};
+
+inline void serialize(const PlayerInput& data, char* buffer)
+{
+	std::memcpy(buffer, &data, sizeof(PlayerInput));
+}
+inline void deserialize(const char* buffer, PlayerInput& data)
+{
+	std::memcpy(&data, buffer, sizeof(PlayerInput));
+}
 #pragma endregion
 
 #pragma region Game
@@ -40,6 +60,16 @@ enum class RoundStateType
 	Ready,
 	Playing,
 	End,
+};
+
+enum class SpikeDirectionType
+{
+	None,
+	Front,
+	Up,
+	Down,
+	Front_Up,
+	Front_Down,
 };
 #pragma endregion
 

@@ -112,16 +112,16 @@ void Game::onKey(int playerID, int key, int scancode, int action, int mods)
 			// spike direction
 			if (!DPressed && !GPressed && !RPressed && !FPressed)
 			{
-				player1.setSpikeDirection(SpikeDirection::None);
+				player1.setSpikeDirection(SpikeDirectionType::None);
 			}
 			else if (DPressed || GPressed)
 			{
-				if (RPressed) player1.setSpikeDirection(SpikeDirection::Front_Up);
-				else if (FPressed) player1.setSpikeDirection(SpikeDirection::Front_Down);
-				else player1.setSpikeDirection(SpikeDirection::Front);
+				if (RPressed) player1.setSpikeDirection(SpikeDirectionType::Front_Up);
+				else if (FPressed) player1.setSpikeDirection(SpikeDirectionType::Front_Down);
+				else player1.setSpikeDirection(SpikeDirectionType::Front);
 			}
-			else if (RPressed) player1.setSpikeDirection(SpikeDirection::Up);
-			else if (FPressed) player1.setSpikeDirection(SpikeDirection::Down);
+			else if (RPressed) player1.setSpikeDirection(SpikeDirectionType::Up);
+			else if (FPressed) player1.setSpikeDirection(SpikeDirectionType::Down);
 
 			// spike
 			if (key == GLFW_KEY_Z && action == GLFW_PRESS)
@@ -173,16 +173,16 @@ void Game::onKey(int playerID, int key, int scancode, int action, int mods)
 			// spike direction
 			if (!leftPressed && !rightPressed && !upPressed && !downPressed)
 			{
-				player2.setSpikeDirection(SpikeDirection::None);
+				player2.setSpikeDirection(SpikeDirectionType::None);
 			}
 			else if (leftPressed || rightPressed)
 			{
-				if (upPressed) player2.setSpikeDirection(SpikeDirection::Front_Up);
-				else if (downPressed) player2.setSpikeDirection(SpikeDirection::Front_Down);
-				else player2.setSpikeDirection(SpikeDirection::Front);
+				if (upPressed) player2.setSpikeDirection(SpikeDirectionType::Front_Up);
+				else if (downPressed) player2.setSpikeDirection(SpikeDirectionType::Front_Down);
+				else player2.setSpikeDirection(SpikeDirectionType::Front);
 			}
-			else if (upPressed) player2.setSpikeDirection(SpikeDirection::Up);
-			else if (downPressed) player2.setSpikeDirection(SpikeDirection::Down);
+			else if (upPressed) player2.setSpikeDirection(SpikeDirectionType::Up);
+			else if (downPressed) player2.setSpikeDirection(SpikeDirectionType::Down);
 
 			// spike
 			if (key == GLFW_KEY_ENTER && action == GLFW_PRESS)
@@ -338,27 +338,27 @@ void Game::updatePhysics(float elapsedTime)
 				{
 					switch (player1.getSpikeDirection())
 					{
-					case SpikeDirection::None:
+					case SpikeDirectionType::None:
 						newBallSpeed.x = BALL_SPIKE_SPEED;
 						newBallSpeed.y = 0.f;
 						break;
-					case SpikeDirection::Front:
+					case SpikeDirectionType::Front:
 						newBallSpeed.x = BALL_SPIKE_SPEED * 2;
 						newBallSpeed.y = 0.f;
 						break;
-					case SpikeDirection::Up:
+					case SpikeDirectionType::Up:
 						newBallSpeed.x = BALL_SPIKE_SPEED;
 						newBallSpeed.y = std::abs(ball.getSpeed().y * 2);
 						break;
-					case SpikeDirection::Down:
+					case SpikeDirectionType::Down:
 						newBallSpeed.x = BALL_SPIKE_SPEED;
 						newBallSpeed.y = -std::abs(ball.getSpeed().y * 2);
 						break;
-					case SpikeDirection::Front_Up:
+					case SpikeDirectionType::Front_Up:
 						newBallSpeed.x = BALL_SPIKE_SPEED * 2;
 						newBallSpeed.y = std::abs(ball.getSpeed().y * 2);
 						break;
-					case SpikeDirection::Front_Down:
+					case SpikeDirectionType::Front_Down:
 						newBallSpeed.x = BALL_SPIKE_SPEED * 2;
 						newBallSpeed.y = -std::abs(ball.getSpeed().y * 2);
 						break;
@@ -409,27 +409,27 @@ void Game::updatePhysics(float elapsedTime)
 				{
 					switch (player2.getSpikeDirection())
 					{
-					case SpikeDirection::None:
+					case SpikeDirectionType::None:
 						newBallSpeed.x = -BALL_SPIKE_SPEED;
 						newBallSpeed.y = 0.f;
 						break;
-					case SpikeDirection::Front:
+					case SpikeDirectionType::Front:
 						newBallSpeed.x = -BALL_SPIKE_SPEED * 2;
 						newBallSpeed.y = 0.f;
 						break;
-					case SpikeDirection::Up:
+					case SpikeDirectionType::Up:
 						newBallSpeed.x = -BALL_SPIKE_SPEED;
 						newBallSpeed.y = std::abs(ball.getSpeed().y * 2);
 						break;
-					case SpikeDirection::Down:
+					case SpikeDirectionType::Down:
 						newBallSpeed.x = -BALL_SPIKE_SPEED;
 						newBallSpeed.y = -std::abs(ball.getSpeed().y * 2);
 						break;
-					case SpikeDirection::Front_Up:
+					case SpikeDirectionType::Front_Up:
 						newBallSpeed.x = -BALL_SPIKE_SPEED * 2;
 						newBallSpeed.y = std::abs(ball.getSpeed().y * 2);
 						break;
-					case SpikeDirection::Front_Down:
+					case SpikeDirectionType::Front_Down:
 						newBallSpeed.x = -BALL_SPIKE_SPEED * 2;
 						newBallSpeed.y = -std::abs(ball.getSpeed().y * 2);
 					default:
