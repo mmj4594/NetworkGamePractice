@@ -27,12 +27,13 @@ constexpr float BLOCK_THICKNESS = 30.f;
 
 constexpr int MAX_FPS = 60;
 constexpr float FRAME_TIME = 1.0f / MAX_FPS;
-constexpr float TIME_SCALE = 1.0f;
+constexpr float BASIC_TIME_SCALE = 1.0f;
 
 constexpr int MAX_SCORE = 15;
 constexpr float ROUND_END_TIME_SCALE = 0.15f;
 constexpr float ROUND_WAIT_TIME = 2.0f;
 constexpr float ROUND_END_TIME = 2.0f * ROUND_END_TIME_SCALE;
+
 enum class GameState
 {
 	None,
@@ -47,18 +48,6 @@ enum class RoundState
 	End,
 };
 
-constexpr int TEXT_SIZE = 48;
-constexpr glm::vec3 FPS_TEXT_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);
-constexpr glm::vec3 SCORE_TEXT_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);
-constexpr glm::vec3 READY_TEXT_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);
-constexpr glm::vec3 GAME_SET_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);
-constexpr glm::vec3 BACKGROUND_COLOR = glm::vec3(0.3f, 0.3f, 0.3f);
-constexpr glm::vec3 P1_COLOR = glm::vec3(1.0f, 0.0f, 0.0f);
-constexpr glm::vec3 P2_COLOR = glm::vec3(0.0f, 0.0f, 1.0f);
-constexpr glm::vec3 BALL_COLOR = glm::vec3(1.0f, 1.0f, 0.0f);
-constexpr glm::vec3 NET_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);
-constexpr glm::vec3 BLOCK_COLOR = glm::vec3(0.0f, 0.0f, 0.0f);
-
 struct GLFWwindow;
 
 class Game
@@ -68,14 +57,17 @@ public:
 
 public:
 	void beginPlay();
+	void endPlay();
+	void tick(float elapsedTime);
+	void onKey(GLFWwindow* window, int key, int scancode, int action, int mods);
+
+public:
 	void readyRound();
 	void startRound();
 	void endRound();
-	void tick(float elapsedTime);
 	bool checkCollision(GameObject obj1, GameObject obj2);
 	void updatePosition(float elapsedTime);
 	void updatePhysics(float elapsedTime);
-	void onKey(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 public:
 	Player player1 = Player(1, glm::vec2(70.f, BLOCK_THICKNESS / 2 + 37.5f), 75.f, 75.f);
@@ -90,7 +82,7 @@ public:
 	int scorePlayer1 = 0, scorePlayer2 = 0;
 	GameState currentGameState = GameState::None;
 	RoundState currentRoundState = RoundState::None;
-	float currentTimeScale = TIME_SCALE;
+	float currentTimeScale = BASIC_TIME_SCALE;
 	int lastRoundWinnerPlayerID = -1;
 
 private:

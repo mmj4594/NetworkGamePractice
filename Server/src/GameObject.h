@@ -33,9 +33,6 @@ public:
 	float getHeight() {return height;}
 	void setHeight(float newHeight) {height = newHeight;}
 	
-	glm::vec3 getColor() {return color;}
-	void setColor(glm::vec3 newColor) {color = newColor;}
-	
 public:
 	virtual void reset();
 	virtual void updatePosition(float elapsedTime);
@@ -52,6 +49,4 @@ private:
 
 	float width = 0.f;
 	float height = 0.f;
-
-	glm::vec3 color = glm::vec3(0.f);
 };

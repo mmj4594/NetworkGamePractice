@@ -18,30 +18,28 @@ int main()
 {
 	Server::Get().beginPlay();
 
-	// Game::Get().beginPlay();
+	Game::Get().beginPlay();
 
 	// Main loop
 	while (true)
 	{
-		//static double tickTimer = 0.0;
-		//static double renderTimer = 0.0;
+		static double tickTimer = 0.0;
 
-		//static double previousTime = getCurrentTime();
-		//const double currentTime = getCurrentTime();
-		//const double elapsedTime = currentTime - previousTime;
-		//previousTime = currentTime;
+		static double previousTime = getCurrentTime();
+		const double currentTime = getCurrentTime();
+		const double elapsedTime = currentTime - previousTime;
+		previousTime = currentTime;
 
-		//tickTimer += (elapsedTime * Game::Get().currentTimeScale);
-		//renderTimer += elapsedTime;
+		tickTimer += (elapsedTime * Game::Get().currentTimeScale);
 
-		//while (tickTimer >= FRAME_TIME)
-		//{
-		//	Game::Get().tick(static_cast<float>(tickTimer));
-		//	tickTimer -= FRAME_TIME;
-		//}
+		while (tickTimer >= FRAME_TIME)
+		{
+			Game::Get().tick(static_cast<float>(tickTimer));
+			tickTimer -= FRAME_TIME;
+		}
 	}
 
-	// Game::Get().endPlay();
+	Game::Get().endPlay();
 
 	Server::Get().endPlay();
 

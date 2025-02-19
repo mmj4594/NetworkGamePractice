@@ -12,8 +12,6 @@
 
 #pragma comment(lib, "ws2_32.lib")
 
-constexpr int BUFFER_SIZE = 1024;
-
 void GameMode_Online::beginPlay()
 {
 	// Connnect to Server
