@@ -4,8 +4,6 @@
 #include <WinSock2.h>
 #include "GameMode.h"
 
-constexpr int BUFFER_SIZE = 1024;
-
 class GameMode_Online : public GameMode
 {
 public:

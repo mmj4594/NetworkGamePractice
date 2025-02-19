@@ -11,11 +11,15 @@ add_compile_options("/utf-8")
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 # 파일 경로 정의
-set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
+set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/../include)
 set(LIBRARY_DIR ${CMAKE_SOURCE_DIR}/lib)
 set(RESOURCES_DIR ${CMAKE_SOURCE_DIR}/resources)
 set(SHADERS_DIR ${CMAKE_SOURCE_DIR}/shaders)
-include_directories(${INCLUDE_DIR} "${INCLUDE_DIR}/freetype")
+include_directories(
+    ${INCLUDE_DIR}/Shared
+    ${INCLUDE_DIR}/Client
+    ${INCLUDE_DIR}/Client/freetype
+)
 link_directories(${LIBRARY_DIR})
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 

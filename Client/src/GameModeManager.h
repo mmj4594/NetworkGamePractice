@@ -1,14 +1,8 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include "SharedData.h"
 #include "GameMode.h"
-
-constexpr int SCREEN_WIDTH = 900;
-constexpr int SCREEN_HEIGHT = 600;
-
-constexpr int MAX_FPS = 60;
-constexpr float FRAME_TIME = 1.0f / MAX_FPS;
-constexpr float BASIC_TIME_SCALE = 1.0f;
 
 constexpr glm::vec3 FPS_TEXT_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);
 

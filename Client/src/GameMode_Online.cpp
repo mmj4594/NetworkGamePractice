@@ -6,6 +6,7 @@
 #include <thread>
 #include <WinSock2.h>
 #include <WS2tcpip.h>
+#include "SharedData.h"
 #include "GameMode_Online.h"
 #include "GameModeManager.h"
 #include "Graphics.h"

@@ -4,7 +4,6 @@
 #include <WinSock2.h>
 
 constexpr int MAX_PLAYERS = 2;
-constexpr int BUFFER_SIZE = 1024;
 
 class Server
 {
