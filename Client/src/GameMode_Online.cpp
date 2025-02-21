@@ -56,10 +56,6 @@ void GameMode_Online::endPlay()
 
 void GameMode_Online::tick(float elapsedTime)
 {
-	//// Send Data to Server
-	//const char* message = "Hello, Server!";
-	//send(clientSocket, message, static_cast<int>(strlen(message)), 0);
-	//std::cout << "Send Message to Server: " << message << std::endl;
 }
 
 void GameMode_Online::renderFrame(float elapsedTime)
@@ -99,7 +95,12 @@ void GameMode_Online::receiveMessageFromServer()
 			}
 			else
 			{
-				std::cout << "Message from Server: " << buffer << std::endl;
+				ReplicatedGameState replicatedGameState;
+				deserialize(buffer, replicatedGameState);
+				std::cout << "Message from Server: "
+					<< replicatedGameState.player1Position.x << ", " << replicatedGameState.player1Position.y << ", "
+					<< replicatedGameState.player2Position.x << ", " << replicatedGameState.player2Position.y << ", "
+					<< replicatedGameState.ballPosition.x << ", " << replicatedGameState.ballPosition.y << std::endl;
 			}
 		}
 	}

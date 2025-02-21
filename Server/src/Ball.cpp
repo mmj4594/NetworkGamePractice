@@ -1,3 +1,4 @@
+#include "SharedData.h"
 #include "Ball.h"
 #include "Game.h"
 
@@ -16,10 +17,10 @@ void Ball::reset()
 	__super::reset();
 	if (Game::Get().lastRoundWinnerPlayerID == -1)
 	{
-		setPosition(glm::vec2((rand() % 2 == 0 ? getInitialPosition().x : SCREEN_WIDTH - getInitialPosition().x), getInitialPosition().y));
+		setPosition(glm::vec2((rand() % 2 == 0 ? INITIAL_BALL_POSITION.x : SCREEN_WIDTH - INITIAL_BALL_POSITION.x), INITIAL_BALL_POSITION.y));
 	}
 	else
 	{
-		setPosition(glm::vec2(Game::Get().lastRoundWinnerPlayerID == 1 ? getInitialPosition().x : SCREEN_WIDTH - getInitialPosition().x, getInitialPosition().y));
+		setPosition(glm::vec2(Game::Get().lastRoundWinnerPlayerID == 1 ? INITIAL_BALL_POSITION.x : SCREEN_WIDTH - INITIAL_BALL_POSITION.x, INITIAL_BALL_POSITION.y));
 	}
 }

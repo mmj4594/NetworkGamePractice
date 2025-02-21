@@ -6,6 +6,7 @@
 #include <WS2tcpip.h>
 #include "SharedData.h"
 #include "Server.h"
+#include "Game.h"
 
 #pragma comment(lib, "ws2_32.lib")
 
@@ -53,6 +54,22 @@ void Server::endPlay()
 	}
 }
 
+void Server::tick(float elapsedTime)
+{
+	ReplicatedGameState replicatedGameState;
+	replicatedGameState.player1Position = Game::Get().player1.getPosition();
+	replicatedGameState.player2Position = Game::Get().player2.getPosition();
+	replicatedGameState.ballPosition = Game::Get().ball.getPosition();
+
+	// Send Game State to Clients
+	for(int i = 1; i<=connectedPlayers; ++i)
+	{
+		char buffer[sizeof(ReplicatedGameState)];
+		serialize(replicatedGameState, buffer);
+		send(playerIDToClientSocket[i], buffer, static_cast<int>(sizeof(buffer)), 0);
+	}
+}
+
 void Server::receiveMessageFromClients()
 {
 	fd_set masterSet, readSet;
@@ -73,6 +90,7 @@ void Server::receiveMessageFromClients()
 					SOCKET clientSocket = accept(serverSocket, nullptr, nullptr);
 					connectedPlayers++;
 					clientSocketToPlayerID[static_cast<int>(clientSocket)] = connectedPlayers;
+					playerIDToClientSocket[connectedPlayers] = static_cast<int>(clientSocket);
 					FD_SET(clientSocket, &masterSet);
 					if (clientSocket > maxSocket)
 						maxSocket = static_cast<int>(clientSocket);
@@ -100,6 +118,7 @@ void Server::receiveMessageFromClients()
 						deserialize(buffer, playerInput);
 						std::cout << "Player " << clientSocketToPlayerID[i] << " Sent Input! "
 							<< playerInput.key << ", " << playerInput.scancode << ", " << playerInput.action << ", " << playerInput.mods << std::endl;
+						Game::Get().onKey(clientSocketToPlayerID[i], playerInput.key, playerInput.scancode, playerInput.action, playerInput.mods);
 					}
 				}
 			}

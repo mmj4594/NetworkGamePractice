@@ -15,8 +15,6 @@ public:
 	float getLeft() {return position.x - width/2;}
 	float getTop() {return position.y + height/2;}
 	float getBottom() {return position.y - height/2;}
-	
-	glm::vec2 getInitialPosition() {return initialPosition;}
 
 	glm::vec2 getSpeed() {return speed;}
 	virtual void setSpeed(glm::vec2 newSpeed);

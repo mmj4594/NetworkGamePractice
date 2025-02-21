@@ -35,6 +35,10 @@ int main()
 		while (tickTimer >= FRAME_TIME)
 		{
 			Game::Get().tick(static_cast<float>(tickTimer));
+			if(Server::Get().getConnectedPlayers() == MAX_PLAYERS)
+			{
+				Server::Get().tick(static_cast<float>(tickTimer));
+			}
 			tickTimer -= FRAME_TIME;
 		}
 	}

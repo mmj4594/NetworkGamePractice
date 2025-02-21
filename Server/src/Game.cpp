@@ -202,14 +202,14 @@ void Game::readyRound()
 	ball.reset();
 	roundWaitTimer = 0.f;
 
-	std::cout << "Ready Round! Round Wait Time: " << ROUND_WAIT_TIME << std::endl;
+	//std::cout << "Ready Round! Round Wait Time: " << ROUND_WAIT_TIME << std::endl;
 }
 
 void Game::startRound()
 {
 	currentRoundStateType = RoundStateType::Playing;
 	currentTimeScale = BASIC_TIME_SCALE;
-	std::cout << "Start Round!" << std::endl;
+	//std::cout << "Start Round!" << std::endl;
 }
 
 void Game::endRound()
@@ -227,7 +227,7 @@ void Game::endRound()
 		roundEndTimer = 0.f;
 	}
 
-	std::cout << "Finish Round! Player1: " << scorePlayer1 << ", Player2: " << scorePlayer2 << std::endl << std::endl;
+	//std::cout << "Finish Round! Player1: " << scorePlayer1 << ", Player2: " << scorePlayer2 << std::endl;
 }
 
 bool Game::checkCollision(GameObject obj1, GameObject obj2)
