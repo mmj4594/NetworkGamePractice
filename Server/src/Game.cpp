@@ -28,13 +28,13 @@ void Game::endPlay()
 
 void Game::tick(float elapsedTime)
 {
-	if (currentRoundStateType != RoundStateType::Ready)
+	if (currentRoundState != RoundStateType::Ready)
 	{
 		updatePosition(elapsedTime);
 		updatePhysics(elapsedTime);
 	}
 
-	if (currentRoundStateType == RoundStateType::Ready)
+	if (currentRoundState == RoundStateType::Ready)
 	{
 		roundWaitTimer += elapsedTime;
 		if (roundWaitTimer >= ROUND_WAIT_TIME)
@@ -42,7 +42,7 @@ void Game::tick(float elapsedTime)
 			startRound();
 		}
 	}
-	else if (currentRoundStateType == RoundStateType::End)
+	else if (currentRoundState == RoundStateType::End)
 	{
 		if (currentGameState != GameStateType::End)
 		{
@@ -60,7 +60,7 @@ void Game::onKey(int playerID, int key, int scancode, int action, int mods)
 	static bool DPressed = false, GPressed = false, RPressed = false, FPressed = false;
 	static bool leftPressed = false, rightPressed = false, upPressed = false, downPressed = false;
 
-	if (currentGameState != GameStateType::Playing || currentRoundStateType != RoundStateType::Playing)
+	if (currentGameState != GameStateType::Playing || currentRoundState != RoundStateType::Playing)
 	{
 		DPressed = false, GPressed = false, RPressed = false, FPressed = false;
 		player1.setAcc(glm::vec2(0, player1.getAcc().y));
@@ -195,7 +195,7 @@ void Game::onKey(int playerID, int key, int scancode, int action, int mods)
 
 void Game::readyRound()
 {
-	currentRoundStateType = RoundStateType::Ready;
+	currentRoundState = RoundStateType::Ready;
 	currentTimeScale = BASIC_TIME_SCALE;
 	player1.reset();
 	player2.reset();
@@ -207,14 +207,14 @@ void Game::readyRound()
 
 void Game::startRound()
 {
-	currentRoundStateType = RoundStateType::Playing;
+	currentRoundState = RoundStateType::Playing;
 	currentTimeScale = BASIC_TIME_SCALE;
 	//std::cout << "Start Round!" << std::endl;
 }
 
 void Game::endRound()
 {
-	currentRoundStateType = RoundStateType::End;
+	currentRoundState = RoundStateType::End;
 
 	// game set
 	if (scorePlayer1 >= MAX_SCORE || scorePlayer2 >= MAX_SCORE)
@@ -257,7 +257,7 @@ void Game::updatePhysics(float elapsedTime)
 	// ball - floor
 	if (checkCollision(ball, floor))
 	{
-		if (currentGameState == GameStateType::Playing && currentRoundStateType == RoundStateType::Playing)
+		if (currentGameState == GameStateType::Playing && currentRoundState == RoundStateType::Playing)
 		{
 			if (ball.getPosition().x < SCREEN_WIDTH / 2)
 			{

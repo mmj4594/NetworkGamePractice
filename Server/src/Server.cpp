@@ -60,12 +60,17 @@ void Server::tick(float elapsedTime)
 	replicatedGameState.player1Position = Game::Get().player1.getPosition();
 	replicatedGameState.player2Position = Game::Get().player2.getPosition();
 	replicatedGameState.ballPosition = Game::Get().ball.getPosition();
+	replicatedGameState.scorePlayer1 = Game::Get().scorePlayer1;
+	replicatedGameState.scorePlayer2 = Game::Get().scorePlayer2;
+	replicatedGameState.currentGameState = Game::Get().currentGameState;
+	replicatedGameState.currentRoundState = Game::Get().currentRoundState;
 
-	// Send Game State to Clients
-	for(int i = 1; i<=connectedPlayers; ++i)
+	char buffer[sizeof(ReplicatedGameState)];
+	serialize(replicatedGameState, buffer);
+
+	// Replicate Game State to Clients
+	for(int i = 1; i <= connectedPlayers; ++i)
 	{
-		char buffer[sizeof(ReplicatedGameState)];
-		serialize(replicatedGameState, buffer);
 		send(playerIDToClientSocket[i], buffer, static_cast<int>(sizeof(buffer)), 0);
 	}
 }
@@ -116,8 +121,6 @@ void Server::receiveMessageFromClients()
 					{
 						PlayerInput playerInput;
 						deserialize(buffer, playerInput);
-						std::cout << "Player " << clientSocketToPlayerID[i] << " Sent Input! "
-							<< playerInput.key << ", " << playerInput.scancode << ", " << playerInput.action << ", " << playerInput.mods << std::endl;
 						Game::Get().onKey(clientSocketToPlayerID[i], playerInput.key, playerInput.scancode, playerInput.action, playerInput.mods);
 					}
 				}

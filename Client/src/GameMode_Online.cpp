@@ -60,10 +60,26 @@ void GameMode_Online::tick(float elapsedTime)
 
 void GameMode_Online::renderFrame(float elapsedTime)
 {
+	// Object Rendering
+	Graphics::Get().renderObject(player1);
+	Graphics::Get().renderObject(player2);
+	Graphics::Get().renderObject(ball);
+	Graphics::Get().renderObject(net);
+	Graphics::Get().renderObject(leftWall);
+	Graphics::Get().renderObject(rightWall);
+	Graphics::Get().renderObject(floor);
+	Graphics::Get().renderObject(ceil);
+
 	// Text Rendering
 	std::ostringstream fpsString;
 	fpsString << std::fixed << std::setprecision(1) << ( 1.0f / elapsedTime );
 	Graphics::Get().renderText(( fpsString.str() + " FPS" ).c_str(), 20.f, 570.f, 0.25f, FPS_TEXT_COLOR);
+	Graphics::Get().renderText(std::to_string(scorePlayer1), INITIAL_PLAYER1_POSITION.x, 500.f, 1.f, SCORE_TEXT_COLOR, true);
+	Graphics::Get().renderText(std::to_string(scorePlayer2), INITIAL_PLAYER2_POSITION.x, 500.f, 1.f, SCORE_TEXT_COLOR, true);
+	if ( currentRoundState == RoundStateType::Ready )
+		Graphics::Get().renderText("Ready?", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, READY_TEXT_COLOR, true);
+	if ( currentGameState == GameStateType::End )
+		Graphics::Get().renderText("Game Set!", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, GAME_SET_TEXT_COLOR, true);
 }
 
 void GameMode_Online::onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -95,13 +111,20 @@ void GameMode_Online::receiveMessageFromServer()
 			}
 			else
 			{
-				ReplicatedGameState replicatedGameState;
 				deserialize(buffer, replicatedGameState);
-				std::cout << "Message from Server: "
-					<< replicatedGameState.player1Position.x << ", " << replicatedGameState.player1Position.y << ", "
-					<< replicatedGameState.player2Position.x << ", " << replicatedGameState.player2Position.y << ", "
-					<< replicatedGameState.ballPosition.x << ", " << replicatedGameState.ballPosition.y << std::endl;
+				onReplicatedGameState();
 			}
 		}
 	}
+}
+
+void GameMode_Online::onReplicatedGameState()
+{
+	player1.setPosition(replicatedGameState.player1Position);
+	player2.setPosition(replicatedGameState.player2Position);
+	ball.setPosition(replicatedGameState.ballPosition);
+	scorePlayer1 = replicatedGameState.scorePlayer1;
+	scorePlayer2 = replicatedGameState.scorePlayer2;
+	currentGameState = replicatedGameState.currentGameState;
+	currentRoundState = replicatedGameState.currentRoundState;
 }

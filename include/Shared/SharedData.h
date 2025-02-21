@@ -3,47 +3,6 @@
 #include <glm/glm.hpp>
 #include <cstring>
 
-#pragma region Network
-constexpr int BUFFER_SIZE = 1024;
-
-struct PlayerInput
-{
-	PlayerInput() {}
-	PlayerInput(int _key, int _scancode, int _action, int _mods) : key(_key), scancode(_scancode), action(_action), mods(_mods) {}
-
-	int key = 0;
-	int scancode = 0;
-	int action = 0;
-	int mods = 0;
-};
-inline void serialize(const PlayerInput& data, char* buffer)
-{
-	std::memcpy(buffer, &data, sizeof(PlayerInput));
-}
-inline void deserialize(const char* buffer, PlayerInput& data)
-{
-	std::memcpy(&data, buffer, sizeof(PlayerInput));
-}
-
-struct ReplicatedGameState
-{
-	ReplicatedGameState() {}
-
-	glm::vec2 player1Position = glm::vec2(0);
-	glm::vec2 player2Position = glm::vec2(0);
-	glm::vec2 ballPosition = glm::vec2(0);
-};
-inline void serialize(const ReplicatedGameState& data, char* buffer)
-{
-	std::memcpy(buffer, &data, sizeof(ReplicatedGameState));
-}
-inline void deserialize(const char* buffer, ReplicatedGameState& data)
-{
-	std::memcpy(&data, buffer, sizeof(ReplicatedGameState));
-}
-
-#pragma endregion
-
 #pragma region System
 constexpr int SCREEN_WIDTH = 900;
 constexpr int SCREEN_HEIGHT = 600;
@@ -107,4 +66,48 @@ enum class SpikeDirectionType
 	Front_Up,
 	Front_Down,
 };
+#pragma endregion
+
+#pragma region Network
+constexpr int BUFFER_SIZE = 1024;
+
+struct PlayerInput
+{
+	PlayerInput() {}
+	PlayerInput(int _key, int _scancode, int _action, int _mods) : key(_key), scancode(_scancode), action(_action), mods(_mods) {}
+
+	int key = 0;
+	int scancode = 0;
+	int action = 0;
+	int mods = 0;
+};
+inline void serialize(const PlayerInput& data, char* buffer)
+{
+	std::memcpy(buffer, &data, sizeof(PlayerInput));
+}
+inline void deserialize(const char* buffer, PlayerInput& data)
+{
+	std::memcpy(&data, buffer, sizeof(PlayerInput));
+}
+
+struct ReplicatedGameState
+{
+	ReplicatedGameState() {}
+
+	glm::vec2 player1Position = glm::vec2(0);
+	glm::vec2 player2Position = glm::vec2(0);
+	glm::vec2 ballPosition = glm::vec2(0);
+	int scorePlayer1 = 0;
+	int scorePlayer2 = 0;
+	GameStateType currentGameState = GameStateType::None;
+	RoundStateType currentRoundState = RoundStateType::None;
+};
+inline void serialize(const ReplicatedGameState& data, char* buffer)
+{
+	std::memcpy(buffer, &data, sizeof(ReplicatedGameState));
+}
+inline void deserialize(const char* buffer, ReplicatedGameState& data)
+{
+	std::memcpy(&data, buffer, sizeof(ReplicatedGameState));
+}
 #pragma endregion

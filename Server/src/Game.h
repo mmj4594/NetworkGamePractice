@@ -40,7 +40,7 @@ public:
 
 	int scorePlayer1 = 0, scorePlayer2 = 0;
 	GameStateType currentGameState = GameStateType::None;
-	RoundStateType currentRoundStateType = RoundStateType::None;
+	RoundStateType currentRoundState = RoundStateType::None;
 	float currentTimeScale = BASIC_TIME_SCALE;
 	int lastRoundWinnerPlayerID = -1;
 
