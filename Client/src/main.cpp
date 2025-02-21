@@ -36,18 +36,18 @@ int main()
 		previousTime = currentTime;
 
 		tickTimer += (elapsedTime * GameModeManager::Get().currentTimeScale);
-		renderTimer += elapsedTime;
+		renderTimer += elapsedTime * BASIC_TIME_SCALE;
 
-		while (tickTimer >= FRAME_TIME)
+		while (tickTimer >= CLIENT_FRAME_TIME )
 		{
 			GameModeManager::Get().tick(static_cast<float>(tickTimer));
-			tickTimer -= FRAME_TIME;
+			tickTimer -= CLIENT_FRAME_TIME;
 		}
 
-		while (renderTimer >= FRAME_TIME)
+		while (renderTimer >= CLIENT_FRAME_TIME )
 		{
 			Graphics::Get().renderFrame(static_cast<float>(renderTimer));
-			renderTimer -= FRAME_TIME;
+			renderTimer -= CLIENT_FRAME_TIME;
 		}
 	}
 

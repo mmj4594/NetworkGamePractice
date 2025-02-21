@@ -7,8 +7,10 @@
 constexpr int SCREEN_WIDTH = 900;
 constexpr int SCREEN_HEIGHT = 600;
 
-constexpr int MAX_FPS = 60;
-constexpr float FRAME_TIME = 1.0f / MAX_FPS;
+constexpr int CLIENT_MAX_FPS = 60;
+constexpr int SERVER_MAX_FPS = 30;
+constexpr float CLIENT_FRAME_TIME = 1.0f / CLIENT_MAX_FPS;
+constexpr float SERVER_FRAME_TIME = 1.0f / SERVER_MAX_FPS;
 constexpr float BASIC_TIME_SCALE = 1.0f;
 #pragma endregion
 

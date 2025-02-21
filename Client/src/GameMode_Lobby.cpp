@@ -27,7 +27,7 @@ void GameMode_Lobby::renderFrame(float elapsedTime)
 	// Text Rendering
 	std::ostringstream fpsString;
 	fpsString << std::fixed << std::setprecision(1) << (1.0f / elapsedTime);
-	Graphics::Get().renderText((fpsString.str() + " FPS").c_str(), 20.f, 570.f, 0.25f, FPS_TEXT_COLOR);
+	Graphics::Get().renderText((fpsString.str() + " FPS").c_str(), 20.f, SCREEN_HEIGHT - 30.f, 0.25f, FPS_TEXT_COLOR);
 
 	selectedGameMode == GameModeType::Local
 		? Graphics::Get().renderText("> Local Mode <", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 25.f, SELECTED_GAMEMODE_SIZE, SELECTED_GAMEMODE_COLOR, true)
@@ -40,7 +40,6 @@ void GameMode_Lobby::renderFrame(float elapsedTime)
 
 void GameMode_Lobby::onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	std::cout << key << " " << action << std::endl;
 	if (key == GLFW_KEY_ENTER && action == GLFW_PRESS)
 	{
 		GameModeManager::Get().changeGameMode(selectedGameMode);

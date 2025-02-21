@@ -23,23 +23,30 @@ int main()
 	// Main loop
 	while (true)
 	{
-		static double tickTimer = 0.0;
+		static double gameTickTimer = 0.0;
+		static double serverTickTimer = 0.0;
 
 		static double previousTime = getCurrentTime();
 		const double currentTime = getCurrentTime();
 		const double elapsedTime = currentTime - previousTime;
 		previousTime = currentTime;
 
-		tickTimer += (elapsedTime * Game::Get().currentTimeScale);
+		gameTickTimer += (elapsedTime * Game::Get().currentTimeScale);
+		serverTickTimer += elapsedTime * BASIC_TIME_SCALE;
 
-		while (tickTimer >= FRAME_TIME)
+		while (gameTickTimer >= SERVER_FRAME_TIME)
 		{
-			Game::Get().tick(static_cast<float>(tickTimer));
-			if(Server::Get().getConnectedPlayers() == MAX_PLAYERS)
+			Game::Get().tick(static_cast<float>(gameTickTimer));
+			gameTickTimer -= SERVER_FRAME_TIME;
+		}
+
+		while (serverTickTimer >= SERVER_FRAME_TIME)
+		{
+			if (Server::Get().getConnectedPlayers() == MAX_PLAYERS)
 			{
-				Server::Get().tick(static_cast<float>(tickTimer));
+				Server::Get().tick(static_cast<float>(gameTickTimer));
 			}
-			tickTimer -= FRAME_TIME;
+			serverTickTimer -= SERVER_FRAME_TIME;
 		}
 	}
 
