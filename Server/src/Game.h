@@ -29,9 +29,9 @@ public:
 	void updatePhysics(float elapsedTime);
 
 public:
-	Player player1 = Player(1, INITIAL_PLAYER1_POSITION, 75.f, 75.f);
-	Player player2 = Player(2, INITIAL_PLAYER2_POSITION, 75.f, 75.f);
-	Ball ball = Ball(INITIAL_BALL_POSITION, 60.f, 60.f);
+	Player player1 = Player(1, INITIAL_PLAYER1_POSITION, PLAYER_SIZE.x, PLAYER_SIZE.y);
+	Player player2 = Player(2, INITIAL_PLAYER2_POSITION, PLAYER_SIZE.x, PLAYER_SIZE.y);
+	Ball ball = Ball(INITIAL_BALL_POSITION, BALL_SIZE.x, BALL_SIZE.y);
 	Net net = Net(INITIAL_NET_POSITION, NET_WIDTH, NET_HEIGHT);
 	Block leftWall = Block(INITIAL_LEFT_WALL_POSITION, BLOCK_THICKNESS, SCREEN_HEIGHT);
 	Block rightWall = Block(INITIAL_RIGHT_WALL_POSITION, BLOCK_THICKNESS, SCREEN_HEIGHT);

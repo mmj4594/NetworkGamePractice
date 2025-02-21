@@ -31,9 +31,12 @@ constexpr float NET_WIDTH = 6.f;
 constexpr float NET_HEIGHT = 200.f;
 constexpr float BLOCK_THICKNESS = 30.f;
 
-constexpr glm::vec2 INITIAL_PLAYER1_POSITION = glm::vec2(70.f, BLOCK_THICKNESS / 2 + 37.5f);
-constexpr glm::vec2 INITIAL_PLAYER2_POSITION = glm::vec2(SCREEN_WIDTH - 70.f, BLOCK_THICKNESS / 2 + 37.5f);
-constexpr glm::vec2 INITIAL_BALL_POSITION = glm::vec2(100.f, SCREEN_HEIGHT - BLOCK_THICKNESS / 2 - 30.f);
+constexpr glm::vec2 PLAYER_SIZE = glm::vec2(75.f, 75.f);
+constexpr glm::vec2 BALL_SIZE = glm::vec2(60.f, 60.f);
+
+constexpr glm::vec2 INITIAL_PLAYER1_POSITION = glm::vec2(BLOCK_THICKNESS / 2 + 15 + (PLAYER_SIZE.x / 2), BLOCK_THICKNESS / 2 + PLAYER_SIZE.y / 2);
+constexpr glm::vec2 INITIAL_PLAYER2_POSITION = glm::vec2(SCREEN_WIDTH - (BLOCK_THICKNESS / 2 + 15 + (PLAYER_SIZE.x / 2)), BLOCK_THICKNESS / 2 + PLAYER_SIZE.y / 2);
+constexpr glm::vec2 INITIAL_BALL_POSITION = glm::vec2(BLOCK_THICKNESS / 2 + 55 + (BALL_SIZE.x / 2), SCREEN_HEIGHT - BLOCK_THICKNESS / 2 - BALL_SIZE.y / 2);
 constexpr glm::vec2 INITIAL_NET_POSITION = glm::vec2(SCREEN_WIDTH / 2, NET_HEIGHT / 2);
 constexpr glm::vec2 INITIAL_LEFT_WALL_POSITION = glm::vec2(0.f, SCREEN_HEIGHT / 2);
 constexpr glm::vec2 INITIAL_RIGHT_WALL_POSITION = glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT / 2);
