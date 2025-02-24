@@ -56,6 +56,7 @@ void Server::endPlay()
 
 void Server::tick(float elapsedTime)
 {
+	ReplicateGameStateMessage message;
 	ReplicatedGameState replicatedGameState;
 	replicatedGameState.player1Position = Game::Get().player1.getPosition();
 	replicatedGameState.player2Position = Game::Get().player2.getPosition();
@@ -64,9 +65,12 @@ void Server::tick(float elapsedTime)
 	replicatedGameState.scorePlayer2 = Game::Get().scorePlayer2;
 	replicatedGameState.currentGameState = Game::Get().currentGameState;
 	replicatedGameState.currentRoundState = Game::Get().currentRoundState;
+	message.header.type = MessageType::ReplicateGameState;
+	message.header.size = sizeof(ReplicatedGameState);
+	message.gameState = replicatedGameState;
 
-	char buffer[sizeof(ReplicatedGameState)];
-	serialize(replicatedGameState, buffer);
+	char buffer[sizeof(message)];
+	serialize(message, buffer);
 
 	// Replicate Game State to Clients
 	for(int i = 1; i <= connectedPlayers; ++i)
@@ -99,14 +103,15 @@ void Server::receiveMessageFromClients()
 					FD_SET(clientSocket, &masterSet);
 					if (clientSocket > maxSocket)
 						maxSocket = static_cast<int>(clientSocket);
-					std::cout << "Accepted Client " << connectedPlayers << std::endl;
+					std::cout << "Accepted Player " << connectedPlayers << std::endl;
 
 					if (connectedPlayers == MAX_PLAYERS)
 					{
 						std::cout << MAX_PLAYERS << " Players are Connected!" << std::endl;
+						Game::Get().beginPlay();
 					}
 				}
-				// Get Data From Client
+				// Get Message From Client
 				else
 				{
 					char buffer[BUFFER_SIZE] = { 0 };
@@ -119,12 +124,36 @@ void Server::receiveMessageFromClients()
 					}
 					else
 					{
-						PlayerInput playerInput;
-						deserialize(buffer, playerInput);
-						Game::Get().onKey(clientSocketToPlayerID[i], playerInput.key, playerInput.scancode, playerInput.action, playerInput.mods);
+						messageHandler(i, buffer, bytesReceived);
 					}
 				}
 			}
+		}
+	}
+}
+
+void Server::messageHandler(SOCKET clientSocket, char* buffer, int bytesReceived)
+{
+	MessageHeader* header = reinterpret_cast<MessageHeader*>(buffer);
+	if (header == nullptr)
+	{
+		std::cout << "Invalid Header!" << std::endl;
+		return;
+	}
+
+	switch (header->type)
+	{
+		case MessageType::PlayerInput:
+		{
+			PlayerInputMessage message;
+			deserialize(buffer, message);
+			Game::Get().onKey(clientSocketToPlayerID[static_cast<int>(clientSocket)],
+				message.playerInput.key, message.playerInput.scancode, message.playerInput.action, message.playerInput.mods);
+		}
+		break;
+		default:
+		{
+			std::cout << "Unhandled Message Received From Client!" << std::endl;
 		}
 	}
 }

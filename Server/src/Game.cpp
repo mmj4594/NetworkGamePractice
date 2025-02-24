@@ -18,8 +18,7 @@ void Game::beginPlay()
 	rightWall.beginPlay();
 	floor.beginPlay();
 
-	currentGameState = GameStateType::Playing;
-	readyRound();
+	currentGameState = GameStateType::Ready;
 }
 
 void Game::endPlay()
@@ -28,28 +27,41 @@ void Game::endPlay()
 
 void Game::tick(float elapsedTime)
 {
-	if (currentRoundState != RoundStateType::Ready)
+	switch(currentGameState)
 	{
-		updatePosition(elapsedTime);
-		updatePhysics(elapsedTime);
-	}
-
-	if (currentRoundState == RoundStateType::Ready)
-	{
-		roundWaitTimer += elapsedTime;
-		if (roundWaitTimer >= ROUND_WAIT_TIME)
+	case GameStateType::Ready:
+		gameWaitTimer += elapsedTime;
+		if (gameWaitTimer >= GAME_WAIT_TIME)
 		{
-			startRound();
+			currentGameState = GameStateType::Playing;
+			readyRound();
 		}
-	}
-	else if (currentRoundState == RoundStateType::End)
-	{
-		if (currentGameState != GameStateType::End)
+		break;
+
+	default:
+		if (currentRoundState != RoundStateType::Ready)
 		{
-			roundEndTimer += elapsedTime;
-			if (roundEndTimer >= ROUND_END_TIME)
+			updatePosition(elapsedTime);
+			updatePhysics(elapsedTime);
+		}
+
+		if (currentRoundState == RoundStateType::Ready)
+		{
+			roundWaitTimer += elapsedTime;
+			if (roundWaitTimer >= ROUND_WAIT_TIME)
 			{
-				readyRound();
+				startRound();
+			}
+		}
+		else if (currentRoundState == RoundStateType::End)
+		{
+			if (currentGameState != GameStateType::End)
+			{
+				roundEndTimer += elapsedTime;
+				if (roundEndTimer >= ROUND_END_TIME)
+				{
+					readyRound();
+				}
 			}
 		}
 	}
@@ -201,15 +213,12 @@ void Game::readyRound()
 	player2.reset();
 	ball.reset();
 	roundWaitTimer = 0.f;
-
-	//std::cout << "Ready Round! Round Wait Time: " << ROUND_WAIT_TIME << std::endl;
 }
 
 void Game::startRound()
 {
 	currentRoundState = RoundStateType::Playing;
 	currentTimeScale = BASIC_TIME_SCALE;
-	//std::cout << "Start Round!" << std::endl;
 }
 
 void Game::endRound()
@@ -226,8 +235,6 @@ void Game::endRound()
 		currentTimeScale = ROUND_END_TIME_SCALE;
 		roundEndTimer = 0.f;
 	}
-
-	//std::cout << "Finish Round! Player1: " << scorePlayer1 << ", Player2: " << scorePlayer2 << std::endl;
 }
 
 bool Game::checkCollision(GameObject obj1, GameObject obj2)

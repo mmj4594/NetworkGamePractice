@@ -20,6 +20,7 @@ public:
 
 public:
 	void receiveMessageFromServer();
+	void messageHandler(char* buffer, int bytesReceived);
 	void onReplicatedGameState();
 
 public:

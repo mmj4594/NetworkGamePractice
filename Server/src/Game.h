@@ -45,6 +45,7 @@ public:
 	int lastRoundWinnerPlayerID = -1;
 
 private:
+	float gameWaitTimer = 0.f;
 	float roundWaitTimer = 0.f;
 	float roundEndTimer = 0.f;
 };

@@ -16,6 +16,7 @@ public:
 	void endPlay();
 	void tick(float elapsedTime);
 	void receiveMessageFromClients();
+	void messageHandler(SOCKET clientSocket, char* buffer, int bytesReceived);
 	int getConnectedPlayers() const {return connectedPlayers;}
 
 private:

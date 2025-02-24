@@ -8,7 +8,7 @@ constexpr int SCREEN_WIDTH = 900;
 constexpr int SCREEN_HEIGHT = 600;
 
 constexpr int CLIENT_MAX_FPS = 60;
-constexpr int SERVER_MAX_FPS = 30;
+constexpr int SERVER_MAX_FPS = 60;
 constexpr float CLIENT_FRAME_TIME = 1.0f / CLIENT_MAX_FPS;
 constexpr float SERVER_FRAME_TIME = 1.0f / SERVER_MAX_FPS;
 constexpr float BASIC_TIME_SCALE = 1.0f;
@@ -44,6 +44,7 @@ constexpr glm::vec2 INITIAL_FLOOR_POSITION = glm::vec2(SCREEN_WIDTH / 2, 0.f);
 constexpr glm::vec2 INITIAL_CEIL_POSITION = glm::vec2(SCREEN_WIDTH / 2, SCREEN_HEIGHT);
 
 constexpr int MAX_SCORE = 15;
+constexpr float GAME_WAIT_TIME = 3.0f;
 constexpr float ROUND_END_TIME_SCALE = 0.15f;
 constexpr float ROUND_WAIT_TIME = 2.0f;
 constexpr float ROUND_END_TIME = 2.0f * ROUND_END_TIME_SCALE;
@@ -51,6 +52,7 @@ constexpr float ROUND_END_TIME = 2.0f * ROUND_END_TIME_SCALE;
 enum class GameStateType
 {
 	None,
+	Ready,
 	Playing,
 	End,
 };
@@ -76,6 +78,29 @@ enum class SpikeDirectionType
 #pragma region Network
 constexpr int BUFFER_SIZE = 1024;
 
+enum class MessageType
+{
+	None = 0,
+	// Client is Connected to Server
+	Connected,
+	// Client is Disconnected from Server
+	Disconnected,
+	// Server Shutdown
+	Shutdown,
+	// Notify Game Starts
+	GameStart,
+	// Replicate GameState
+	ReplicateGameState,
+	// Input of Player
+	PlayerInput,
+};
+
+struct MessageHeader
+{
+	MessageType type;
+	int size;
+};
+
 struct PlayerInput
 {
 	PlayerInput() {}
@@ -86,14 +111,6 @@ struct PlayerInput
 	int action = 0;
 	int mods = 0;
 };
-inline void serialize(const PlayerInput& data, char* buffer)
-{
-	std::memcpy(buffer, &data, sizeof(PlayerInput));
-}
-inline void deserialize(const char* buffer, PlayerInput& data)
-{
-	std::memcpy(&data, buffer, sizeof(PlayerInput));
-}
 
 struct ReplicatedGameState
 {
@@ -107,12 +124,32 @@ struct ReplicatedGameState
 	GameStateType currentGameState = GameStateType::None;
 	RoundStateType currentRoundState = RoundStateType::None;
 };
-inline void serialize(const ReplicatedGameState& data, char* buffer)
+
+struct PlayerInputMessage
 {
-	std::memcpy(buffer, &data, sizeof(ReplicatedGameState));
+	MessageHeader header;
+	PlayerInput playerInput;
+};
+inline void serialize(const PlayerInputMessage& data, char* buffer)
+{
+	std::memcpy(buffer, &data, sizeof(PlayerInputMessage));
 }
-inline void deserialize(const char* buffer, ReplicatedGameState& data)
+inline void deserialize(const char* buffer, PlayerInputMessage& data)
 {
-	std::memcpy(&data, buffer, sizeof(ReplicatedGameState));
+	std::memcpy(&data, buffer, sizeof(PlayerInputMessage));
+}
+
+struct ReplicateGameStateMessage
+{
+	MessageHeader header;
+	ReplicatedGameState gameState;
+};
+inline void serialize(const ReplicateGameStateMessage& data, char* buffer)
+{
+	std::memcpy(buffer, &data, sizeof(ReplicateGameStateMessage));
+}
+inline void deserialize(const char* buffer, ReplicateGameStateMessage& data)
+{
+	std::memcpy(&data, buffer, sizeof(ReplicateGameStateMessage));
 }
 #pragma endregion

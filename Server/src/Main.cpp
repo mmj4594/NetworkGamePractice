@@ -18,8 +18,6 @@ int main()
 {
 	Server::Get().beginPlay();
 
-	Game::Get().beginPlay();
-
 	// Main loop
 	while (true)
 	{
@@ -36,7 +34,10 @@ int main()
 
 		while (gameTickTimer >= SERVER_FRAME_TIME)
 		{
-			Game::Get().tick(static_cast<float>(gameTickTimer));
+			if (Server::Get().getConnectedPlayers() == MAX_PLAYERS)
+			{
+				Game::Get().tick(static_cast<float>(gameTickTimer));
+			}
 			gameTickTimer -= SERVER_FRAME_TIME;
 		}
 

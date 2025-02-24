@@ -84,9 +84,14 @@ void GameMode_Online::renderFrame(float elapsedTime)
 
 void GameMode_Online::onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+	PlayerInputMessage message;
 	PlayerInput playerInput(key, scancode, action, mods);
-	char buffer[sizeof(PlayerInput)];
-	serialize(playerInput, buffer);
+	message.header.type = MessageType::PlayerInput;
+	message.header.size = sizeof(PlayerInput);
+	message.playerInput = playerInput;
+
+	char buffer[sizeof(message)];
+	serialize(message, buffer);
 	send(clientSocket, buffer, static_cast<int>(sizeof(buffer)), 0);
 }
 
@@ -98,7 +103,7 @@ void GameMode_Online::receiveMessageFromServer()
 		FD_ZERO(&readSet);
 		FD_SET(clientSocket, &readSet);
 
-		// Get Data From Server
+		// Get Message From Server
 		select(static_cast<int>(clientSocket) + 1, &readSet, nullptr, nullptr, nullptr);
 		if ( FD_ISSET(clientSocket, &readSet) )
 		{
@@ -111,9 +116,34 @@ void GameMode_Online::receiveMessageFromServer()
 			}
 			else
 			{
-				deserialize(buffer, replicatedGameState);
-				onReplicatedGameState();
+				messageHandler(buffer, bytesReceived);
 			}
+		}
+	}
+}
+
+void GameMode_Online::messageHandler(char* buffer, int bytesReceived)
+{
+	MessageHeader* header = reinterpret_cast<MessageHeader*>(buffer);
+	if (header == nullptr)
+	{
+		std::cout << "Invalid Header!" << std::endl;
+		return;
+	}
+
+	switch (header->type)
+	{
+		case MessageType::ReplicateGameState:
+		{
+			ReplicateGameStateMessage message;
+			deserialize(buffer, message);
+			replicatedGameState = message.gameState;
+			onReplicatedGameState();
+		}
+		break;
+		default:
+		{
+			std::cout << "Unhandled Message Received From Server!" << std::endl;
 		}
 	}
 }
