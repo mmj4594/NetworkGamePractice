@@ -111,6 +111,14 @@ struct PlayerInput
 	int action = 0;
 	int mods = 0;
 };
+inline void serialize(const PlayerInput& data, char* buffer)
+{
+	std::memcpy(buffer, &data, sizeof(PlayerInput));
+}
+inline void deserialize(const char* buffer, PlayerInput& data)
+{
+	std::memcpy(&data, buffer, sizeof(PlayerInput));
+}
 
 struct ReplicatedGameState
 {
@@ -124,32 +132,24 @@ struct ReplicatedGameState
 	GameStateType currentGameState = GameStateType::None;
 	RoundStateType currentRoundState = RoundStateType::None;
 };
+inline void serialize(const ReplicatedGameState& data, char* buffer)
+{
+	std::memcpy(buffer, &data, sizeof(ReplicatedGameState));
+}
+inline void deserialize(const char* buffer, ReplicatedGameState& data)
+{
+	std::memcpy(&data, buffer, sizeof(ReplicatedGameState));
+}
 
 struct PlayerInputMessage
 {
 	MessageHeader header;
 	PlayerInput playerInput;
 };
-inline void serialize(const PlayerInputMessage& data, char* buffer)
-{
-	std::memcpy(buffer, &data, sizeof(PlayerInputMessage));
-}
-inline void deserialize(const char* buffer, PlayerInputMessage& data)
-{
-	std::memcpy(&data, buffer, sizeof(PlayerInputMessage));
-}
 
 struct ReplicateGameStateMessage
 {
 	MessageHeader header;
 	ReplicatedGameState gameState;
 };
-inline void serialize(const ReplicateGameStateMessage& data, char* buffer)
-{
-	std::memcpy(buffer, &data, sizeof(ReplicateGameStateMessage));
-}
-inline void deserialize(const char* buffer, ReplicateGameStateMessage& data)
-{
-	std::memcpy(&data, buffer, sizeof(ReplicateGameStateMessage));
-}
 #pragma endregion

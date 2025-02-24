@@ -21,6 +21,24 @@ public:
 public:
 	void receiveMessageFromServer();
 	void messageHandler(char* buffer, int bytesReceived);
+	template <typename T>
+	void sendMessage(MessageType type, const T& message)
+	{
+		int dataSize = sizeof(T);
+		int totalSize = sizeof(MessageHeader) + dataSize;
+
+		// Fill Header
+		char* buffer = new char[totalSize];
+		MessageHeader* header = reinterpret_cast<MessageHeader*>( buffer );
+		header->type = type;
+		header->size = dataSize;
+
+		// Serialize and Send Message
+		serialize(message, buffer + sizeof(MessageHeader));
+		send(clientSocket, buffer, totalSize, 0);
+
+		delete[] buffer;
+	}
 	void onReplicatedGameState();
 
 public:

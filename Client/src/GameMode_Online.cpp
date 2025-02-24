@@ -84,15 +84,8 @@ void GameMode_Online::renderFrame(float elapsedTime)
 
 void GameMode_Online::onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	PlayerInputMessage message;
 	PlayerInput playerInput(key, scancode, action, mods);
-	message.header.type = MessageType::PlayerInput;
-	message.header.size = sizeof(PlayerInput);
-	message.playerInput = playerInput;
-
-	char buffer[sizeof(message)];
-	serialize(message, buffer);
-	send(clientSocket, buffer, static_cast<int>(sizeof(buffer)), 0);
+	sendMessage<PlayerInput>(MessageType::PlayerInput, playerInput);
 }
 
 void GameMode_Online::receiveMessageFromServer()
@@ -135,9 +128,7 @@ void GameMode_Online::messageHandler(char* buffer, int bytesReceived)
 	{
 		case MessageType::ReplicateGameState:
 		{
-			ReplicateGameStateMessage message;
-			deserialize(buffer, message);
-			replicatedGameState = message.gameState;
+			deserialize(buffer + sizeof(MessageHeader), replicatedGameState);
 			onReplicatedGameState();
 		}
 		break;

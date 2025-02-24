@@ -56,7 +56,6 @@ void Server::endPlay()
 
 void Server::tick(float elapsedTime)
 {
-	ReplicateGameStateMessage message;
 	ReplicatedGameState replicatedGameState;
 	replicatedGameState.player1Position = Game::Get().player1.getPosition();
 	replicatedGameState.player2Position = Game::Get().player2.getPosition();
@@ -65,17 +64,11 @@ void Server::tick(float elapsedTime)
 	replicatedGameState.scorePlayer2 = Game::Get().scorePlayer2;
 	replicatedGameState.currentGameState = Game::Get().currentGameState;
 	replicatedGameState.currentRoundState = Game::Get().currentRoundState;
-	message.header.type = MessageType::ReplicateGameState;
-	message.header.size = sizeof(ReplicatedGameState);
-	message.gameState = replicatedGameState;
-
-	char buffer[sizeof(message)];
-	serialize(message, buffer);
 
 	// Replicate Game State to Clients
 	for(int i = 1; i <= connectedPlayers; ++i)
 	{
-		send(playerIDToClientSocket[i], buffer, static_cast<int>(sizeof(buffer)), 0);
+		sendMessage<ReplicatedGameState>(playerIDToClientSocket[i], MessageType::ReplicateGameState, replicatedGameState);
 	}
 }
 
@@ -132,6 +125,7 @@ void Server::receiveMessageFromClients()
 	}
 }
 
+
 void Server::messageHandler(SOCKET clientSocket, char* buffer, int bytesReceived)
 {
 	MessageHeader* header = reinterpret_cast<MessageHeader*>(buffer);
@@ -145,10 +139,9 @@ void Server::messageHandler(SOCKET clientSocket, char* buffer, int bytesReceived
 	{
 		case MessageType::PlayerInput:
 		{
-			PlayerInputMessage message;
-			deserialize(buffer, message);
-			Game::Get().onKey(clientSocketToPlayerID[static_cast<int>(clientSocket)],
-				message.playerInput.key, message.playerInput.scancode, message.playerInput.action, message.playerInput.mods);
+			PlayerInput playerInput;
+			deserialize(buffer + sizeof(MessageHeader), playerInput);
+			Game::Get().onKey(clientSocketToPlayerID[static_cast<int>(clientSocket)], playerInput.key, playerInput.scancode, playerInput.action, playerInput.mods);
 		}
 		break;
 		default:
