@@ -55,5 +55,7 @@ int main()
 
 	glfwTerminate();
 
+	system("pause");
+
 	return 0;
 }

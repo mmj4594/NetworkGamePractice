@@ -43,13 +43,15 @@ void Server::beginPlay()
 
 void Server::endPlay()
 {
-	// Disconnect Clients
-	for (std::pair<int, int> Pair : playerIDToClientSocket)
+	// Disconnect All clients
+	const int cachedConnectedPlayers = connectedPlayers;
+	for (int i = 1; i <= cachedConnectedPlayers; ++i)
 	{
-		disconnectClient(Pair.second);
+		if (playerIDToClientSocket.find(i) != playerIDToClientSocket.end())
+			disconnectClient(playerIDToClientSocket[i]);
 	}
 
-	// Close Sockets
+	// Close Server Socket
 	closesocket(serverSocket);
 	WSACleanup();
 	
@@ -80,6 +82,10 @@ void Server::tick(float elapsedTime)
 
 bool Server::shouldClose()
 {
+	// Server Shutdown
+	if (shutdownReserved)
+		return true;
+
 	// Player is Disconnected After Game Starts
 	if (Game::Get().currentGameState != GameStateType::None && connectedPlayers < MAX_PLAYERS)
 		return true;
@@ -97,6 +103,7 @@ void Server::connectClient(SOCKET clientSocket)
 	clientSocketToPlayerID[static_cast<int>(clientSocket)] = connectedPlayers;
 	playerIDToClientSocket[connectedPlayers] = static_cast<int>(clientSocket);
 	FD_SET(clientSocket, &masterSet);
+	std::cout << "Accepted Player " << connectedPlayers << std::endl;
 
 	// Send Connect Message to Client
 	ConnectMessage connectMessage;
@@ -116,10 +123,19 @@ void Server::disconnectClient(SOCKET clientSocket)
 	DisconnectMessage disconnectMessage;
 	sendMessage(clientSocket, MessageType::Disconnected, disconnectMessage);
 
-	// Close Socket
+	// Close Client Socket
 	closesocket(clientSocket);
 	FD_CLR(clientSocket, &masterSet);
 	connectedPlayers--;
+
+	const int cachedPlayerID = clientSocketToPlayerID[static_cast<int>(clientSocket)];
+	playerIDToClientSocket.erase(cachedPlayerID);
+	clientSocketToPlayerID.erase(static_cast<int>(clientSocket));
+}
+
+void Server::reserveShutdown()
+{
+	shutdownReserved = true;
 }
 
 void Server::receiveMessageFromClients()
@@ -140,7 +156,6 @@ void Server::receiveMessageFromClients()
 				if (i == serverSocket)
 				{
 					SOCKET clientSocket = accept(serverSocket, nullptr, nullptr);
-					std::cout << "Accepted Player " << connectedPlayers << std::endl;
 					if (clientSocket > maxSocket)
 						maxSocket = static_cast<int>(clientSocket);
 					connectClient(clientSocket);
@@ -152,7 +167,6 @@ void Server::receiveMessageFromClients()
 					int bytesReceived = recv(i, buffer, sizeof(buffer), 0);
 					if (bytesReceived <= 0)
 					{
-						std::cout << "Disconnect Client!" << std::endl;
 						disconnectClient(i);
 					}
 					else

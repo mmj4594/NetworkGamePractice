@@ -8,6 +8,22 @@
 #include "Game.h"
 #include "Server.h"
 
+BOOL WINAPI consoleHandler(DWORD signal)
+{
+	switch (signal)
+	{
+	case CTRL_C_EVENT:
+	case CTRL_BREAK_EVENT:
+	case CTRL_CLOSE_EVENT:
+	case CTRL_LOGOFF_EVENT:
+	case CTRL_SHUTDOWN_EVENT:
+		Server::Get().reserveShutdown();
+		break;
+	}
+
+	return TRUE;
+}
+
 float getCurrentTime()
 {
 	using namespace std::chrono;
@@ -16,6 +32,12 @@ float getCurrentTime()
 
 int main()
 {
+	if (!SetConsoleCtrlHandler(consoleHandler, TRUE))
+	{
+		std::cout << "Failed to set Console Control Handler!" << std::endl;
+		return 1;
+	}
+
 	Server::Get().beginPlay();
 
 	// Main loop
@@ -50,10 +72,11 @@ int main()
 			serverTickTimer -= SERVER_FRAME_TIME;
 		}
 	}
-
+	std::cout << "EndPlay Called!" << std::endl;
 	Game::Get().endPlay();
-
 	Server::Get().endPlay();
+
+	system("pause");
 
 	return 0;
 }

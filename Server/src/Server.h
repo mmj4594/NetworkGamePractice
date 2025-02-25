@@ -18,6 +18,7 @@ public:
 	bool shouldClose();
 	void connectClient(SOCKET clientSocket);
 	void disconnectClient(SOCKET clientSocket);
+	void reserveShutdown();
 	void receiveMessageFromClients();
 	void messageHandler(SOCKET clientSocket, char* buffer, int bytesReceived);
 	template <typename T>
@@ -46,4 +47,5 @@ private:
 	std::map<int, int> clientSocketToPlayerID;
 	std::map<int, int> playerIDToClientSocket;
 	std::thread receiveMessageThread;
+	bool shutdownReserved = false;
 };

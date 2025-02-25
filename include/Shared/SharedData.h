@@ -86,8 +86,6 @@ enum class MessageType
 	Connected,
 	// Client is Disconnected from Server
 	Disconnected,
-	// Server Shutdown
-	Shutdown,
 	// Notify Game Starts
 	GameStart,
 	// Replicate GameState
@@ -113,6 +111,26 @@ inline void deserialize(const char* buffer, T& data)
 	std::memcpy(&data, buffer, sizeof(T));
 }
 
+struct ConnectMessage
+{
+};
+struct DisconnectMessage
+{
+};
+struct ReplicatedGameState
+{
+	ReplicatedGameState()
+	{
+	}
+
+	glm::vec2 player1Position = glm::vec2(0);
+	glm::vec2 player2Position = glm::vec2(0);
+	glm::vec2 ballPosition = glm::vec2(0);
+	int scorePlayer1 = 0;
+	int scorePlayer2 = 0;
+	GameStateType currentGameState = GameStateType::None;
+	RoundStateType currentRoundState = RoundStateType::None;
+};
 struct PlayerInput
 {
 	PlayerInput() {}
@@ -124,24 +142,4 @@ struct PlayerInput
 	int mods = 0;
 };
 
-struct ReplicatedGameState
-{
-	ReplicatedGameState() {}
-
-	glm::vec2 player1Position = glm::vec2(0);
-	glm::vec2 player2Position = glm::vec2(0);
-	glm::vec2 ballPosition = glm::vec2(0);
-	int scorePlayer1 = 0;
-	int scorePlayer2 = 0;
-	GameStateType currentGameState = GameStateType::None;
-	RoundStateType currentRoundState = RoundStateType::None;
-};
-
-struct DisconnectMessage
-{
-};
-
-struct ConnectMessage
-{
-};
 #pragma endregion
