@@ -15,6 +15,9 @@ public:
 	void beginPlay();
 	void endPlay();
 	void tick(float elapsedTime);
+	bool shouldClose();
+	void connectClient(SOCKET clientSocket);
+	void disconnectClient(SOCKET clientSocket);
 	void receiveMessageFromClients();
 	void messageHandler(SOCKET clientSocket, char* buffer, int bytesReceived);
 	template <typename T>
@@ -35,10 +38,10 @@ public:
 
 		delete[] buffer;
 	}
-	int getConnectedPlayers() const {return connectedPlayers;}
 
 private:
 	SOCKET serverSocket;
+	fd_set masterSet;
 	int connectedPlayers = 0;
 	std::map<int, int> clientSocketToPlayerID;
 	std::map<int, int> playerIDToClientSocket;

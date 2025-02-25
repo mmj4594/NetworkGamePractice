@@ -27,6 +27,10 @@ void Game::endPlay()
 
 void Game::tick(float elapsedTime)
 {
+	// Game is not Started Yet
+	if (currentGameState == GameStateType::None)
+		return;
+
 	switch(currentGameState)
 	{
 	case GameStateType::Ready:

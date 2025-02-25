@@ -35,7 +35,6 @@ void GameMode_Online::beginPlay()
 		std::cerr << "Failed to Connect to Server!" << std::endl;
 		return;
 	}
-	std::cout << "Connected to Server!" << std::endl;
 
 	// Start Message Receiving Thread
 	receiveMessageThread = std::thread(&GameMode_Online::receiveMessageFromServer, this);
@@ -85,12 +84,38 @@ void GameMode_Online::renderFrame(float elapsedTime)
 void GameMode_Online::onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	PlayerInput playerInput(key, scancode, action, mods);
-	sendMessage<PlayerInput>(MessageType::PlayerInput, playerInput);
+	sendMessage(MessageType::PlayerInput, playerInput);
+}
+
+bool GameMode_Online::shouldClose()
+{
+	if (disConnected)
+		return true;
+
+	return false;
+}
+
+void GameMode_Online::onConnected()
+{
+	connected = true;
+	disConnected = false;
+}
+
+void GameMode_Online::onDisconnected()
+{
+	connected = false;
+	disConnected = true;
+}
+
+void GameMode_Online::onServerShutdown()
+{
+	connected = false;
+	disConnected = true;
 }
 
 void GameMode_Online::receiveMessageFromServer()
 {
-	while (true)
+	while (!shouldClose())
 	{
 		fd_set readSet;
 		FD_ZERO(&readSet);
@@ -104,7 +129,7 @@ void GameMode_Online::receiveMessageFromServer()
 			int bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
 			if ( bytesReceived <= 0 )
 			{
-				std::cout << "Disconnect Server!" << std::endl;
+				onDisconnected();
 				break;
 			}
 			else
@@ -126,6 +151,22 @@ void GameMode_Online::messageHandler(char* buffer, int bytesReceived)
 
 	switch (header->type)
 	{
+		case MessageType::Connected:
+		{
+			ConnectMessage connectMessage;
+			deserialize<ConnectMessage>(buffer + sizeof(MessageHeader), connectMessage);
+			std::cout << "Connected to Server" << std::endl;
+			onConnected();
+		}
+		break;
+		case MessageType::Disconnected:
+		{
+			DisconnectMessage disconnectMessage;
+			deserialize(buffer + sizeof(MessageHeader), disconnectMessage);
+			std::cout << "Disconnected from Server" << std::endl;
+			onDisconnected();
+		}
+		break;
 		case MessageType::ReplicateGameState:
 		{
 			deserialize(buffer + sizeof(MessageHeader), replicatedGameState);

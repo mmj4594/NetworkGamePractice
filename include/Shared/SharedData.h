@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <cstring>
+#include <string>
 
 #pragma region System
 constexpr int SCREEN_WIDTH = 900;
@@ -101,6 +102,17 @@ struct MessageHeader
 	int size;
 };
 
+template <typename T>
+inline void serialize(const T& data, char* buffer)
+{
+	std::memcpy(buffer, &data, sizeof(T));
+}
+template <typename T>
+inline void deserialize(const char* buffer, T& data)
+{
+	std::memcpy(&data, buffer, sizeof(T));
+}
+
 struct PlayerInput
 {
 	PlayerInput() {}
@@ -111,14 +123,6 @@ struct PlayerInput
 	int action = 0;
 	int mods = 0;
 };
-inline void serialize(const PlayerInput& data, char* buffer)
-{
-	std::memcpy(buffer, &data, sizeof(PlayerInput));
-}
-inline void deserialize(const char* buffer, PlayerInput& data)
-{
-	std::memcpy(&data, buffer, sizeof(PlayerInput));
-}
 
 struct ReplicatedGameState
 {
@@ -132,24 +136,12 @@ struct ReplicatedGameState
 	GameStateType currentGameState = GameStateType::None;
 	RoundStateType currentRoundState = RoundStateType::None;
 };
-inline void serialize(const ReplicatedGameState& data, char* buffer)
-{
-	std::memcpy(buffer, &data, sizeof(ReplicatedGameState));
-}
-inline void deserialize(const char* buffer, ReplicatedGameState& data)
-{
-	std::memcpy(&data, buffer, sizeof(ReplicatedGameState));
-}
 
-struct PlayerInputMessage
+struct DisconnectMessage
 {
-	MessageHeader header;
-	PlayerInput playerInput;
 };
 
-struct ReplicateGameStateMessage
+struct ConnectMessage
 {
-	MessageHeader header;
-	ReplicatedGameState gameState;
 };
 #pragma endregion

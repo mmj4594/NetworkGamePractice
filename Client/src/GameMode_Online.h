@@ -19,6 +19,10 @@ public:
 	void onKey(GLFWwindow* window, int key, int scancode, int action, int mods) override;
 
 public:
+	bool shouldClose();
+	void onConnected();
+	void onDisconnected();
+	void onServerShutdown();
 	void receiveMessageFromServer();
 	void messageHandler(char* buffer, int bytesReceived);
 	template <typename T>
@@ -59,4 +63,6 @@ private:
 	SOCKET clientSocket;
 	std::thread receiveMessageThread;
 	ReplicatedGameState replicatedGameState;
+	bool connected = false;
+	bool disConnected = false;
 };

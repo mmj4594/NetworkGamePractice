@@ -19,7 +19,7 @@ int main()
 	Server::Get().beginPlay();
 
 	// Main loop
-	while (true)
+	while (!Server::Get().shouldClose())
 	{
 		static double gameTickTimer = 0.0;
 		static double serverTickTimer = 0.0;
@@ -34,7 +34,7 @@ int main()
 
 		while (gameTickTimer >= SERVER_FRAME_TIME)
 		{
-			if (Server::Get().getConnectedPlayers() == MAX_PLAYERS)
+			if (Game::Get().currentGameState != GameStateType::None)
 			{
 				Game::Get().tick(static_cast<float>(gameTickTimer));
 			}
@@ -43,7 +43,7 @@ int main()
 
 		while (serverTickTimer >= SERVER_FRAME_TIME)
 		{
-			if (Server::Get().getConnectedPlayers() == MAX_PLAYERS)
+			if (Game::Get().currentGameState != GameStateType::None)
 			{
 				Server::Get().tick(static_cast<float>(gameTickTimer));
 			}
