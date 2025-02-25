@@ -4,6 +4,8 @@
 #include "GameMode_Online.h"
 #include "GameModeManager.h"
 
+LogCategory LogGameModeManager("GameModeManager");
+
 GameModeManager& GameModeManager::Get()
 {
 	static GameModeManager instance;
@@ -59,7 +61,7 @@ void GameModeManager::changeGameMode(GameModeType newGameMode)
 		currentGameMode = GameMode::Get<GameMode_Online>();
 		break;
 	default:
-		std::cerr << "GameModeManager::changeGameMode: Unhandled Game Mode Type!" << std::endl;
+		LOG(LogGameModeManager, LogVerbosity::Error, "changeGameMode: Unhandled Game Mode Type!");
 	}
 
 	if (currentGameMode)

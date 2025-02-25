@@ -8,6 +8,8 @@
 #include "Graphics.h"
 #include "GameModeManager.h"
 
+LogCategory LogMain("Main");
+
 float getCurrentTime()
 {
 	using namespace std::chrono;
@@ -18,7 +20,7 @@ int main()
 {
 	if (Graphics::Get().initializeGraphics() == false)
 	{
-		std::cerr << "Failed to initialize Graphics!" << std::endl;
+		LOG(LogMain, LogVerbosity::Error, "Failed to initialize Graphics!");
 		return -1;
 	}
 

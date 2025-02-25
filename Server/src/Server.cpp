@@ -10,6 +10,8 @@
 
 #pragma comment(lib, "ws2_32.lib")
 
+LogCategory LogServer("Server");
+
 Server& Server::Get()
 {
 	static Server instance;
@@ -35,7 +37,7 @@ void Server::beginPlay()
 	// Ready to connect with MAX_PLAYERS Clients
 	connectedPlayers = 0;
 	listen(serverSocket, MAX_PLAYERS);
-	std::cout << "Listening for " << MAX_PLAYERS << " Clients" << std::endl;
+	LOG(LogServer, LogVerbosity::Log, "Listening for %d Clients", MAX_PLAYERS);
 
 	// Start Message Receiving Thread
 	receiveMessageThread = std::thread(&Server::receiveMessageFromClients, this);
@@ -103,7 +105,7 @@ void Server::connectClient(SOCKET clientSocket)
 	clientSocketToPlayerID[static_cast<int>(clientSocket)] = connectedPlayers;
 	playerIDToClientSocket[connectedPlayers] = static_cast<int>(clientSocket);
 	FD_SET(clientSocket, &masterSet);
-	std::cout << "Accepted Player " << connectedPlayers << std::endl;
+	LOG(LogServer, LogVerbosity::Log, "Accepted Player %d", connectedPlayers);
 
 	// Send Connect Message to Client
 	ConnectMessage connectMessage;
@@ -112,7 +114,7 @@ void Server::connectClient(SOCKET clientSocket)
 	// Start Game
 	if (connectedPlayers == MAX_PLAYERS)
 	{
-		std::cout << MAX_PLAYERS << " Players are Connected!" << std::endl;
+		LOG(LogServer, LogVerbosity::Log, "%d Players are Connected!", MAX_PLAYERS);
 		Game::Get().beginPlay();
 	}
 }
@@ -150,6 +152,9 @@ void Server::receiveMessageFromClients()
 		select(maxSocket + 1, &readSet, nullptr, nullptr, nullptr);
 		for (int i = 0; i <= maxSocket; i++)
 		{
+			if (shutdownReserved)
+				break;
+
 			if (FD_ISSET(i, &readSet))
 			{
 				// Connect New client
@@ -184,7 +189,7 @@ void Server::messageHandler(SOCKET clientSocket, char* buffer, int bytesReceived
 	MessageHeader* header = reinterpret_cast<MessageHeader*>(buffer);
 	if (header == nullptr)
 	{
-		std::cout << "Invalid Header!" << std::endl;
+		LOG(LogServer, LogVerbosity::Error, "Invalid Header!");
 		return;
 	}
 
@@ -199,7 +204,7 @@ void Server::messageHandler(SOCKET clientSocket, char* buffer, int bytesReceived
 		break;
 		default:
 		{
-			std::cout << "Unhandled Message Received From Client!" << std::endl;
+			LOG(LogServer, LogVerbosity::Error, "Unhandled Message Received From Client!");
 		}
 	}
 }

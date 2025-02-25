@@ -4,6 +4,8 @@
 #include "GameMode_Local.h"
 #include <iostream>
 
+LogCategory LogPlayer("Player");
+
 Player::Player(int playerID_, glm::vec2 position_, float width_, float height_) : GameObject(position_, width_, height_)
 {
 	playerID = playerID_;

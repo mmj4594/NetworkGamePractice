@@ -15,6 +15,8 @@
 #include "Graphics.h"
 #include "GameModeManager.h"
 
+LogCategory LogGraphics("Graphics");
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glfwSetWindowSize(window, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -36,7 +38,7 @@ bool Graphics::initializeGraphics()
 	// Initialize GLFW
 	if (!glfwInit())
 	{
-		std::cerr << "Failed to initialize GLFW" << std::endl;
+		LOG(LogGraphics, LogVerbosity::Error, "initializeGraphics: Failed to initialize GLFW!");
 		return false;
 	}
 
@@ -50,7 +52,7 @@ bool Graphics::initializeGraphics()
 	window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "OpenGL Window", nullptr, nullptr);
 	if (!window)
 	{
-		std::cerr << "Failed to create GLFW window" << std::endl;
+		LOG(LogGraphics, LogVerbosity::Error, "initializeGraphics: Failed to create GLFW window!");
 		glfwTerminate();
 		return false;
 	}
@@ -62,7 +64,7 @@ bool Graphics::initializeGraphics()
 	// Initialize GLEW
 	if (glewInit() != GLEW_OK)
 	{
-		std::cerr << "Failed to initialize GLEW" << std::endl;
+		LOG(LogGraphics, LogVerbosity::Error, "initializeGraphics: Failed to initialize GLEW!");
 		glfwTerminate();
 		return false;
 	}
@@ -212,7 +214,11 @@ unsigned int Graphics::compileShader(unsigned int type, const char* source)
 	{
 		char infoLog[512];
 		glGetShaderInfoLog(shader, 512, nullptr, infoLog);
-		std::cerr << (type == GL_VERTEX_SHADER ? "Vertex" : "Fragment") << " shader compilation failed\n" << infoLog << std::endl;
+
+		if (type == GL_VERTEX_SHADER)
+			LOG(LogGraphics, LogVerbosity::Error, "compileShader: Vertex shader compilation failed!");
+		else
+			LOG(LogGraphics, LogVerbosity::Error, "compileShader: Fragment shader compilation failed!");
 	}
 	return shader;
 }
@@ -234,14 +240,14 @@ bool Graphics::loadFont(const char* fontPath)
 	FT_Library ft;
 	if (FT_Init_FreeType(&ft))
 	{
-		std::cerr << "Graphics::loadFont: Failed to Initialize FreeType!" << std::endl;
+		LOG(LogGraphics, LogVerbosity::Error, "loadFont: Failed to Initialize FreeType!");
 		return false;
 	}
 
 	FT_Face face;
 	if (FT_New_Face(ft, fontPath, 0, &face))
 	{
-		std::cerr << "Graphics::loadFont: Failed to Load Font File!" << std::endl;
+		LOG(LogGraphics, LogVerbosity::Error, "loadFont: Failed to Load Font File!");
 		return false;
 	}
 
@@ -253,7 +259,7 @@ bool Graphics::loadFont(const char* fontPath)
 	{
 		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
 		{
-			std::cerr << "Graphics::loadFont: Failed to load Glyph: " << c << std::endl;
+			LOG(LogGraphics, LogVerbosity::Error, "loadFont: Failed to load Glyph: %c", c);
 			continue;
 		}
 
@@ -261,7 +267,7 @@ bool Graphics::loadFont(const char* fontPath)
 		glGenTextures(1, &texture);
 		if (texture == 0)
 		{
-			std::cerr << "Graphics::loadFont: Failed to generate texture for character: " << c << std::endl;
+			LOG(LogGraphics, LogVerbosity::Error, "loadFont: Failed to generate texture for character: %c", c);
 			continue;
 		}
 		glBindTexture(GL_TEXTURE_2D, texture);
@@ -310,7 +316,7 @@ void Graphics::renderObject(GameObject targetObject)
 {
 	if (objectShaderProgram == 0 || objectVAO == 0)
 	{
-		std::cerr << "Graphics::renderObject: Shader program or VAO is not initialized\n";
+		LOG(LogGraphics, LogVerbosity::Error, "renderObject: Shader program or VAO is not initialized!");
 		return;
 	}
 
@@ -337,7 +343,7 @@ void Graphics::renderText(std::string text, float x, float y, float scale, glm::
 {
 	if (textShaderProgram == 0 || textVAO == 0)
 	{
-		std::cerr << "Graphics::renderText: Shader program or VAO is not initialized\n";
+		LOG(LogGraphics, LogVerbosity::Error, "renderText: Shader program or VAO is not initialized!");
 		return;
 	}
 
@@ -375,14 +381,14 @@ void Graphics::renderText(std::string text, float x, float y, float scale, glm::
 	{
 		if (FontCharacters.find(c) == FontCharacters.end())
 		{
-			std::cerr << "Graphics::renderText: Cannot find " << c << " in FontCharacters!" << std::endl;
+			LOG(LogGraphics, LogVerbosity::Error, "renderText: Cannot find %c in FontCharacters!", c);
 			continue;
 		}
 
 		FontCharacter fontCharacter = FontCharacters[c];
 		if (fontCharacter.TextureID == 0)
 		{
-			std::cerr << "Graphics::renderText: Texture not generated for character " << c << std::endl;
+			LOG(LogGraphics, LogVerbosity::Error, "renderText: Texture not generated for character %c", c);
 			continue;
 		}
 

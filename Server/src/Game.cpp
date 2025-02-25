@@ -2,6 +2,8 @@
 #include <iostream>
 #include "Game.h"
 
+LogCategory LogGame("Game");
+
 Game& Game::Get()
 {
 	static Game instance;
@@ -374,7 +376,7 @@ void Game::updatePhysics(float elapsedTime)
 						newBallSpeed.y = -std::abs(ball.getSpeed().y * 2);
 						break;
 					default:
-						std::cerr << "Unhandled Spike Direction!" << std::endl;
+						LOG(LogGame, LogVerbosity::Error, "updatePhysics: Unhandled Spike Direction!");
 					}
 				}
 				// normal collision
@@ -443,8 +445,9 @@ void Game::updatePhysics(float elapsedTime)
 					case SpikeDirectionType::Front_Down:
 						newBallSpeed.x = -BALL_SPIKE_SPEED * 2;
 						newBallSpeed.y = -std::abs(ball.getSpeed().y * 2);
+						break;
 					default:
-						std::cerr << "Unhandled Spike Direction!" << std::endl;
+						LOG(LogGame, LogVerbosity::Error, "updatePhysics: Unhandled Spike Direction!");
 					}
 				}
 				// normal collision

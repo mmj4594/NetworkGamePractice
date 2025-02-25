@@ -1,8 +1,10 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <iostream>
 #include <cstring>
 #include <string>
+#include <cstdarg>
 
 #pragma region System
 constexpr int SCREEN_WIDTH = 900;
@@ -13,6 +15,52 @@ constexpr int SERVER_MAX_FPS = 60;
 constexpr float CLIENT_FRAME_TIME = 1.0f / CLIENT_MAX_FPS;
 constexpr float SERVER_FRAME_TIME = 1.0f / SERVER_MAX_FPS;
 constexpr float BASIC_TIME_SCALE = 1.0f;
+
+constexpr int BUFFER_SIZE = 1024;
+
+struct LogCategory
+{
+	LogCategory() {}
+	LogCategory(std::string _categoryName) : categoryName(_categoryName) {}
+
+	std::string categoryName;
+};
+
+enum class LogVerbosity
+{
+	Log,
+	Warning,
+	Error,
+};
+inline void printLog(LogCategory category, LogVerbosity verbosity, const char* format, ...)
+{
+	// Get Verbose as String
+	std::string verbosityString;
+	switch (verbosity)
+	{
+	case LogVerbosity::Log:
+		verbosityString = "Log";
+		break;
+	case LogVerbosity::Warning:
+		verbosityString = "Warning";
+		break;
+	case LogVerbosity::Error:
+		verbosityString = "Error";
+		break;
+	}
+
+	// Handle Format
+	char messageBuffer[BUFFER_SIZE];
+	va_list args;
+	va_start(args, format);
+	vsnprintf(messageBuffer, sizeof(messageBuffer), format, args);
+	va_end(args);
+
+	std::string logMessage = category.categoryName + ": " + verbosityString + ": " + messageBuffer;
+	std::cout << logMessage << std::endl;
+}
+#define LOG(Category, Verbosity, Format, ...) printLog(Category, Verbosity, Format, ##__VA_ARGS__)
+
 #pragma endregion
 
 #pragma region Game
@@ -77,8 +125,6 @@ enum class SpikeDirectionType
 #pragma endregion
 
 #pragma region Network
-constexpr int BUFFER_SIZE = 1024;
-
 enum class MessageType
 {
 	None = 0,

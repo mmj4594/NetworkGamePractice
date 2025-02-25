@@ -9,6 +9,8 @@
 #include "GameModeManager.h"
 #include "Graphics.h"
 
+LogCategory LogGameModeLobby("GameModeLobby");
+
 void GameMode_Lobby::beginPlay()
 {
 	selectedGameMode = GameModeType::Local;

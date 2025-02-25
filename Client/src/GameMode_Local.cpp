@@ -10,6 +10,8 @@
 #include "GameModeManager.h"
 #include "Graphics.h"
 
+LogCategory LogGameModeLocal("GameModeLocal");
+
 void GameMode_Local::beginPlay()
 {
 	player1.beginPlay();
@@ -379,7 +381,7 @@ void GameMode_Local::updatePhysics(float elapsedTime)
 							newBallSpeed.y = -std::abs(ball.getSpeed().y * 2);
 							break;
 						default:
-							std::cerr << "Unhandled Spike Direction!" << std::endl;
+							LOG(LogGameModeLocal, LogVerbosity::Error, "updatePhysics: Unhandled Spike Direction!");
 					}
 				}
 				// normal collision
@@ -448,8 +450,9 @@ void GameMode_Local::updatePhysics(float elapsedTime)
 						case SpikeDirectionType::Front_Down:
 							newBallSpeed.x = -BALL_SPIKE_SPEED * 2;
 							newBallSpeed.y = -std::abs(ball.getSpeed().y * 2);
+							break;
 						default:
-							std::cerr << "Unhandled Spike Direction!" << std::endl;
+							LOG(LogGameModeLocal, LogVerbosity::Error, "updatePhysics: Unhandled Spike Direction!");
 					}
 				}
 				// normal collision

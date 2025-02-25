@@ -5,8 +5,11 @@
 #include <iostream>
 #include <string>
 #include <chrono>
+#include "SharedData.h"
 #include "Game.h"
 #include "Server.h"
+
+LogCategory LogMain("Main");
 
 BOOL WINAPI consoleHandler(DWORD signal)
 {
@@ -18,6 +21,7 @@ BOOL WINAPI consoleHandler(DWORD signal)
 	case CTRL_LOGOFF_EVENT:
 	case CTRL_SHUTDOWN_EVENT:
 		Server::Get().reserveShutdown();
+		Sleep(1000);
 		break;
 	}
 
@@ -34,7 +38,7 @@ int main()
 {
 	if (!SetConsoleCtrlHandler(consoleHandler, TRUE))
 	{
-		std::cout << "Failed to set Console Control Handler!" << std::endl;
+		LOG(LogMain, LogVerbosity::Error, "Failed to set Console Control Handler!");
 		return 1;
 	}
 
@@ -72,7 +76,7 @@ int main()
 			serverTickTimer -= SERVER_FRAME_TIME;
 		}
 	}
-	std::cout << "EndPlay Called!" << std::endl;
+	LOG(LogMain, LogVerbosity::Log, "EndPlay Called!");
 	Game::Get().endPlay();
 	Server::Get().endPlay();
 

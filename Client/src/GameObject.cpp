@@ -1,4 +1,7 @@
+#include "SharedData.h"
 #include "GameObject.h"
+
+LogCategory LogGameObject("GameObject");
 
 void GameObject::setSpeed(glm::vec2 newSpeed)
 {

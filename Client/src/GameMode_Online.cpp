@@ -13,6 +13,8 @@
 
 #pragma comment(lib, "ws2_32.lib")
 
+LogCategory LogGameModeOnline("GameModeOnline");
+
 void GameMode_Online::beginPlay()
 {
 	// Connnect to Server
@@ -32,7 +34,7 @@ void GameMode_Online::beginPlay()
 	// Try to Connect to Server
 	if (connect(clientSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR)
 	{
-		std::cerr << "Failed to Connect to Server!" << std::endl;
+		LOG(LogGameModeOnline, LogVerbosity::Error, "beginPlay: Failed to Connect to Server!");
 		return;
 	}
 
@@ -145,7 +147,7 @@ void GameMode_Online::messageHandler(char* buffer, int bytesReceived)
 	MessageHeader* header = reinterpret_cast<MessageHeader*>(buffer);
 	if (header == nullptr)
 	{
-		std::cout << "Invalid Header!" << std::endl;
+		LOG(LogGameModeOnline, LogVerbosity::Error, "messageHandler: Invalid Header!");
 		return;
 	}
 
@@ -155,7 +157,7 @@ void GameMode_Online::messageHandler(char* buffer, int bytesReceived)
 		{
 			ConnectMessage connectMessage;
 			deserialize<ConnectMessage>(buffer + sizeof(MessageHeader), connectMessage);
-			std::cout << "Connected to Server" << std::endl;
+			LOG(LogGameModeOnline, LogVerbosity::Log, "messageHandler: Connected to Server!");
 			onConnected();
 		}
 		break;
@@ -163,7 +165,7 @@ void GameMode_Online::messageHandler(char* buffer, int bytesReceived)
 		{
 			DisconnectMessage disconnectMessage;
 			deserialize(buffer + sizeof(MessageHeader), disconnectMessage);
-			std::cout << "Disconnected from Server" << std::endl;
+			LOG(LogGameModeOnline, LogVerbosity::Log, "messageHandler: Disconnected from Server!");
 			onDisconnected();
 		}
 		break;
@@ -175,7 +177,7 @@ void GameMode_Online::messageHandler(char* buffer, int bytesReceived)
 		break;
 		default:
 		{
-			std::cout << "Unhandled Message Received From Server!" << std::endl;
+			LOG(LogGameModeOnline, LogVerbosity::Error, "Unhandled Message Received From Server!");
 		}
 	}
 }

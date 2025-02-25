@@ -2,6 +2,8 @@
 #include "Ball.h"
 #include "Game.h"
 
+LogCategory LogBall("Ball");
+
 Ball::Ball(glm::vec2 position_, float width_, float height_) : GameObject(position_, width_, height_)
 {
 }
