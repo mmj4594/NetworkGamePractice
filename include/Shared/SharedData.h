@@ -134,8 +134,6 @@ enum class MessageType
 	Connected,
 	// Client is Disconnected from Server
 	Disconnected,
-	// Notify Game Starts
-	GameStart,
 	// Replicate GameState
 	ReplicateGameState,
 	// Input of Player

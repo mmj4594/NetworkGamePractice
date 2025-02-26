@@ -1,4 +1,5 @@
 #include "SharedData.h"
+#include <random>
 #include "Ball.h"
 #include "Game.h"
 
@@ -19,7 +20,12 @@ void Ball::reset()
 	__super::reset();
 	if (Game::Get().lastRoundWinnerPlayerID == -1)
 	{
-		setPosition(glm::vec2((rand() % 2 == 0 ? INITIAL_BALL_POSITION.x : SCREEN_WIDTH - INITIAL_BALL_POSITION.x), INITIAL_BALL_POSITION.y));
+		std::random_device randomDevice;
+		std::mt19937 MTEngine(randomDevice());
+		std::uniform_int_distribution<int> randomDistribution(1, 2);
+
+		float ballX = randomDistribution(MTEngine) % 2 == 0 ? INITIAL_BALL_POSITION.x : SCREEN_WIDTH - INITIAL_BALL_POSITION.x;
+		setPosition(glm::vec2(ballX, INITIAL_BALL_POSITION.y));
 	}
 	else
 	{

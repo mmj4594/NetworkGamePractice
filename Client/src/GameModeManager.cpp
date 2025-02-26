@@ -66,7 +66,7 @@ void GameModeManager::changeGameMode(GameModeType newGameMode)
 		currentGameMode = GameMode::Get<GameMode_Online>();
 		break;
 	default:
-		LOG(LogGameModeManager, LogVerbosity::Log, "changeGameMode: Unhandled Game Mode Type!");
+		LOG(LogGameModeManager, LogVerbosity::Error, "changeGameMode: Unhandled Game Mode Type!");
 	}
 
 	if (currentGameMode)
