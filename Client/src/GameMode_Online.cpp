@@ -1,3 +1,4 @@
+#include "SharedData.h"
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -6,7 +7,6 @@
 #include <thread>
 #include <WinSock2.h>
 #include <WS2tcpip.h>
-#include "SharedData.h"
 #include "GameMode_Online.h"
 #include "GameModeManager.h"
 #include "Graphics.h"
@@ -17,6 +17,8 @@ LogCategory LogGameModeOnline("GameModeOnline");
 
 void GameMode_Online::beginPlay()
 {
+	LOG(LogGameModeOnline, LogVerbosity::Log, "Online Mode is Started");
+
 	// Connnect to Server
 	WSADATA wsaData;
 	struct sockaddr_in serverAddr;
@@ -53,6 +55,8 @@ void GameMode_Online::endPlay()
 	{
 		receiveMessageThread.join();
 	}
+
+	LOG(LogGameModeOnline, LogVerbosity::Log, "Online Mode is Terminated");
 }
 
 void GameMode_Online::tick(float elapsedTime)
@@ -86,7 +90,7 @@ void GameMode_Online::renderFrame(float elapsedTime)
 void GameMode_Online::onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	PlayerInput playerInput(key, scancode, action, mods);
-	sendMessage(MessageType::PlayerInput, playerInput);
+	sendMessage(clientSocket, MessageType::PlayerInput, playerInput);
 }
 
 bool GameMode_Online::shouldClose()
@@ -127,7 +131,7 @@ void GameMode_Online::receiveMessageFromServer()
 		select(static_cast<int>(clientSocket) + 1, &readSet, nullptr, nullptr, nullptr);
 		if ( FD_ISSET(clientSocket, &readSet) )
 		{
-			char buffer[BUFFER_SIZE] = { 0 };
+			char buffer[MAX_BUFFER_SIZE] = { 0 };
 			int bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
 			if ( bytesReceived <= 0 )
 			{
@@ -156,8 +160,8 @@ void GameMode_Online::messageHandler(char* buffer, int bytesReceived)
 		case MessageType::Connected:
 		{
 			ConnectMessage connectMessage;
-			deserialize<ConnectMessage>(buffer + sizeof(MessageHeader), connectMessage);
-			LOG(LogGameModeOnline, LogVerbosity::Log, "messageHandler: Connected to Server!");
+			deserialize(buffer + sizeof(MessageHeader), connectMessage);
+			LOG(LogGameModeOnline, LogVerbosity::Log, "Connected to Server!");
 			onConnected();
 		}
 		break;
@@ -165,7 +169,7 @@ void GameMode_Online::messageHandler(char* buffer, int bytesReceived)
 		{
 			DisconnectMessage disconnectMessage;
 			deserialize(buffer + sizeof(MessageHeader), disconnectMessage);
-			LOG(LogGameModeOnline, LogVerbosity::Log, "messageHandler: Disconnected from Server!");
+			LOG(LogGameModeOnline, LogVerbosity::Log, "Disconnected from Server");
 			onDisconnected();
 		}
 		break;
@@ -177,7 +181,7 @@ void GameMode_Online::messageHandler(char* buffer, int bytesReceived)
 		break;
 		default:
 		{
-			LOG(LogGameModeOnline, LogVerbosity::Error, "Unhandled Message Received From Server!");
+			LOG(LogGameModeOnline, LogVerbosity::Error, "messageHandler: Unhandled Message Received From Server!");
 		}
 	}
 }
@@ -189,6 +193,42 @@ void GameMode_Online::onReplicatedGameState()
 	ball.setPosition(replicatedGameState.ballPosition);
 	scorePlayer1 = replicatedGameState.scorePlayer1;
 	scorePlayer2 = replicatedGameState.scorePlayer2;
-	currentGameState = replicatedGameState.currentGameState;
-	currentRoundState = replicatedGameState.currentRoundState;
+	lastRoundWinnerPlayerID = replicatedGameState.lastRoundWinnerPlayerID;
+	if (currentRoundState != replicatedGameState.currentRoundState)
+	{
+		switch (replicatedGameState.currentRoundState)
+		{
+		case RoundStateType::Ready:
+			LOG(LogGameModeOnline, LogVerbosity::Log, "Ready Round %d", scorePlayer1 + scorePlayer2 + 1);
+			break;
+		case RoundStateType::Playing:
+			LOG(LogGameModeOnline, LogVerbosity::Log, "Start Round %d", scorePlayer1 + scorePlayer2 + 1);
+			break;
+		case RoundStateType::End:
+			LOG(LogGameModeOnline, LogVerbosity::Log, "End Round %d. Current Round Score: [%d:%d]. Round Winner Player: %d",
+				scorePlayer1 + scorePlayer2, scorePlayer1, scorePlayer2, lastRoundWinnerPlayerID);
+			break;
+		default:
+			LOG(LogGameModeOnline, LogVerbosity::Error, "onReplicatedGameState: Unhandled Round State Type");
+		}
+		currentRoundState = replicatedGameState.currentRoundState;
+	}
+	if (currentGameState != replicatedGameState.currentGameState)
+	{
+		switch (replicatedGameState.currentGameState)
+		{
+		case GameStateType::Ready:
+			LOG(LogGameModeOnline, LogVerbosity::Log, "Game is Ready");
+			break;
+		case GameStateType::Playing:
+			LOG(LogGameModeOnline, LogVerbosity::Log, "Game is Started");
+			break;
+		case GameStateType::End:
+			LOG(LogGameModeOnline, LogVerbosity::Log, "Game is Finished! Winner Player: %d", scorePlayer1 >= MAX_SCORE ? player1.getPlayerID() : player2.getPlayerID());
+			break;
+		default:
+			LOG(LogGameModeOnline, LogVerbosity::Error, "onReplicatedGameState: Unhandled Game State Type");
+		}
+		currentGameState = replicatedGameState.currentGameState;
+	}
 }

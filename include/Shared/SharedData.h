@@ -1,5 +1,8 @@
 #pragma once
 
+#define WIN32_LEAN_AND_MEAN
+#include <WinSock2.h>
+#include <windows.h>
 #include <glm/glm.hpp>
 #include <iostream>
 #include <cstring>
@@ -16,7 +19,7 @@ constexpr float CLIENT_FRAME_TIME = 1.0f / CLIENT_MAX_FPS;
 constexpr float SERVER_FRAME_TIME = 1.0f / SERVER_MAX_FPS;
 constexpr float BASIC_TIME_SCALE = 1.0f;
 
-constexpr int BUFFER_SIZE = 1024;
+constexpr int MAX_BUFFER_SIZE = 1024;
 
 struct LogCategory
 {
@@ -25,7 +28,7 @@ struct LogCategory
 
 	std::string categoryName;
 };
-
+static LogCategory LogNetwork("Network");
 enum class LogVerbosity
 {
 	Log,
@@ -50,17 +53,16 @@ inline void printLog(LogCategory category, LogVerbosity verbosity, const char* f
 	}
 
 	// Handle Format
-	char messageBuffer[BUFFER_SIZE];
+	char messageBuffer[MAX_BUFFER_SIZE];
 	va_list args;
 	va_start(args, format);
 	vsnprintf(messageBuffer, sizeof(messageBuffer), format, args);
 	va_end(args);
 
-	std::string logMessage = category.categoryName + ": " + verbosityString + ": " + messageBuffer;
-	std::cout << logMessage << std::endl;
+	std::string logMessage = category.categoryName + ": " + verbosityString + ": " + messageBuffer + "\n";
+	std::cout << logMessage;
 }
 #define LOG(Category, Verbosity, Format, ...) printLog(Category, Verbosity, Format, ##__VA_ARGS__)
-
 #pragma endregion
 
 #pragma region Game
@@ -92,7 +94,7 @@ constexpr glm::vec2 INITIAL_RIGHT_WALL_POSITION = glm::vec2(SCREEN_WIDTH, SCREEN
 constexpr glm::vec2 INITIAL_FLOOR_POSITION = glm::vec2(SCREEN_WIDTH / 2, 0.f);
 constexpr glm::vec2 INITIAL_CEIL_POSITION = glm::vec2(SCREEN_WIDTH / 2, SCREEN_HEIGHT);
 
-constexpr int MAX_SCORE = 15;
+constexpr int MAX_SCORE = 5;
 constexpr float GAME_WAIT_TIME = 3.0f;
 constexpr float ROUND_END_TIME_SCALE = 0.15f;
 constexpr float ROUND_WAIT_TIME = 2.0f;
@@ -165,15 +167,14 @@ struct DisconnectMessage
 };
 struct ReplicatedGameState
 {
-	ReplicatedGameState()
-	{
-	}
+	ReplicatedGameState() {}
 
 	glm::vec2 player1Position = glm::vec2(0);
 	glm::vec2 player2Position = glm::vec2(0);
 	glm::vec2 ballPosition = glm::vec2(0);
 	int scorePlayer1 = 0;
 	int scorePlayer2 = 0;
+	int lastRoundWinnerPlayerID = 0;
 	GameStateType currentGameState = GameStateType::None;
 	RoundStateType currentRoundState = RoundStateType::None;
 };
@@ -188,4 +189,34 @@ struct PlayerInput
 	int mods = 0;
 };
 
+template <typename T>
+void sendMessage(SOCKET clientSocket, MessageType type, const T& message)
+{
+	int dataSize = sizeof(T);
+	int totalSize = sizeof(MessageHeader) + dataSize;
+
+	// Fill Header
+	char* buffer = new char[totalSize];
+	MessageHeader* header = reinterpret_cast<MessageHeader*>(buffer);
+	header->type = type;
+	header->size = dataSize;
+
+	// Serialize and Send Message
+	serialize(message, buffer + sizeof(MessageHeader));
+	int sendByte = send(clientSocket, buffer, totalSize, 0);
+	delete[] buffer;
+
+	if (sendByte == SOCKET_ERROR)
+	{
+		int error = WSAGetLastError();
+		if (error == WSAECONNRESET || error == WSAENOTCONN)
+		{
+			LOG(LogNetwork, LogVerbosity::Warning, "sendMessage: Socket has Disconnected");
+		}
+		else
+		{
+			LOG(LogNetwork, LogVerbosity::Error, "sendMessage: Failed to send Message! Error: %d", error);
+		}
+	}
+}
 #pragma endregion

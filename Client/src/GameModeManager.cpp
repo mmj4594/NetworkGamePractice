@@ -14,6 +14,7 @@ GameModeManager& GameModeManager::Get()
 
 void GameModeManager::beginPlay()
 {
+	LOG(LogGameModeManager, LogVerbosity::Log, "Game Mode Manger is Started");
 	changeGameMode(GameModeType::Lobby);
 }
 
@@ -23,6 +24,7 @@ void GameModeManager::endPlay()
 		currentGameMode->endPlay();
 
 	currentGameMode = nullptr;
+	LOG(LogGameModeManager, LogVerbosity::Log, "Game Mode Manger is Terminated");
 }
 
 void GameModeManager::tick(float elapsedTime)
@@ -52,16 +54,19 @@ void GameModeManager::changeGameMode(GameModeType newGameMode)
 	switch (newGameMode)
 	{
 	case GameModeType::Lobby:
+		LOG(LogGameModeManager, LogVerbosity::Log, "Change Game Mode to Lobby");
 		currentGameMode = GameMode::Get<GameMode_Lobby>();
 		break;
 	case GameModeType::Local:
+		LOG(LogGameModeManager, LogVerbosity::Log, "Change Game Mode to Local");
 		currentGameMode = GameMode::Get<GameMode_Local>();
 		break;
 	case GameModeType::Online:
+		LOG(LogGameModeManager, LogVerbosity::Log, "Change Game Mode to Online");
 		currentGameMode = GameMode::Get<GameMode_Online>();
 		break;
 	default:
-		LOG(LogGameModeManager, LogVerbosity::Error, "changeGameMode: Unhandled Game Mode Type!");
+		LOG(LogGameModeManager, LogVerbosity::Log, "changeGameMode: Unhandled Game Mode Type!");
 	}
 
 	if (currentGameMode)

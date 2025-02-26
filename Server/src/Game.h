@@ -1,7 +1,7 @@
 #pragma once
 
-#include <glm/glm.hpp>
 #include "SharedData.h"
+#include <glm/glm.hpp>
 #include "Player.h"
 #include "Ball.h"
 #include "Net.h"
@@ -39,10 +39,10 @@ public:
 	Block ceil = Block(INITIAL_CEIL_POSITION, SCREEN_WIDTH, BLOCK_THICKNESS);
 
 	int scorePlayer1 = 0, scorePlayer2 = 0;
+	int lastRoundWinnerPlayerID = -1;
 	GameStateType currentGameState = GameStateType::None;
 	RoundStateType currentRoundState = RoundStateType::None;
 	float currentTimeScale = BASIC_TIME_SCALE;
-	int lastRoundWinnerPlayerID = -1;
 
 private:
 	float gameWaitTimer = 0.f;

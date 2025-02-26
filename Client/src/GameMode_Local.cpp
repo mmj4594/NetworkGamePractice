@@ -1,3 +1,6 @@
+#define NOMINMAX
+
+#include "SharedData.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <fstream>
@@ -5,7 +8,6 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
-#include "SharedData.h"
 #include "GameMode_Local.h"
 #include "GameModeManager.h"
 #include "Graphics.h"
@@ -14,6 +16,7 @@ LogCategory LogGameModeLocal("GameModeLocal");
 
 void GameMode_Local::beginPlay()
 {
+	LOG(LogGameModeLocal, LogVerbosity::Log, "Local Mode is Started");
 	player1.beginPlay();
 	player2.beginPlay();
 	ball.beginPlay();
@@ -23,11 +26,13 @@ void GameMode_Local::beginPlay()
 	floor.beginPlay();
 
 	currentGameState = GameStateType::Playing;
+	LOG(LogGameModeLocal, LogVerbosity::Log, "Game is Started");
 	readyRound();
 }
 
 void GameMode_Local::endPlay()
 {
+	LOG(LogGameModeLocal, LogVerbosity::Log, "Local Mode is Terminated");
 }
 
 void GameMode_Local::tick(float elapsedTime)
@@ -224,22 +229,27 @@ void GameMode_Local::readyRound()
 	player2.reset();
 	ball.reset();
 	roundWaitTimer = 0.f;
+	LOG(LogGameModeLocal, LogVerbosity::Log, "Ready Round %d", scorePlayer1 + scorePlayer2 + 1);
 }
 
 void GameMode_Local::startRound()
 {
 	currentRoundState = RoundStateType::Playing;
 	GameModeManager::Get().currentTimeScale = BASIC_TIME_SCALE;
+	LOG(LogGameModeLocal, LogVerbosity::Log, "Start Round %d", scorePlayer1 + scorePlayer2 + 1);
 }
 
 void GameMode_Local::endRound()
 {
 	currentRoundState = RoundStateType::End;
+	LOG(LogGameModeLocal, LogVerbosity::Log, "End Round %d. Current Round Score: [%d:%d]. Round Winner Player: %d",
+		scorePlayer1 + scorePlayer2, scorePlayer1, scorePlayer2, lastRoundWinnerPlayerID);
 
 	// game set
 	if (scorePlayer1 >= MAX_SCORE || scorePlayer2 >= MAX_SCORE)
 	{
 		currentGameState = GameStateType::End;
+		LOG(LogGameModeLocal, LogVerbosity::Log, "Game is Finished! Winner Player: %d", scorePlayer1 >= MAX_SCORE ? player1.getPlayerID() : player2.getPlayerID());
 	}
 	else
 	{

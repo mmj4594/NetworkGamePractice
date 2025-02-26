@@ -1,7 +1,7 @@
 #pragma once
 
-#include <glm/glm.hpp>
 #include "SharedData.h"
+#include <glm/glm.hpp>
 #include "GameObject.h"
 
 class Player : public GameObject

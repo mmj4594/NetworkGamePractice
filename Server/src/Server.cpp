@@ -1,10 +1,10 @@
+#include "SharedData.h"
 #include <iostream>
 #include <string>
 #include <thread>
 #include <map>
 #include <WinSock2.h>
 #include <WS2tcpip.h>
-#include "SharedData.h"
 #include "Server.h"
 #include "Game.h"
 
@@ -20,6 +20,7 @@ Server& Server::Get()
 
 void Server::beginPlay()
 {
+	LOG(LogServer, LogVerbosity::Log, "Server is Started");
 	WSADATA wsaData;
 	struct sockaddr_in serverAddr, clientAddr;
 	int clientAddrSize = sizeof(clientAddr);
@@ -45,6 +46,9 @@ void Server::beginPlay()
 
 void Server::endPlay()
 {
+	// End Game
+	Game::Get().endPlay();
+
 	// Disconnect All clients
 	const int cachedConnectedPlayers = connectedPlayers;
 	for (int i = 1; i <= cachedConnectedPlayers; ++i)
@@ -62,41 +66,20 @@ void Server::endPlay()
 	{
 		receiveMessageThread.join();
 	}
+
+	LOG(LogServer, LogVerbosity::Log, "Server is Terminated");
+	shutdownCompleted = true;
 }
 
 void Server::tick(float elapsedTime)
 {
-	ReplicatedGameState replicatedGameState;
-	replicatedGameState.player1Position = Game::Get().player1.getPosition();
-	replicatedGameState.player2Position = Game::Get().player2.getPosition();
-	replicatedGameState.ballPosition = Game::Get().ball.getPosition();
-	replicatedGameState.scorePlayer1 = Game::Get().scorePlayer1;
-	replicatedGameState.scorePlayer2 = Game::Get().scorePlayer2;
-	replicatedGameState.currentGameState = Game::Get().currentGameState;
-	replicatedGameState.currentRoundState = Game::Get().currentRoundState;
-
-	// Replicate Game State to Clients
-	for(int i = 1; i <= connectedPlayers; ++i)
+	if (isShutdownReserved())
 	{
-		sendMessage(playerIDToClientSocket[i], MessageType::ReplicateGameState, replicatedGameState);
+		endPlay();
+		return;
 	}
-}
 
-bool Server::shouldClose()
-{
-	// Server Shutdown
-	if (shutdownReserved)
-		return true;
-
-	// Player is Disconnected After Game Starts
-	if (Game::Get().currentGameState != GameStateType::None && connectedPlayers < MAX_PLAYERS)
-		return true;
-
-	// Game is Finished
-	if (Game::Get().currentGameState == GameStateType::End)
-		return true;
-
-	return false;
+	replicateGameState();
 }
 
 void Server::connectClient(SOCKET clientSocket)
@@ -133,11 +116,42 @@ void Server::disconnectClient(SOCKET clientSocket)
 	const int cachedPlayerID = clientSocketToPlayerID[static_cast<int>(clientSocket)];
 	playerIDToClientSocket.erase(cachedPlayerID);
 	clientSocketToPlayerID.erase(static_cast<int>(clientSocket));
+	LOG(LogServer, LogVerbosity::Log, "Disconnected Player %d", cachedPlayerID);
 }
 
-void Server::reserveShutdown()
+void Server::reserveShutdown(const std::string shutdownReason)
 {
 	shutdownReserved = true;
+	LOG(LogServer, LogVerbosity::Log, "Server Shutdown Reserved. Reason: [%s]", shutdownReason.c_str());
+}
+
+bool Server::isShutdownReserved()
+{
+	return shutdownReserved;
+}
+
+bool Server::isShutdownCompleted()
+{
+	return shutdownCompleted;
+}
+
+void Server::replicateGameState()
+{
+	ReplicatedGameState replicatedGameState;
+	replicatedGameState.player1Position = Game::Get().player1.getPosition();
+	replicatedGameState.player2Position = Game::Get().player2.getPosition();
+	replicatedGameState.ballPosition = Game::Get().ball.getPosition();
+	replicatedGameState.scorePlayer1 = Game::Get().scorePlayer1;
+	replicatedGameState.scorePlayer2 = Game::Get().scorePlayer2;
+	replicatedGameState.lastRoundWinnerPlayerID = Game::Get().lastRoundWinnerPlayerID;
+	replicatedGameState.currentGameState = Game::Get().currentGameState;
+	replicatedGameState.currentRoundState = Game::Get().currentRoundState;
+
+	// Replicate Game State to Clients
+	for (int i = 1; i <= connectedPlayers; ++i)
+	{
+		sendMessage(playerIDToClientSocket[i], MessageType::ReplicateGameState, replicatedGameState);
+	}
 }
 
 void Server::receiveMessageFromClients()
@@ -146,7 +160,7 @@ void Server::receiveMessageFromClients()
 	FD_ZERO(&masterSet);
 	FD_SET(serverSocket, &masterSet);
 	int maxSocket = static_cast<int>(serverSocket);
-	while (!shouldClose())
+	while (!isShutdownReserved())
 	{
 		readSet = masterSet;
 		select(maxSocket + 1, &readSet, nullptr, nullptr, nullptr);
@@ -168,11 +182,15 @@ void Server::receiveMessageFromClients()
 				// Get Message From Client
 				else
 				{
-					char buffer[BUFFER_SIZE] = { 0 };
+					char buffer[MAX_BUFFER_SIZE] = { 0 };
 					int bytesReceived = recv(i, buffer, sizeof(buffer), 0);
 					if (bytesReceived <= 0)
 					{
 						disconnectClient(i);
+						if(Game::Get().currentGameState != GameStateType::None)
+						{
+							reserveShutdown("Client Disconnected During the Game");
+						}
 					}
 					else
 					{
@@ -189,7 +207,7 @@ void Server::messageHandler(SOCKET clientSocket, char* buffer, int bytesReceived
 	MessageHeader* header = reinterpret_cast<MessageHeader*>(buffer);
 	if (header == nullptr)
 	{
-		LOG(LogServer, LogVerbosity::Error, "Invalid Header!");
+		LOG(LogServer, LogVerbosity::Error, "messageHandler: Invalid Header");
 		return;
 	}
 
@@ -204,7 +222,7 @@ void Server::messageHandler(SOCKET clientSocket, char* buffer, int bytesReceived
 		break;
 		default:
 		{
-			LOG(LogServer, LogVerbosity::Error, "Unhandled Message Received From Client!");
+			LOG(LogServer, LogVerbosity::Error, "messageHandler: Unhandled Message Received From Client");
 		}
 	}
 }

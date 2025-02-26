@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <thread>
 #include <map>
 #include <WinSock2.h>
@@ -15,30 +16,14 @@ public:
 	void beginPlay();
 	void endPlay();
 	void tick(float elapsedTime);
-	bool shouldClose();
 	void connectClient(SOCKET clientSocket);
 	void disconnectClient(SOCKET clientSocket);
-	void reserveShutdown();
+	void reserveShutdown(const std::string shutdownReason);
+	bool isShutdownReserved();
+	bool isShutdownCompleted();
+	void replicateGameState();
 	void receiveMessageFromClients();
 	void messageHandler(SOCKET clientSocket, char* buffer, int bytesReceived);
-	template <typename T>
-	void sendMessage(SOCKET clientSocket, MessageType type, const T& message)
-	{
-		int dataSize = sizeof(T);
-		int totalSize = sizeof(MessageHeader) + dataSize;
-
-		// Fill Header
-		char* buffer = new char[totalSize];
-		MessageHeader* header = reinterpret_cast<MessageHeader*>(buffer);
-		header->type = type;
-		header->size = dataSize;
-
-		// Serialize and Send Message
-		serialize(message, buffer + sizeof(MessageHeader));
-		send(clientSocket, buffer, totalSize, 0);
-
-		delete[] buffer;
-	}
 
 private:
 	SOCKET serverSocket;
@@ -48,4 +33,5 @@ private:
 	std::map<int, int> playerIDToClientSocket;
 	std::thread receiveMessageThread;
 	bool shutdownReserved = false;
+	bool shutdownCompleted = false;
 };

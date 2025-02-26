@@ -1,8 +1,8 @@
 #pragma once
 
+#include "SharedData.h"
 #include <thread>
 #include <WinSock2.h>
-#include "SharedData.h"
 #include "Player.h"
 #include "Ball.h"
 #include "Net.h"
@@ -25,24 +25,6 @@ public:
 	void onServerShutdown();
 	void receiveMessageFromServer();
 	void messageHandler(char* buffer, int bytesReceived);
-	template <typename T>
-	void sendMessage(MessageType type, const T& message)
-	{
-		int dataSize = sizeof(T);
-		int totalSize = sizeof(MessageHeader) + dataSize;
-
-		// Fill Header
-		char* buffer = new char[totalSize];
-		MessageHeader* header = reinterpret_cast<MessageHeader*>( buffer );
-		header->type = type;
-		header->size = dataSize;
-
-		// Serialize and Send Message
-		serialize(message, buffer + sizeof(MessageHeader));
-		send(clientSocket, buffer, totalSize, 0);
-
-		delete[] buffer;
-	}
 	void onReplicatedGameState();
 
 public:
@@ -56,6 +38,7 @@ public:
 	Block ceil = Block(INITIAL_CEIL_POSITION, SCREEN_WIDTH, BLOCK_THICKNESS);
 
 	int scorePlayer1 = 0, scorePlayer2 = 0;
+	int lastRoundWinnerPlayerID = -1;
 	GameStateType currentGameState = GameStateType::None;
 	RoundStateType currentRoundState = RoundStateType::None;
 

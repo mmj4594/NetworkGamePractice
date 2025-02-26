@@ -1,11 +1,10 @@
-#define WIN32_LEAN_AND_MEAN
+#include "SharedData.h"
 #include <windows.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <string>
 #include <chrono>
-#include "SharedData.h"
 #include "Game.h"
 #include "Server.h"
 
@@ -20,7 +19,7 @@ BOOL WINAPI consoleHandler(DWORD signal)
 	case CTRL_CLOSE_EVENT:
 	case CTRL_LOGOFF_EVENT:
 	case CTRL_SHUTDOWN_EVENT:
-		Server::Get().reserveShutdown();
+		Server::Get().reserveShutdown("Shutdown by System");
 		Sleep(1000);
 		break;
 	}
@@ -45,7 +44,7 @@ int main()
 	Server::Get().beginPlay();
 
 	// Main loop
-	while (!Server::Get().shouldClose())
+	while (!Server::Get().isShutdownCompleted())
 	{
 		static double gameTickTimer = 0.0;
 		static double serverTickTimer = 0.0;
@@ -76,9 +75,6 @@ int main()
 			serverTickTimer -= SERVER_FRAME_TIME;
 		}
 	}
-	LOG(LogMain, LogVerbosity::Log, "EndPlay Called!");
-	Game::Get().endPlay();
-	Server::Get().endPlay();
 
 	system("pause");
 

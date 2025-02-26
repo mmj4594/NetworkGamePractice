@@ -1,3 +1,4 @@
+#include "SharedData.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <fstream>
@@ -13,11 +14,13 @@ LogCategory LogGameModeLobby("GameModeLobby");
 
 void GameMode_Lobby::beginPlay()
 {
+	LOG(LogGameModeLobby, LogVerbosity::Log, "Lobby Mode is Started");
 	selectedGameMode = GameModeType::Local;
 }
 
 void GameMode_Lobby::endPlay()
 {
+	LOG(LogGameModeLobby, LogVerbosity::Log, "Lobby Mode is Terminated");
 }
 
 void GameMode_Lobby::tick(float elapsedTime)

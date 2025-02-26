@@ -1,7 +1,7 @@
 #pragma once
 
-#include <glm/glm.hpp>
 #include "SharedData.h"
+#include <glm/glm.hpp>
 #include "GameMode.h"
 
 constexpr glm::vec3 FPS_TEXT_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);

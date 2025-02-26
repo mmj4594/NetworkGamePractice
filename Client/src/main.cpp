@@ -1,4 +1,4 @@
-#define WIN32_LEAN_AND_MEAN
+#include "SharedData.h"
 #include <windows.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -24,6 +24,7 @@ int main()
 		return -1;
 	}
 
+	LOG(LogMain, LogVerbosity::Log, "Client is Started");
 	GameModeManager::Get().beginPlay();
 
 	// Main loop
@@ -56,6 +57,7 @@ int main()
 	GameModeManager::Get().endPlay();
 
 	glfwTerminate();
+	LOG(LogMain, LogVerbosity::Log, "Client is Terminated");
 
 	system("pause");
 

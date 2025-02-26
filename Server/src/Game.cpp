@@ -1,6 +1,10 @@
+#define NOMINMAX
+
+#include "SharedData.h"
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "Game.h"
+#include "Server.h"
 
 LogCategory LogGame("Game");
 
@@ -21,10 +25,12 @@ void Game::beginPlay()
 	floor.beginPlay();
 
 	currentGameState = GameStateType::Ready;
+	LOG(LogGame, LogVerbosity::Log, "Game is Ready");
 }
 
 void Game::endPlay()
 {
+	LOG(LogGame, LogVerbosity::Log, "Game is Terminated");
 }
 
 void Game::tick(float elapsedTime)
@@ -40,6 +46,7 @@ void Game::tick(float elapsedTime)
 		if (gameWaitTimer >= GAME_WAIT_TIME)
 		{
 			currentGameState = GameStateType::Playing;
+			LOG(LogGame, LogVerbosity::Log, "Game is Started");
 			readyRound();
 		}
 		break;
@@ -219,22 +226,29 @@ void Game::readyRound()
 	player2.reset();
 	ball.reset();
 	roundWaitTimer = 0.f;
+	LOG(LogGame, LogVerbosity::Log, "Ready Round %d", scorePlayer1 + scorePlayer2 + 1);
 }
 
 void Game::startRound()
 {
 	currentRoundState = RoundStateType::Playing;
 	currentTimeScale = BASIC_TIME_SCALE;
+	LOG(LogGame, LogVerbosity::Log, "Start Round %d", scorePlayer1 + scorePlayer2 + 1);
 }
 
 void Game::endRound()
 {
 	currentRoundState = RoundStateType::End;
+	LOG(LogGame, LogVerbosity::Log, "End Round %d. Current Round Score: [%d:%d]. Round Winner Player: %d",
+		scorePlayer1 + scorePlayer2, scorePlayer1, scorePlayer2, lastRoundWinnerPlayerID);
 
 	// game set
 	if (scorePlayer1 >= MAX_SCORE || scorePlayer2 >= MAX_SCORE)
 	{
 		currentGameState = GameStateType::End;
+		LOG(LogGame, LogVerbosity::Log, "Game is Finished! Winner Player: %d", scorePlayer1 >= MAX_SCORE ? player1.getPlayerID() : player2.getPlayerID());
+		Server::Get().replicateGameState();
+		Server::Get().reserveShutdown("Game is Finished");
 	}
 	else
 	{
