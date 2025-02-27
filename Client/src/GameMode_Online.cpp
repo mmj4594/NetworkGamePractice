@@ -1,4 +1,6 @@
 #include "SharedData.h"
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -65,46 +67,112 @@ void GameMode_Online::tick(float elapsedTime)
 
 void GameMode_Online::renderFrame(float elapsedTime)
 {
-	// Object Rendering
-	Graphics::Get().renderObject(player1);
-	Graphics::Get().renderObject(player2);
-	Graphics::Get().renderObject(ball);
-	Graphics::Get().renderObject(net);
-	Graphics::Get().renderObject(leftWall);
-	Graphics::Get().renderObject(rightWall);
-	Graphics::Get().renderObject(floor);
-	Graphics::Get().renderObject(ceil);
-
-	// Text Rendering
+	// FPS
 	std::ostringstream fpsString;
 	fpsString << std::fixed << std::setprecision(1) << ( 1.0f / elapsedTime );
-	Graphics::Get().renderText((fpsString.str() + " FPS").c_str(), 20.f, SCREEN_HEIGHT - 30.f, 0.25f, FPS_TEXT_COLOR);
-	Graphics::Get().renderText(std::to_string(scorePlayer1), INITIAL_PLAYER1_POSITION.x, SCREEN_HEIGHT - 100.f, 1.f, SCORE_TEXT_COLOR, true);
-	Graphics::Get().renderText(std::to_string(scorePlayer2), INITIAL_PLAYER2_POSITION.x, SCREEN_HEIGHT - 100.f, 1.f, SCORE_TEXT_COLOR, true);
-	if ( currentRoundState == RoundStateType::Ready )
-		Graphics::Get().renderText("Ready?", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, READY_TEXT_COLOR, true);
-	if ( currentGameState == GameStateType::End )
+	Graphics::Get().renderText(( fpsString.str() + " FPS" ).c_str(), 20.f, SCREEN_HEIGHT - 30.f, 0.25f, FPS_TEXT_COLOR);
+
+	switch(currentGameState)
+	{
+	case GameStateType::None:
+		if (!connected && !disConnected)
+		{
+			Graphics::Get().renderText("Failed to Connect Server.", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, EXCEPTION_TEXT_COLOR, true);
+			printExitText();
+		}
+		else if(connected)
+		{
+			Graphics::Get().renderText("Waiting for Another Player...", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, READY_TEXT_COLOR, true);
+		}
+		else if (disConnected)
+		{
+			printDisconnectedText();
+			printExitText();
+		}
+		break;
+
+	case GameStateType::Ready:
+		if (disConnected)
+		{
+			printDisconnectedText();
+			printExitText();
+		}
+		else
+		{
+			Graphics::Get().renderText("Game Ready!", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 25, 1.f, READY_TEXT_COLOR, true);
+			glm::vec3 playerColor = myPlayerID == player1.getPlayerID() ? P1_COLOR : P2_COLOR;
+			Graphics::Get().renderText("You are Player " + std::to_string(myPlayerID), SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 25, 0.7f, playerColor, true);
+		}
+		break;
+
+	case GameStateType::Playing:
+		if (disConnected)
+		{
+			printDisconnectedText();
+			printExitText();
+		}
+		else
+		{
+			// Object Rendering
+			Graphics::Get().renderObject(player1);
+			Graphics::Get().renderObject(player2);
+			Graphics::Get().renderObject(ball);
+			Graphics::Get().renderObject(net);
+			Graphics::Get().renderObject(leftWall);
+			Graphics::Get().renderObject(rightWall);
+			Graphics::Get().renderObject(floor);
+			Graphics::Get().renderObject(ceil);
+
+			// Text Rendering
+			Graphics::Get().renderText(std::to_string(scorePlayer1), INITIAL_PLAYER1_POSITION.x, SCREEN_HEIGHT - 100.f, 1.f, SCORE_TEXT_COLOR, true);
+			Graphics::Get().renderText(std::to_string(scorePlayer2), INITIAL_PLAYER2_POSITION.x, SCREEN_HEIGHT - 100.f, 1.f, SCORE_TEXT_COLOR, true);
+			if ( currentRoundState == RoundStateType::Ready )
+				Graphics::Get().renderText("Ready?", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, READY_TEXT_COLOR, true);
+		}
+		break;
+
+	case GameStateType::End:
+		// Object Rendering
+		Graphics::Get().renderObject(player1);
+		Graphics::Get().renderObject(player2);
+		Graphics::Get().renderObject(ball);
+		Graphics::Get().renderObject(net);
+		Graphics::Get().renderObject(leftWall);
+		Graphics::Get().renderObject(rightWall);
+		Graphics::Get().renderObject(floor);
+		Graphics::Get().renderObject(ceil);
+
+		// Text Rendering
+		Graphics::Get().renderText(std::to_string(scorePlayer1), INITIAL_PLAYER1_POSITION.x, SCREEN_HEIGHT - 100.f, 1.f, SCORE_TEXT_COLOR, true);
+		Graphics::Get().renderText(std::to_string(scorePlayer2), INITIAL_PLAYER2_POSITION.x, SCREEN_HEIGHT - 100.f, 1.f, SCORE_TEXT_COLOR, true);
 		Graphics::Get().renderText("Game Set!", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, GAME_SET_TEXT_COLOR, true);
+		printExitText();
+		break;
+	}
 }
 
 void GameMode_Online::onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	PlayerInput playerInput(key, scancode, action, mods);
-	sendMessage(clientSocket, MessageType::PlayerInput, playerInput);
+	if(connected && currentGameState == GameStateType::Playing)
+	{
+		PlayerInput playerInput(key, scancode, action, mods);
+		sendMessage(clientSocket, MessageType::PlayerInput, playerInput);
+	}
+
+	if (!connected || disConnected)
+	{
+		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+		{
+			Graphics::Get().reserveClose();
+		}
+	}
 }
 
-bool GameMode_Online::shouldClose()
-{
-	if (disConnected)
-		return true;
-
-	return false;
-}
-
-void GameMode_Online::onConnected()
+void GameMode_Online::onConnected(int connectedPlayerID)
 {
 	connected = true;
 	disConnected = false;
+	myPlayerID = connectedPlayerID;
 }
 
 void GameMode_Online::onDisconnected()
@@ -113,15 +181,9 @@ void GameMode_Online::onDisconnected()
 	disConnected = true;
 }
 
-void GameMode_Online::onServerShutdown()
-{
-	connected = false;
-	disConnected = true;
-}
-
 void GameMode_Online::receiveMessageFromServer()
 {
-	while (!shouldClose())
+	while (!disConnected)
 	{
 		fd_set readSet;
 		FD_ZERO(&readSet);
@@ -162,7 +224,7 @@ void GameMode_Online::messageHandler(char* buffer, int bytesReceived)
 			ConnectMessage connectMessage;
 			deserialize(buffer + sizeof(MessageHeader), connectMessage);
 			LOG(LogGameModeOnline, LogVerbosity::Log, "Connected to Server!");
-			onConnected();
+			onConnected(connectMessage.connectedPlayerID);
 		}
 		break;
 		case MessageType::Disconnected:
@@ -175,8 +237,9 @@ void GameMode_Online::messageHandler(char* buffer, int bytesReceived)
 		break;
 		case MessageType::ReplicateGameState:
 		{
+			ReplicatedGameState replicatedGameState;
 			deserialize(buffer + sizeof(MessageHeader), replicatedGameState);
-			onReplicatedGameState();
+			onReplicatedGameState(replicatedGameState);
 		}
 		break;
 		default:
@@ -186,7 +249,7 @@ void GameMode_Online::messageHandler(char* buffer, int bytesReceived)
 	}
 }
 
-void GameMode_Online::onReplicatedGameState()
+void GameMode_Online::onReplicatedGameState(const ReplicatedGameState& replicatedGameState)
 {
 	player1.setPosition(replicatedGameState.player1Position);
 	player2.setPosition(replicatedGameState.player2Position);
@@ -231,4 +294,14 @@ void GameMode_Online::onReplicatedGameState()
 		}
 		currentGameState = replicatedGameState.currentGameState;
 	}
+}
+
+void GameMode_Online::printDisconnectedText()
+{
+	Graphics::Get().renderText("Disconnected from Server.", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, EXCEPTION_TEXT_COLOR, true);
+}
+
+void GameMode_Online::printExitText()
+{
+	Graphics::Get().renderText("Press ESC or click the 'X' button to exit.", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 75, 0.7f, EXCEPTION_TEXT_COLOR, true);
 }

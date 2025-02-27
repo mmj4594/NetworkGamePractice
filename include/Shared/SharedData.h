@@ -95,7 +95,7 @@ constexpr glm::vec2 INITIAL_FLOOR_POSITION = glm::vec2(SCREEN_WIDTH / 2, 0.f);
 constexpr glm::vec2 INITIAL_CEIL_POSITION = glm::vec2(SCREEN_WIDTH / 2, SCREEN_HEIGHT);
 
 constexpr int MAX_SCORE = 5;
-constexpr float GAME_WAIT_TIME = 3.0f;
+constexpr float GAME_WAIT_TIME = 5.0f;
 constexpr float ROUND_END_TIME_SCALE = 0.15f;
 constexpr float ROUND_WAIT_TIME = 2.0f;
 constexpr float ROUND_END_TIME = 2.0f * ROUND_END_TIME_SCALE;
@@ -159,6 +159,9 @@ inline void deserialize(const char* buffer, T& data)
 
 struct ConnectMessage
 {
+	ConnectMessage() {}
+
+	int connectedPlayerID = -1;
 };
 struct DisconnectMessage
 {
@@ -172,7 +175,7 @@ struct ReplicatedGameState
 	glm::vec2 ballPosition = glm::vec2(0);
 	int scorePlayer1 = 0;
 	int scorePlayer2 = 0;
-	int lastRoundWinnerPlayerID = 0;
+	int lastRoundWinnerPlayerID = -1;
 	GameStateType currentGameState = GameStateType::None;
 	RoundStateType currentRoundState = RoundStateType::None;
 };
@@ -188,7 +191,7 @@ struct PlayerInput
 };
 
 template <typename T>
-void sendMessage(SOCKET clientSocket, MessageType type, const T& message)
+inline void sendMessage(SOCKET targetSocket, MessageType type, const T& message)
 {
 	int dataSize = sizeof(T);
 	int totalSize = sizeof(MessageHeader) + dataSize;
@@ -201,7 +204,7 @@ void sendMessage(SOCKET clientSocket, MessageType type, const T& message)
 
 	// Serialize and Send Message
 	serialize(message, buffer + sizeof(MessageHeader));
-	int sendByte = send(clientSocket, buffer, totalSize, 0);
+	int sendByte = send(targetSocket, buffer, totalSize, 0);
 	delete[] buffer;
 
 	if (sendByte == SOCKET_ERROR)

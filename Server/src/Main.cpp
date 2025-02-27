@@ -68,10 +68,7 @@ int main()
 
 		while (serverTickTimer >= SERVER_FRAME_TIME)
 		{
-			if (Game::Get().currentGameState != GameStateType::None)
-			{
-				Server::Get().tick(static_cast<float>(gameTickTimer));
-			}
+			Server::Get().tick(static_cast<float>(gameTickTimer));
 			serverTickTimer -= SERVER_FRAME_TIME;
 		}
 	}

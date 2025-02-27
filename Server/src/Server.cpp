@@ -79,7 +79,10 @@ void Server::tick(float elapsedTime)
 		return;
 	}
 
-	replicateGameState();
+	if (Game::Get().currentGameState != GameStateType::None)
+	{
+		replicateGameState();
+	}
 }
 
 void Server::connectClient(SOCKET clientSocket)
@@ -92,6 +95,7 @@ void Server::connectClient(SOCKET clientSocket)
 
 	// Send Connect Message to Client
 	ConnectMessage connectMessage;
+	connectMessage.connectedPlayerID = clientSocketToPlayerID[static_cast<int>(clientSocket)];
 	sendMessage(clientSocket, MessageType::Connected, connectMessage);
 
 	// Start Game

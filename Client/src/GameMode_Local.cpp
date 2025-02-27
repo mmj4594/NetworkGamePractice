@@ -85,13 +85,25 @@ void GameMode_Local::renderFrame(float elapsedTime)
 	if (currentRoundState == RoundStateType::Ready)
 		Graphics::Get().renderText("Ready?", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, READY_TEXT_COLOR, true);
 	if (currentGameState == GameStateType::End)
+	{
 		Graphics::Get().renderText("Game Set!", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, GAME_SET_TEXT_COLOR, true);
+		Graphics::Get().renderText("Press ESC or click the 'X' button to exit.", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 75, 0.7f, EXCEPTION_TEXT_COLOR, true);
+	}
 }
 
 void GameMode_Local::onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	static bool DPressed = false, GPressed = false, RPressed = false, FPressed = false;
 	static bool leftPressed = false, rightPressed = false, upPressed = false, downPressed = false;
+
+	if (currentGameState == GameStateType::End)
+	{
+		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+		{
+			Graphics::Get().reserveClose();
+		}
+		return;
+	}
 
 	if (currentGameState != GameStateType::Playing || currentRoundState != RoundStateType::Playing)
 	{

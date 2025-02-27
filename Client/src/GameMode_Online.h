@@ -19,13 +19,15 @@ public:
 	void onKey(GLFWwindow* window, int key, int scancode, int action, int mods) override;
 
 public:
-	bool shouldClose();
-	void onConnected();
+	void onConnected(int connectedPlayerID);
 	void onDisconnected();
-	void onServerShutdown();
 	void receiveMessageFromServer();
 	void messageHandler(char* buffer, int bytesReceived);
-	void onReplicatedGameState();
+	void onReplicatedGameState(const ReplicatedGameState& replicatedGameState);
+
+private:
+	void printDisconnectedText();
+	void printExitText();
 
 public:
 	Player player1 = Player(1, INITIAL_PLAYER1_POSITION, 75.f, 75.f);
@@ -45,7 +47,7 @@ public:
 private:
 	SOCKET clientSocket;
 	std::thread receiveMessageThread;
-	ReplicatedGameState replicatedGameState;
 	bool connected = false;
 	bool disConnected = false;
+	int myPlayerID = -1;
 };

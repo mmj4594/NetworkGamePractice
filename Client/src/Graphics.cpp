@@ -1,4 +1,4 @@
-#define WIN32_LEAN_AND_MEAN
+#include "SharedData.h"
 #include <windows.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -295,7 +295,18 @@ bool Graphics::loadFont(const char* fontPath)
 
 bool Graphics::shouldClose()
 {
-	return glfwWindowShouldClose(window);
+	if (glfwWindowShouldClose(window))
+	{
+		LOG(LogGraphics, LogVerbosity::Log, "Client Shutdown Reserved.");
+		return true;
+	}
+
+	return false;
+}
+
+void Graphics::reserveClose()
+{
+	glfwSetWindowShouldClose(window, true);
 }
 
 void Graphics::renderFrame(float elapsedTime)
