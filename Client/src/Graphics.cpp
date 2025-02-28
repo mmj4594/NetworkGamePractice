@@ -19,7 +19,7 @@ LogCategory LogGraphics("Graphics");
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-	glfwSetWindowSize(window, SCREEN_WIDTH, SCREEN_HEIGHT);
+	glfwSetWindowSize(window, Config::Get().SCREEN_WIDTH, Config::Get().SCREEN_HEIGHT);
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -49,7 +49,7 @@ bool Graphics::initializeGraphics()
 
 	// Create a window
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-	window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "OpenGL Window", nullptr, nullptr);
+	window = glfwCreateWindow(Config::Get().SCREEN_WIDTH, Config::Get().SCREEN_HEIGHT, "OpenGL Window", nullptr, nullptr);
 	if (!window)
 	{
 		LOG(LogGraphics, LogVerbosity::Error, "initializeGraphics: Failed to create GLFW window!");
@@ -70,10 +70,10 @@ bool Graphics::initializeGraphics()
 	}
 
 	// Set Viewport Size
-	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	glViewport(0, 0, Config::Get().SCREEN_WIDTH, Config::Get().SCREEN_HEIGHT);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT, -1.0f, 1.0f);
+	glOrtho(0, Config::Get().SCREEN_WIDTH, 0, Config::Get().SCREEN_HEIGHT, -1.0f, 1.0f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
@@ -223,18 +223,6 @@ unsigned int Graphics::compileShader(unsigned int type, const char* source)
 	return shader;
 }
 
-std::string Graphics::getCurrentExeDir()
-{
-	// change the working directory to the location where .exe file is located.
-	char buffer[MAX_PATH];
-	GetModuleFileNameA(NULL, buffer, MAX_PATH);
-
-	std::string exePath = buffer;
-	size_t pos = exePath.find_last_of("\\/");
-	std::string exeDir = exePath.substr(0, pos);
-	return exeDir;
-}
-
 bool Graphics::loadFont(const char* fontPath)
 {
 	FT_Library ft;
@@ -343,7 +331,7 @@ void Graphics::renderObject(GameObject targetObject)
 	glUniformMatrix4fv(objectTransformLoc, 1, GL_FALSE, glm::value_ptr(transform));
 
 	// projection
-	glm::mat4 projection = glm::ortho(0.f, (float)SCREEN_WIDTH, 0.f, (float)SCREEN_HEIGHT);
+	glm::mat4 projection = glm::ortho(0.f, (float)Config::Get().SCREEN_WIDTH, 0.f, (float)Config::Get().SCREEN_HEIGHT);
 	glUniformMatrix4fv(objectProjectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 	glBindVertexArray(objectVAO);
@@ -368,7 +356,7 @@ void Graphics::renderText(std::string text, float x, float y, float scale, glm::
 	glUniformMatrix4fv(textTransformLoc, 1, GL_FALSE, glm::value_ptr(transform));
 
 	// projection
-	glm::mat4 projection = glm::ortho(0.f, (float)SCREEN_WIDTH, 0.f, (float)SCREEN_HEIGHT);
+	glm::mat4 projection = glm::ortho(0.f, (float)Config::Get().SCREEN_WIDTH, 0.f, (float)Config::Get().SCREEN_HEIGHT);
 	glUniformMatrix4fv(textProjectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 	glActiveTexture(GL_TEXTURE0);

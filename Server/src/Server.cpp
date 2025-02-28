@@ -32,7 +32,7 @@ void Server::beginPlay()
 	serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_addr.s_addr = INADDR_ANY;
-	serverAddr.sin_port = htons(9000);
+	serverAddr.sin_port = htons(Config::Get().SERVERPORT);
 	bind(serverSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
 
 	// Ready to connect with MAX_PLAYERS Clients

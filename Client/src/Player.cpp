@@ -14,8 +14,8 @@ Player::Player(int playerID_, glm::vec2 position_, float width_, float height_) 
 
 void Player::beginPlay()
 {
-	setSpeedRange(PLAYER_SPEED_RANGE);
-	setAcc(glm::vec2(0.f, GRAVITY));
+	setSpeedRange(Config::Get().PLAYER_SPEED_RANGE);
+	setAcc(glm::vec2(0.f, Config::Get().GRAVITY));
 
 	if (playerID == 1)
 	{
@@ -34,6 +34,7 @@ void Player::reset()
 {
 	__super::reset();
 
+	setPosition(playerID == 1 ? Config::Get().INITIAL_PLAYER1_POSITION : Config::Get().INITIAL_PLAYER2_POSITION);
 	jumping = false;
 	sliding = false;
 }
@@ -68,12 +69,12 @@ void Player::updateSpeed(float elapsedTime)
 		glm::vec2 tempSpeed = getSpeed();
 		if (tempSpeed.x > 0.f)
 		{
-			tempSpeed.x -= PLAYER_FRICTION * elapsedTime;
+			tempSpeed.x -= Config::Get().PLAYER_FRICTION * elapsedTime;
 			if (tempSpeed.x < 0.f) tempSpeed.x = 0.f;
 		}
 		else if (tempSpeed.x < 0.f)
 		{
-			tempSpeed.x += PLAYER_FRICTION * elapsedTime;
+			tempSpeed.x += Config::Get().PLAYER_FRICTION * elapsedTime;
 			if (tempSpeed.x > 0.f) tempSpeed.x = 0.f;
 		}
 		setSpeed(tempSpeed);
@@ -97,11 +98,11 @@ void Player::updateState(float elapsedTime)
 	if (sliding)
 	{
 		slidingTimer += elapsedTime;
-		if (slidingTimer >= PLAYER_SLIDING_DURATION)
+		if (slidingTimer >= Config::Get().PLAYER_SLIDING_DURATION)
 		{
 			sliding = false;
 			slidingTimer = 0.0f;
-			setSpeedRange(PLAYER_SPEED_RANGE);
+			setSpeedRange(Config::Get().PLAYER_SPEED_RANGE);
 		}
 	}
 }
@@ -109,14 +110,14 @@ void Player::updateState(float elapsedTime)
 void Player::jump()
 {
 	jumping = true;
-	addImpulse(glm::vec2(0.f, PLYAER_JUMP_SPEED));
+	addImpulse(glm::vec2(0.f, Config::Get().PLYAER_JUMP_SPEED));
 }
 
 void Player::slide(bool right)
 {
 	sliding = true;
 	slidingTimer = 0.0f;
-	setSpeedRange(PLAYER_SLIDING_SPEED_RANGE);
-	setSpeed(glm::vec2(right ? PLAYER_SLIDING_SPEED : -PLAYER_SLIDING_SPEED, 0));
+	setSpeedRange(Config::Get().PLAYER_SLIDING_SPEED_RANGE);
+	setSpeed(glm::vec2(right ? Config::Get().PLAYER_SLIDING_SPEED : -Config::Get().PLAYER_SLIDING_SPEED, 0));
 	setAcc(glm::vec2(0, getAcc().y));
 }

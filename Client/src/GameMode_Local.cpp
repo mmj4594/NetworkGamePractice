@@ -46,7 +46,7 @@ void GameMode_Local::tick(float elapsedTime)
 	if (currentRoundState == RoundStateType::Ready)
 	{
 		roundWaitTimer += elapsedTime;
-		if (roundWaitTimer >= ROUND_WAIT_TIME)
+		if (roundWaitTimer >= Config::Get().ROUND_WAIT_TIME)
 		{
 			startRound();
 		}
@@ -56,7 +56,7 @@ void GameMode_Local::tick(float elapsedTime)
 		if (currentGameState != GameStateType::End)
 		{
 			roundEndTimer += elapsedTime;
-			if (roundEndTimer >= ROUND_END_TIME)
+			if (roundEndTimer >= Config::Get().ROUND_END_TIME)
 			{
 				readyRound();
 			}
@@ -79,15 +79,15 @@ void GameMode_Local::renderFrame(float elapsedTime)
 	// Text Rendering
 	std::ostringstream fpsString;
 	fpsString << std::fixed << std::setprecision(1) << (1.0f / elapsedTime);
-	Graphics::Get().renderText((fpsString.str() + " FPS").c_str(), 20.f, SCREEN_HEIGHT - 30.f, 0.25f, FPS_TEXT_COLOR);
-	Graphics::Get().renderText(std::to_string(scorePlayer1), INITIAL_PLAYER1_POSITION.x, SCREEN_HEIGHT - 100.f, 1.f, SCORE_TEXT_COLOR, true);
-	Graphics::Get().renderText(std::to_string(scorePlayer2), INITIAL_PLAYER2_POSITION.x, SCREEN_HEIGHT - 100.f, 1.f, SCORE_TEXT_COLOR, true);
+	Graphics::Get().renderText((fpsString.str() + " FPS").c_str(), 20.f, Config::Get().SCREEN_HEIGHT - 30.f, 0.25f, FPS_TEXT_COLOR);
+	Graphics::Get().renderText(std::to_string(scorePlayer1), Config::Get().INITIAL_PLAYER1_POSITION.x, Config::Get().SCREEN_HEIGHT - 100.f, 1.f, SCORE_TEXT_COLOR, true);
+	Graphics::Get().renderText(std::to_string(scorePlayer2), Config::Get().INITIAL_PLAYER2_POSITION.x, Config::Get().SCREEN_HEIGHT - 100.f, 1.f, SCORE_TEXT_COLOR, true);
 	if (currentRoundState == RoundStateType::Ready)
-		Graphics::Get().renderText("Ready?", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, READY_TEXT_COLOR, true);
+		Graphics::Get().renderText("Ready?", Config::Get().SCREEN_WIDTH / 2.f, Config::Get().SCREEN_HEIGHT / 2.f - TEXT_SIZE / 2.f, 1.f, READY_TEXT_COLOR, true);
 	if (currentGameState == GameStateType::End)
 	{
-		Graphics::Get().renderText("Game Set!", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, GAME_SET_TEXT_COLOR, true);
-		Graphics::Get().renderText("Press ESC or click the 'X' button to exit.", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 75, 0.7f, EXCEPTION_TEXT_COLOR, true);
+		Graphics::Get().renderText("Game Set!", Config::Get().SCREEN_WIDTH / 2.f, Config::Get().SCREEN_HEIGHT / 2.f - TEXT_SIZE / 2.f, 1.f, GAME_SET_TEXT_COLOR, true);
+		Graphics::Get().renderText("Press ESC or click the 'X' button to exit.", Config::Get().SCREEN_WIDTH / 2.f, Config::Get().SCREEN_HEIGHT / 2.f - 75, 0.7f, EXCEPTION_TEXT_COLOR, true);
 	}
 }
 
@@ -131,8 +131,8 @@ void GameMode_Local::onKey(GLFWwindow* window, int key, int scancode, int action
 
 		// move
 		if (DPressed && GPressed) player1.setAcc(glm::vec2(0, player1.getAcc().y));
-		else if (DPressed) player1.setAcc(glm::vec2(-PLAYER_MOVE_ACC, player1.getAcc().y));
-		else if (GPressed) player1.setAcc(glm::vec2(PLAYER_MOVE_ACC, player1.getAcc().y));
+		else if (DPressed) player1.setAcc(glm::vec2(-Config::Get().PLAYER_MOVE_ACC, player1.getAcc().y));
+		else if (GPressed) player1.setAcc(glm::vec2(Config::Get().PLAYER_MOVE_ACC, player1.getAcc().y));
 		else player1.setAcc(glm::vec2(0, player1.getAcc().y));
 
 		// slide
@@ -189,8 +189,8 @@ void GameMode_Local::onKey(GLFWwindow* window, int key, int scancode, int action
 
 		// move
 		if (leftPressed && rightPressed) player2.setAcc(glm::vec2(0, player2.getAcc().y));
-		else if (leftPressed) player2.setAcc(glm::vec2(-PLAYER_MOVE_ACC, player2.getAcc().y));
-		else if (rightPressed) player2.setAcc(glm::vec2(PLAYER_MOVE_ACC, player2.getAcc().y));
+		else if (leftPressed) player2.setAcc(glm::vec2(-Config::Get().PLAYER_MOVE_ACC, player2.getAcc().y));
+		else if (rightPressed) player2.setAcc(glm::vec2(Config::Get().PLAYER_MOVE_ACC, player2.getAcc().y));
 		else player2.setAcc(glm::vec2(0, player2.getAcc().y));
 
 		// slide
@@ -236,7 +236,7 @@ void GameMode_Local::onKey(GLFWwindow* window, int key, int scancode, int action
 void GameMode_Local::readyRound()
 {
 	currentRoundState = RoundStateType::Ready;
-	GameModeManager::Get().currentTimeScale = BASIC_TIME_SCALE;
+	GameModeManager::Get().currentTimeScale = Config::Get().BASIC_TIME_SCALE;
 	player1.reset();
 	player2.reset();
 	ball.reset();
@@ -247,7 +247,7 @@ void GameMode_Local::readyRound()
 void GameMode_Local::startRound()
 {
 	currentRoundState = RoundStateType::Playing;
-	GameModeManager::Get().currentTimeScale = BASIC_TIME_SCALE;
+	GameModeManager::Get().currentTimeScale = Config::Get().BASIC_TIME_SCALE;
 	LOG(LogGameModeLocal, LogVerbosity::Log, "Start Round %d", scorePlayer1 + scorePlayer2 + 1);
 }
 
@@ -258,14 +258,14 @@ void GameMode_Local::endRound()
 		scorePlayer1 + scorePlayer2, scorePlayer1, scorePlayer2, lastRoundWinnerPlayerID);
 
 	// game set
-	if (scorePlayer1 >= MAX_SCORE || scorePlayer2 >= MAX_SCORE)
+	if (scorePlayer1 >= Config::Get().MAX_SCORE || scorePlayer2 >= Config::Get().MAX_SCORE)
 	{
 		currentGameState = GameStateType::End;
-		LOG(LogGameModeLocal, LogVerbosity::Log, "Game is Finished! Winner Player: %d", scorePlayer1 >= MAX_SCORE ? player1.getPlayerID() : player2.getPlayerID());
+		LOG(LogGameModeLocal, LogVerbosity::Log, "Game is Finished! Winner Player: %d", scorePlayer1 >= Config::Get().MAX_SCORE ? player1.getPlayerID() : player2.getPlayerID());
 	}
 	else
 	{
-		GameModeManager::Get().currentTimeScale = ROUND_END_TIME_SCALE;
+		GameModeManager::Get().currentTimeScale = Config::Get().ROUND_END_TIME_SCALE;
 		roundEndTimer = 0.f;
 	}
 }
@@ -299,7 +299,7 @@ void GameMode_Local::updatePhysics(float elapsedTime)
 	{
 		if( currentGameState == GameStateType::Playing && currentRoundState == RoundStateType::Playing )
 		{
-			if (ball.getPosition().x < SCREEN_WIDTH / 2)
+			if (ball.getPosition().x < Config::Get().SCREEN_WIDTH / 2)
 			{
 				scorePlayer2++;
 				lastRoundWinnerPlayerID = player2.getPlayerID();
@@ -379,27 +379,27 @@ void GameMode_Local::updatePhysics(float elapsedTime)
 					switch (player1.getSpikeDirection())
 					{
 						case SpikeDirectionType::None:
-							newBallSpeed.x = BALL_SPIKE_SPEED;
+							newBallSpeed.x = Config::Get().BALL_SPIKE_SPEED;
 							newBallSpeed.y = 0.f;
 							break;
 						case SpikeDirectionType::Front:
-							newBallSpeed.x = BALL_SPIKE_SPEED * 2;
+							newBallSpeed.x = Config::Get().BALL_SPIKE_SPEED * 2;
 							newBallSpeed.y = 0.f;
 							break;
 						case SpikeDirectionType::Up:
-							newBallSpeed.x = BALL_SPIKE_SPEED;
+							newBallSpeed.x = Config::Get().BALL_SPIKE_SPEED;
 							newBallSpeed.y = std::abs(ball.getSpeed().y * 2);
 							break;
 						case SpikeDirectionType::Down:
-							newBallSpeed.x = BALL_SPIKE_SPEED;
+							newBallSpeed.x = Config::Get().BALL_SPIKE_SPEED;
 							newBallSpeed.y = -std::abs(ball.getSpeed().y * 2);
 							break;
 						case SpikeDirectionType::Front_Up:
-							newBallSpeed.x = BALL_SPIKE_SPEED * 2;
+							newBallSpeed.x = Config::Get().BALL_SPIKE_SPEED * 2;
 							newBallSpeed.y = std::abs(ball.getSpeed().y * 2);
 							break;
 						case SpikeDirectionType::Front_Down:
-							newBallSpeed.x = BALL_SPIKE_SPEED * 2;
+							newBallSpeed.x = Config::Get().BALL_SPIKE_SPEED * 2;
 							newBallSpeed.y = -std::abs(ball.getSpeed().y * 2);
 							break;
 						default:
@@ -409,7 +409,7 @@ void GameMode_Local::updatePhysics(float elapsedTime)
 				// normal collision
 				else
 				{
-					newBallSpeed.x = NORMAL_COLLISION_IMPACT_FACTOR * (ball.getPosition().x - player1.getPosition().x);
+					newBallSpeed.x = Config::Get().NORMAL_COLLISION_IMPACT_FACTOR * (ball.getPosition().x - player1.getPosition().x);
 					newBallSpeed.y = std::abs(ball.getSpeed().y);
 				}
 				ball.setSpeed(newBallSpeed);
@@ -450,27 +450,27 @@ void GameMode_Local::updatePhysics(float elapsedTime)
 					switch (player2.getSpikeDirection())
 					{
 						case SpikeDirectionType::None:
-							newBallSpeed.x = -BALL_SPIKE_SPEED;
+							newBallSpeed.x = -Config::Get().BALL_SPIKE_SPEED;
 							newBallSpeed.y = 0.f;
 							break;
 						case SpikeDirectionType::Front:
-							newBallSpeed.x = -BALL_SPIKE_SPEED * 2;
+							newBallSpeed.x = -Config::Get().BALL_SPIKE_SPEED * 2;
 							newBallSpeed.y = 0.f;
 							break;
 						case SpikeDirectionType::Up:
-							newBallSpeed.x = -BALL_SPIKE_SPEED;
+							newBallSpeed.x = -Config::Get().BALL_SPIKE_SPEED;
 							newBallSpeed.y = std::abs(ball.getSpeed().y * 2);
 							break;
 						case SpikeDirectionType::Down:
-							newBallSpeed.x = -BALL_SPIKE_SPEED;
+							newBallSpeed.x = -Config::Get().BALL_SPIKE_SPEED;
 							newBallSpeed.y = -std::abs(ball.getSpeed().y * 2);
 							break;
 						case SpikeDirectionType::Front_Up:
-							newBallSpeed.x = -BALL_SPIKE_SPEED * 2;
+							newBallSpeed.x = -Config::Get().BALL_SPIKE_SPEED * 2;
 							newBallSpeed.y = std::abs(ball.getSpeed().y * 2);
 							break;
 						case SpikeDirectionType::Front_Down:
-							newBallSpeed.x = -BALL_SPIKE_SPEED * 2;
+							newBallSpeed.x = -Config::Get().BALL_SPIKE_SPEED * 2;
 							newBallSpeed.y = -std::abs(ball.getSpeed().y * 2);
 							break;
 						default:
@@ -480,7 +480,7 @@ void GameMode_Local::updatePhysics(float elapsedTime)
 				// normal collision
 				else
 				{
-					newBallSpeed.x = NORMAL_COLLISION_IMPACT_FACTOR * (ball.getPosition().x - player2.getPosition().x);
+					newBallSpeed.x = Config::Get().NORMAL_COLLISION_IMPACT_FACTOR * (ball.getPosition().x - player2.getPosition().x);
 					newBallSpeed.y = std::abs(ball.getSpeed().y);
 				}
 				ball.setSpeed(newBallSpeed);

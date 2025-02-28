@@ -31,8 +31,8 @@ void GameMode_Online::beginPlay()
 	// Cretae Client Socket(IPv4, TCP) and Set Target Server Address
 	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
 	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_port = htons(9000);
-	const char* serverIPAddr = "127.0.0.1";
+	serverAddr.sin_port = htons(Config::Get().SERVERPORT);
+	const char* serverIPAddr = Config::Get().SERVERHOST.c_str();
 	inet_pton(AF_INET, serverIPAddr, &serverAddr.sin_addr);
 
 	// Try to Connect to Server
@@ -70,19 +70,19 @@ void GameMode_Online::renderFrame(float elapsedTime)
 	// FPS
 	std::ostringstream fpsString;
 	fpsString << std::fixed << std::setprecision(1) << ( 1.0f / elapsedTime );
-	Graphics::Get().renderText(( fpsString.str() + " FPS" ).c_str(), 20.f, SCREEN_HEIGHT - 30.f, 0.25f, FPS_TEXT_COLOR);
+	Graphics::Get().renderText(( fpsString.str() + " FPS" ).c_str(), 20.f, Config::Get().SCREEN_HEIGHT - 30.f, 0.25f, FPS_TEXT_COLOR);
 
 	switch(currentGameState)
 	{
 	case GameStateType::None:
 		if (!connected && !disConnected)
 		{
-			Graphics::Get().renderText("Failed to Connect Server.", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, EXCEPTION_TEXT_COLOR, true);
+			Graphics::Get().renderText("Failed to Connect Server.", Config::Get().SCREEN_WIDTH / 2.f, Config::Get().SCREEN_HEIGHT / 2.f - TEXT_SIZE / 2.f, 1.f, EXCEPTION_TEXT_COLOR, true);
 			printExitText();
 		}
 		else if(connected)
 		{
-			Graphics::Get().renderText("Waiting for Another Player...", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, READY_TEXT_COLOR, true);
+			Graphics::Get().renderText("Waiting for Another Player...", Config::Get().SCREEN_WIDTH / 2.f, Config::Get().SCREEN_HEIGHT / 2.f - TEXT_SIZE / 2.f, 1.f, READY_TEXT_COLOR, true);
 		}
 		else if (disConnected)
 		{
@@ -99,9 +99,9 @@ void GameMode_Online::renderFrame(float elapsedTime)
 		}
 		else
 		{
-			Graphics::Get().renderText("Game Ready!", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 25, 1.f, READY_TEXT_COLOR, true);
+			Graphics::Get().renderText("Game Ready!", Config::Get().SCREEN_WIDTH / 2.f, Config::Get().SCREEN_HEIGHT / 2.f + 25, 1.f, READY_TEXT_COLOR, true);
 			glm::vec3 playerColor = myPlayerID == player1.getPlayerID() ? P1_COLOR : P2_COLOR;
-			Graphics::Get().renderText("You are Player " + std::to_string(myPlayerID), SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 25, 0.7f, playerColor, true);
+			Graphics::Get().renderText("You are Player " + std::to_string(myPlayerID), Config::Get().SCREEN_WIDTH / 2.f, Config::Get().SCREEN_HEIGHT / 2.f - 25, 0.7f, playerColor, true);
 		}
 		break;
 
@@ -124,10 +124,10 @@ void GameMode_Online::renderFrame(float elapsedTime)
 			Graphics::Get().renderObject(ceil);
 
 			// Text Rendering
-			Graphics::Get().renderText(std::to_string(scorePlayer1), INITIAL_PLAYER1_POSITION.x, SCREEN_HEIGHT - 100.f, 1.f, SCORE_TEXT_COLOR, true);
-			Graphics::Get().renderText(std::to_string(scorePlayer2), INITIAL_PLAYER2_POSITION.x, SCREEN_HEIGHT - 100.f, 1.f, SCORE_TEXT_COLOR, true);
+			Graphics::Get().renderText(std::to_string(scorePlayer1), Config::Get().INITIAL_PLAYER1_POSITION.x, Config::Get().SCREEN_HEIGHT - 100.f, 1.f, SCORE_TEXT_COLOR, true);
+			Graphics::Get().renderText(std::to_string(scorePlayer2), Config::Get().INITIAL_PLAYER2_POSITION.x, Config::Get().SCREEN_HEIGHT - 100.f, 1.f, SCORE_TEXT_COLOR, true);
 			if ( currentRoundState == RoundStateType::Ready )
-				Graphics::Get().renderText("Ready?", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, READY_TEXT_COLOR, true);
+				Graphics::Get().renderText("Ready?", Config::Get().SCREEN_WIDTH / 2.f, Config::Get().SCREEN_HEIGHT / 2.f - TEXT_SIZE / 2.f, 1.f, READY_TEXT_COLOR, true);
 		}
 		break;
 
@@ -143,9 +143,9 @@ void GameMode_Online::renderFrame(float elapsedTime)
 		Graphics::Get().renderObject(ceil);
 
 		// Text Rendering
-		Graphics::Get().renderText(std::to_string(scorePlayer1), INITIAL_PLAYER1_POSITION.x, SCREEN_HEIGHT - 100.f, 1.f, SCORE_TEXT_COLOR, true);
-		Graphics::Get().renderText(std::to_string(scorePlayer2), INITIAL_PLAYER2_POSITION.x, SCREEN_HEIGHT - 100.f, 1.f, SCORE_TEXT_COLOR, true);
-		Graphics::Get().renderText("Game Set!", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, GAME_SET_TEXT_COLOR, true);
+		Graphics::Get().renderText(std::to_string(scorePlayer1), Config::Get().INITIAL_PLAYER1_POSITION.x, Config::Get().SCREEN_HEIGHT - 100.f, 1.f, SCORE_TEXT_COLOR, true);
+		Graphics::Get().renderText(std::to_string(scorePlayer2), Config::Get().INITIAL_PLAYER2_POSITION.x, Config::Get().SCREEN_HEIGHT - 100.f, 1.f, SCORE_TEXT_COLOR, true);
+		Graphics::Get().renderText("Game Set!", Config::Get().SCREEN_WIDTH / 2.f, Config::Get().SCREEN_HEIGHT / 2.f - TEXT_SIZE / 2.f, 1.f, GAME_SET_TEXT_COLOR, true);
 		printExitText();
 		break;
 	}
@@ -287,7 +287,7 @@ void GameMode_Online::onReplicatedGameState(const ReplicatedGameState& replicate
 			LOG(LogGameModeOnline, LogVerbosity::Log, "Game is Started");
 			break;
 		case GameStateType::End:
-			LOG(LogGameModeOnline, LogVerbosity::Log, "Game is Finished! Winner Player: %d", scorePlayer1 >= MAX_SCORE ? player1.getPlayerID() : player2.getPlayerID());
+			LOG(LogGameModeOnline, LogVerbosity::Log, "Game is Finished! Winner Player: %d", scorePlayer1 >= Config::Get().MAX_SCORE ? player1.getPlayerID() : player2.getPlayerID());
 			break;
 		default:
 			LOG(LogGameModeOnline, LogVerbosity::Error, "onReplicatedGameState: Unhandled Game State Type");
@@ -298,10 +298,10 @@ void GameMode_Online::onReplicatedGameState(const ReplicatedGameState& replicate
 
 void GameMode_Online::printDisconnectedText()
 {
-	Graphics::Get().renderText("Disconnected from Server.", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - TEXT_SIZE / 2, 1.f, EXCEPTION_TEXT_COLOR, true);
+	Graphics::Get().renderText("Disconnected from Server.", Config::Get().SCREEN_WIDTH / 2.f, Config::Get().SCREEN_HEIGHT / 2.f - TEXT_SIZE / 2.f, 1.f, EXCEPTION_TEXT_COLOR, true);
 }
 
 void GameMode_Online::printExitText()
 {
-	Graphics::Get().renderText("Press ESC or click the 'X' button to exit.", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 75, 0.7f, EXCEPTION_TEXT_COLOR, true);
+	Graphics::Get().renderText("Press ESC or click the 'X' button to exit.", Config::Get().SCREEN_WIDTH / 2.f, Config::Get().SCREEN_HEIGHT / 2.f - 75, 0.7f, EXCEPTION_TEXT_COLOR, true);
 }

@@ -30,14 +30,14 @@ private:
 	void printExitText();
 
 public:
-	Player player1 = Player(1, INITIAL_PLAYER1_POSITION, 75.f, 75.f);
-	Player player2 = Player(2, INITIAL_PLAYER2_POSITION, 75.f, 75.f);
-	Ball ball = Ball(INITIAL_BALL_POSITION, 60.f, 60.f);
-	Net net = Net(INITIAL_NET_POSITION, NET_WIDTH, NET_HEIGHT);
-	Block leftWall = Block(INITIAL_LEFT_WALL_POSITION, BLOCK_THICKNESS, SCREEN_HEIGHT);
-	Block rightWall = Block(INITIAL_RIGHT_WALL_POSITION, BLOCK_THICKNESS, SCREEN_HEIGHT);
-	Block floor = Block(INITIAL_FLOOR_POSITION, SCREEN_WIDTH, BLOCK_THICKNESS);
-	Block ceil = Block(INITIAL_CEIL_POSITION, SCREEN_WIDTH, BLOCK_THICKNESS);
+	Player player1 = Player(1, Config::Get().INITIAL_PLAYER1_POSITION, 75.f, 75.f);
+	Player player2 = Player(2, Config::Get().INITIAL_PLAYER2_POSITION, 75.f, 75.f);
+	Ball ball = Ball(Config::Get().INITIAL_BALL_POSITION, 60.f, 60.f);
+	Net net = Net(Config::Get().INITIAL_NET_POSITION, (float)Config::Get().NET_WIDTH, (float)Config::Get().NET_HEIGHT);
+	Block leftWall = Block(Config::Get().INITIAL_LEFT_WALL_POSITION, (float)Config::Get().BLOCK_THICKNESS, (float)Config::Get().SCREEN_HEIGHT);
+	Block rightWall = Block(Config::Get().INITIAL_RIGHT_WALL_POSITION, (float)Config::Get().BLOCK_THICKNESS, (float)Config::Get().SCREEN_HEIGHT);
+	Block floor = Block(Config::Get().INITIAL_FLOOR_POSITION, (float)Config::Get().SCREEN_WIDTH, (float)Config::Get().BLOCK_THICKNESS);
+	Block ceil = Block(Config::Get().INITIAL_CEIL_POSITION, (float)Config::Get().SCREEN_WIDTH, (float)Config::Get().BLOCK_THICKNESS);
 
 	int scorePlayer1 = 0, scorePlayer2 = 0;
 	int lastRoundWinnerPlayerID = -1;

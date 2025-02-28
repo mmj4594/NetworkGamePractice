@@ -43,7 +43,7 @@ void Game::tick(float elapsedTime)
 	{
 	case GameStateType::Ready:
 		gameWaitTimer += elapsedTime;
-		if (gameWaitTimer >= GAME_WAIT_TIME)
+		if (gameWaitTimer >= Config::Get().GAME_WAIT_TIME)
 		{
 			currentGameState = GameStateType::Playing;
 			LOG(LogGame, LogVerbosity::Log, "Game is Started");
@@ -61,7 +61,7 @@ void Game::tick(float elapsedTime)
 		if (currentRoundState == RoundStateType::Ready)
 		{
 			roundWaitTimer += elapsedTime;
-			if (roundWaitTimer >= ROUND_WAIT_TIME)
+			if (roundWaitTimer >= Config::Get().ROUND_WAIT_TIME)
 			{
 				startRound();
 			}
@@ -71,7 +71,7 @@ void Game::tick(float elapsedTime)
 			if (currentGameState != GameStateType::End)
 			{
 				roundEndTimer += elapsedTime;
-				if (roundEndTimer >= ROUND_END_TIME)
+				if (roundEndTimer >= Config::Get().ROUND_END_TIME)
 				{
 					readyRound();
 				}
@@ -113,8 +113,8 @@ void Game::onKey(int playerID, int key, int scancode, int action, int mods)
 
 			// move
 			if (DPressed && GPressed) player1.setAcc(glm::vec2(0, player1.getAcc().y));
-			else if (DPressed) player1.setAcc(glm::vec2(-PLAYER_MOVE_ACC, player1.getAcc().y));
-			else if (GPressed) player1.setAcc(glm::vec2(PLAYER_MOVE_ACC, player1.getAcc().y));
+			else if (DPressed) player1.setAcc(glm::vec2(-Config::Get().PLAYER_MOVE_ACC, player1.getAcc().y));
+			else if (GPressed) player1.setAcc(glm::vec2(Config::Get().PLAYER_MOVE_ACC, player1.getAcc().y));
 			else player1.setAcc(glm::vec2(0, player1.getAcc().y));
 
 			// slide
@@ -174,8 +174,8 @@ void Game::onKey(int playerID, int key, int scancode, int action, int mods)
 
 			// move
 			if (leftPressed && rightPressed) player2.setAcc(glm::vec2(0, player2.getAcc().y));
-			else if (leftPressed) player2.setAcc(glm::vec2(-PLAYER_MOVE_ACC, player2.getAcc().y));
-			else if (rightPressed) player2.setAcc(glm::vec2(PLAYER_MOVE_ACC, player2.getAcc().y));
+			else if (leftPressed) player2.setAcc(glm::vec2(-Config::Get().PLAYER_MOVE_ACC, player2.getAcc().y));
+			else if (rightPressed) player2.setAcc(glm::vec2(Config::Get().PLAYER_MOVE_ACC, player2.getAcc().y));
 			else player2.setAcc(glm::vec2(0, player2.getAcc().y));
 
 			// slide
@@ -221,7 +221,7 @@ void Game::onKey(int playerID, int key, int scancode, int action, int mods)
 void Game::readyRound()
 {
 	currentRoundState = RoundStateType::Ready;
-	currentTimeScale = BASIC_TIME_SCALE;
+	currentTimeScale = Config::Get().BASIC_TIME_SCALE;
 	player1.reset();
 	player2.reset();
 	ball.reset();
@@ -232,7 +232,7 @@ void Game::readyRound()
 void Game::startRound()
 {
 	currentRoundState = RoundStateType::Playing;
-	currentTimeScale = BASIC_TIME_SCALE;
+	currentTimeScale = Config::Get().BASIC_TIME_SCALE;
 	LOG(LogGame, LogVerbosity::Log, "Start Round %d", scorePlayer1 + scorePlayer2 + 1);
 }
 
@@ -243,16 +243,16 @@ void Game::endRound()
 		scorePlayer1 + scorePlayer2, scorePlayer1, scorePlayer2, lastRoundWinnerPlayerID);
 
 	// game set
-	if (scorePlayer1 >= MAX_SCORE || scorePlayer2 >= MAX_SCORE)
+	if (scorePlayer1 >= Config::Get().MAX_SCORE || scorePlayer2 >= Config::Get().MAX_SCORE)
 	{
 		currentGameState = GameStateType::End;
-		LOG(LogGame, LogVerbosity::Log, "Game is Finished! Winner Player: %d", scorePlayer1 >= MAX_SCORE ? player1.getPlayerID() : player2.getPlayerID());
+		LOG(LogGame, LogVerbosity::Log, "Game is Finished! Winner Player: %d", scorePlayer1 >= Config::Get().MAX_SCORE ? player1.getPlayerID() : player2.getPlayerID());
 		Server::Get().replicateGameState();
 		Server::Get().reserveShutdown("Game is Finished");
 	}
 	else
 	{
-		currentTimeScale = ROUND_END_TIME_SCALE;
+		currentTimeScale = Config::Get().ROUND_END_TIME_SCALE;
 		roundEndTimer = 0.f;
 	}
 }
@@ -286,7 +286,7 @@ void Game::updatePhysics(float elapsedTime)
 	{
 		if (currentGameState == GameStateType::Playing && currentRoundState == RoundStateType::Playing)
 		{
-			if (ball.getPosition().x < SCREEN_WIDTH / 2)
+			if (ball.getPosition().x < Config::Get().SCREEN_WIDTH / 2)
 			{
 				scorePlayer2++;
 				lastRoundWinnerPlayerID = player2.getPlayerID();
@@ -366,27 +366,27 @@ void Game::updatePhysics(float elapsedTime)
 					switch (player1.getSpikeDirection())
 					{
 					case SpikeDirectionType::None:
-						newBallSpeed.x = BALL_SPIKE_SPEED;
+						newBallSpeed.x = Config::Get().BALL_SPIKE_SPEED;
 						newBallSpeed.y = 0.f;
 						break;
 					case SpikeDirectionType::Front:
-						newBallSpeed.x = BALL_SPIKE_SPEED * 2;
+						newBallSpeed.x = Config::Get().BALL_SPIKE_SPEED * 2;
 						newBallSpeed.y = 0.f;
 						break;
 					case SpikeDirectionType::Up:
-						newBallSpeed.x = BALL_SPIKE_SPEED;
+						newBallSpeed.x = Config::Get().BALL_SPIKE_SPEED;
 						newBallSpeed.y = std::abs(ball.getSpeed().y * 2);
 						break;
 					case SpikeDirectionType::Down:
-						newBallSpeed.x = BALL_SPIKE_SPEED;
+						newBallSpeed.x = Config::Get().BALL_SPIKE_SPEED;
 						newBallSpeed.y = -std::abs(ball.getSpeed().y * 2);
 						break;
 					case SpikeDirectionType::Front_Up:
-						newBallSpeed.x = BALL_SPIKE_SPEED * 2;
+						newBallSpeed.x = Config::Get().BALL_SPIKE_SPEED * 2;
 						newBallSpeed.y = std::abs(ball.getSpeed().y * 2);
 						break;
 					case SpikeDirectionType::Front_Down:
-						newBallSpeed.x = BALL_SPIKE_SPEED * 2;
+						newBallSpeed.x = Config::Get().BALL_SPIKE_SPEED * 2;
 						newBallSpeed.y = -std::abs(ball.getSpeed().y * 2);
 						break;
 					default:
@@ -396,7 +396,7 @@ void Game::updatePhysics(float elapsedTime)
 				// normal collision
 				else
 				{
-					newBallSpeed.x = NORMAL_COLLISION_IMPACT_FACTOR * (ball.getPosition().x - player1.getPosition().x);
+					newBallSpeed.x = Config::Get().NORMAL_COLLISION_IMPACT_FACTOR * (ball.getPosition().x - player1.getPosition().x);
 					newBallSpeed.y = std::abs(ball.getSpeed().y);
 				}
 				ball.setSpeed(newBallSpeed);
@@ -437,27 +437,27 @@ void Game::updatePhysics(float elapsedTime)
 					switch (player2.getSpikeDirection())
 					{
 					case SpikeDirectionType::None:
-						newBallSpeed.x = -BALL_SPIKE_SPEED;
+						newBallSpeed.x = -Config::Get().BALL_SPIKE_SPEED;
 						newBallSpeed.y = 0.f;
 						break;
 					case SpikeDirectionType::Front:
-						newBallSpeed.x = -BALL_SPIKE_SPEED * 2;
+						newBallSpeed.x = -Config::Get().BALL_SPIKE_SPEED * 2;
 						newBallSpeed.y = 0.f;
 						break;
 					case SpikeDirectionType::Up:
-						newBallSpeed.x = -BALL_SPIKE_SPEED;
+						newBallSpeed.x = -Config::Get().BALL_SPIKE_SPEED;
 						newBallSpeed.y = std::abs(ball.getSpeed().y * 2);
 						break;
 					case SpikeDirectionType::Down:
-						newBallSpeed.x = -BALL_SPIKE_SPEED;
+						newBallSpeed.x = -Config::Get().BALL_SPIKE_SPEED;
 						newBallSpeed.y = -std::abs(ball.getSpeed().y * 2);
 						break;
 					case SpikeDirectionType::Front_Up:
-						newBallSpeed.x = -BALL_SPIKE_SPEED * 2;
+						newBallSpeed.x = -Config::Get().BALL_SPIKE_SPEED * 2;
 						newBallSpeed.y = std::abs(ball.getSpeed().y * 2);
 						break;
 					case SpikeDirectionType::Front_Down:
-						newBallSpeed.x = -BALL_SPIKE_SPEED * 2;
+						newBallSpeed.x = -Config::Get().BALL_SPIKE_SPEED * 2;
 						newBallSpeed.y = -std::abs(ball.getSpeed().y * 2);
 						break;
 					default:
@@ -467,7 +467,7 @@ void Game::updatePhysics(float elapsedTime)
 				// normal collision
 				else
 				{
-					newBallSpeed.x = NORMAL_COLLISION_IMPACT_FACTOR * (ball.getPosition().x - player2.getPosition().x);
+					newBallSpeed.x = Config::Get().NORMAL_COLLISION_IMPACT_FACTOR * (ball.getPosition().x - player2.getPosition().x);
 					newBallSpeed.y = std::abs(ball.getSpeed().y);
 				}
 				ball.setSpeed(newBallSpeed);

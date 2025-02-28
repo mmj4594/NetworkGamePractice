@@ -14,7 +14,6 @@ void GameObject::setSpeed(glm::vec2 newSpeed)
 
 void GameObject::reset()
 {
-	position = initialPosition;
 	speed = glm::vec2(0.f);
 }
 

@@ -38,6 +38,13 @@ add_custom_command(TARGET Client POST_BUILD
     $<TARGET_FILE_DIR:Client>
 )
 
+# config 파일 복사
+add_custom_command(TARGET Client POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_SOURCE_DIR}/config.json
+    $<TARGET_FILE_DIR:Client>
+)
+
 # 셰이더 복사
 add_custom_command(TARGET Client POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory

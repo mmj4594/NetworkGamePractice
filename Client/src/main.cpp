@@ -18,7 +18,14 @@ float getCurrentTime()
 
 int main()
 {
-	if (Graphics::Get().initializeGraphics() == false)
+	// Apply Config
+	if (!loadConfig("config.json"))
+	{
+		LOG(LogMain, LogVerbosity::Error, "Failed to load configuration file.");
+		return -1;
+	}
+
+	if (!Graphics::Get().initializeGraphics())
 	{
 		LOG(LogMain, LogVerbosity::Error, "Failed to initialize Graphics!");
 		return -1;
@@ -39,18 +46,18 @@ int main()
 		previousTime = currentTime;
 
 		tickTimer += (elapsedTime * GameModeManager::Get().currentTimeScale);
-		renderTimer += elapsedTime * BASIC_TIME_SCALE;
+		renderTimer += elapsedTime * Config::Get().BASIC_TIME_SCALE;
 
-		while (tickTimer >= CLIENT_FRAME_TIME )
+		while (tickTimer >= Config::Get().CLIENT_FRAME_TIME )
 		{
 			GameModeManager::Get().tick(static_cast<float>(tickTimer));
-			tickTimer -= CLIENT_FRAME_TIME;
+			tickTimer -= Config::Get().CLIENT_FRAME_TIME;
 		}
 
-		while (renderTimer >= CLIENT_FRAME_TIME )
+		while (renderTimer >= Config::Get().CLIENT_FRAME_TIME )
 		{
 			Graphics::Get().renderFrame(static_cast<float>(renderTimer));
-			renderTimer -= CLIENT_FRAME_TIME;
+			renderTimer -= Config::Get().CLIENT_FRAME_TIME;
 		}
 	}
 

@@ -32,15 +32,15 @@ void GameMode_Lobby::renderFrame(float elapsedTime)
 	// Text Rendering
 	std::ostringstream fpsString;
 	fpsString << std::fixed << std::setprecision(1) << (1.0f / elapsedTime);
-	Graphics::Get().renderText((fpsString.str() + " FPS").c_str(), 20.f, SCREEN_HEIGHT - 30.f, 0.25f, FPS_TEXT_COLOR);
+	Graphics::Get().renderText((fpsString.str() + " FPS").c_str(), 20.f, Config::Get().SCREEN_HEIGHT - 30.f, 0.25f, FPS_TEXT_COLOR);
 
 	selectedGameMode == GameModeType::Local
-		? Graphics::Get().renderText("> Local Mode <", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 25.f, SELECTED_GAMEMODE_SIZE, SELECTED_GAMEMODE_COLOR, true)
-		: Graphics::Get().renderText("Local Mode", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 25.f, UNSELECTED_GAMEMODE_SIZE, UNSELECTED_GAMEMODE_COLOR, true);
+		? Graphics::Get().renderText("> Local Mode <", Config::Get().SCREEN_WIDTH / 2.f, Config::Get().SCREEN_HEIGHT / 2.f + 25.f, SELECTED_GAMEMODE_SIZE, SELECTED_GAMEMODE_COLOR, true)
+		: Graphics::Get().renderText("Local Mode", Config::Get().SCREEN_WIDTH / 2.f, Config::Get().SCREEN_HEIGHT / 2.f + 25.f, UNSELECTED_GAMEMODE_SIZE, UNSELECTED_GAMEMODE_COLOR, true);
 	selectedGameMode == GameModeType::Online
-		? Graphics::Get().renderText("> Online Mode <", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 25.f, SELECTED_GAMEMODE_SIZE, SELECTED_GAMEMODE_COLOR, true)
-		: Graphics::Get().renderText("Online Mode", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 25.f, UNSELECTED_GAMEMODE_SIZE, UNSELECTED_GAMEMODE_COLOR, true);
-	Graphics::Get().renderText("Press Up/Down to move, Enter to choose.", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 100.f, 0.5f, UNSELECTED_GAMEMODE_COLOR, true);
+		? Graphics::Get().renderText("> Online Mode <", Config::Get().SCREEN_WIDTH / 2.f, Config::Get().SCREEN_HEIGHT / 2.f - 25.f, SELECTED_GAMEMODE_SIZE, SELECTED_GAMEMODE_COLOR, true)
+		: Graphics::Get().renderText("Online Mode", Config::Get().SCREEN_WIDTH / 2.f, Config::Get().SCREEN_HEIGHT / 2.f - 25.f, UNSELECTED_GAMEMODE_SIZE, UNSELECTED_GAMEMODE_COLOR, true);
+	Graphics::Get().renderText("Press Up/Down to move, Enter to choose.", Config::Get().SCREEN_WIDTH / 2.f, Config::Get().SCREEN_HEIGHT / 2.f - 100.f, 0.5f, UNSELECTED_GAMEMODE_COLOR, true);
 }
 
 void GameMode_Lobby::onKey(GLFWwindow* window, int key, int scancode, int action, int mods)

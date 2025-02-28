@@ -35,6 +35,13 @@ float getCurrentTime()
 
 int main()
 {
+	// Apply Config
+	if (!loadConfig("config.json"))
+	{
+		LOG(LogMain, LogVerbosity::Error, "Failed to load configuration file.");
+		return -1;
+	}
+
 	if (!SetConsoleCtrlHandler(consoleHandler, TRUE))
 	{
 		LOG(LogMain, LogVerbosity::Error, "Failed to set Console Control Handler!");
@@ -55,21 +62,21 @@ int main()
 		previousTime = currentTime;
 
 		gameTickTimer += (elapsedTime * Game::Get().currentTimeScale);
-		serverTickTimer += elapsedTime * BASIC_TIME_SCALE;
+		serverTickTimer += elapsedTime * Config::Get().BASIC_TIME_SCALE;
 
-		while (gameTickTimer >= SERVER_FRAME_TIME)
+		while (gameTickTimer >= Config::Get().SERVER_FRAME_TIME)
 		{
 			if (Game::Get().currentGameState != GameStateType::None)
 			{
 				Game::Get().tick(static_cast<float>(gameTickTimer));
 			}
-			gameTickTimer -= SERVER_FRAME_TIME;
+			gameTickTimer -= Config::Get().SERVER_FRAME_TIME;
 		}
 
-		while (serverTickTimer >= SERVER_FRAME_TIME)
+		while (serverTickTimer >= Config::Get().SERVER_FRAME_TIME)
 		{
 			Server::Get().tick(static_cast<float>(gameTickTimer));
-			serverTickTimer -= SERVER_FRAME_TIME;
+			serverTickTimer -= Config::Get().SERVER_FRAME_TIME;
 		}
 	}
 

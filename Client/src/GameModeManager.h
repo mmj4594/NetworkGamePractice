@@ -33,5 +33,5 @@ public:
 public:
 	GameMode* currentGameMode = nullptr;
 	GameModeType currentGameModeType = GameModeType::None;
-	float currentTimeScale = BASIC_TIME_SCALE;
+	float currentTimeScale = Config::Get().BASIC_TIME_SCALE;
 };

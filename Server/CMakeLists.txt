@@ -33,3 +33,10 @@ add_custom_command(TARGET Server POST_BUILD
     ${LIBRARY_DIR}/glfw3.dll
     $<TARGET_FILE_DIR:Server>
 )
+
+# config 파일 복사
+add_custom_command(TARGET Server POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_SOURCE_DIR}/config.json
+    $<TARGET_FILE_DIR:Server>
+)
