@@ -34,4 +34,5 @@ private:
 	std::thread receiveMessageThread;
 	bool shutdownReserved = false;
 	bool shutdownCompleted = false;
+	float shutdownTimer = 0.f;
 };

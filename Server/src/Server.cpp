@@ -68,6 +68,7 @@ void Server::endPlay()
 	}
 
 	LOG(LogServer, LogVerbosity::Log, "Server is Terminated");
+	shutdownReserved = false;
 	shutdownCompleted = true;
 }
 
@@ -75,13 +76,12 @@ void Server::tick(float elapsedTime)
 {
 	if (isShutdownReserved())
 	{
-		endPlay();
-		return;
-	}
-
-	if (Game::Get().currentGameState != GameStateType::None)
-	{
-		replicateGameState();
+		shutdownTimer += elapsedTime;
+		LOG(LogServer, LogVerbosity::Log, "shutdownTimer: %f", shutdownTimer);
+		if(shutdownTimer >= 0.5f)
+		{
+			endPlay();
+		}
 	}
 }
 
@@ -126,6 +126,7 @@ void Server::disconnectClient(SOCKET clientSocket)
 void Server::reserveShutdown(const std::string shutdownReason)
 {
 	shutdownReserved = true;
+	shutdownTimer = 0.f;
 	LOG(LogServer, LogVerbosity::Log, "Server Shutdown Reserved. Reason: [%s]", shutdownReason.c_str());
 }
 
@@ -141,6 +142,9 @@ bool Server::isShutdownCompleted()
 
 void Server::replicateGameState()
 {
+	if (Game::Get().currentGameState == GameStateType::None)
+		return;
+
 	ReplicatedGameState replicatedGameState;
 	replicatedGameState.player1Position = Game::Get().player1.getPosition();
 	replicatedGameState.player2Position = Game::Get().player2.getPosition();
@@ -170,7 +174,7 @@ void Server::receiveMessageFromClients()
 		select(maxSocket + 1, &readSet, nullptr, nullptr, nullptr);
 		for (int i = 0; i <= maxSocket; i++)
 		{
-			if (shutdownReserved)
+			if (isShutdownReserved())
 				break;
 
 			if (FD_ISSET(i, &readSet))
@@ -190,10 +194,13 @@ void Server::receiveMessageFromClients()
 					int bytesReceived = recv(i, buffer, sizeof(buffer), 0);
 					if (bytesReceived <= 0)
 					{
-						disconnectClient(i);
-						if(Game::Get().currentGameState != GameStateType::None)
+						if (!isShutdownReserved())
 						{
-							reserveShutdown("Client Disconnected During the Game");
+							disconnectClient(i);
+							if (Game::Get().currentGameState != GameStateType::None)
+							{
+								reserveShutdown("Client Disconnected During the Game");
+							}
 						}
 					}
 					else

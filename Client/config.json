@@ -4,7 +4,8 @@
         "screenWidth": 900,
         "screenHeight": 600,
         "clientMaxFPS": 60,
-        "serverMaxFPS": 60
+        "serverMaxFPS": 60,
+        "serverReplicateRate": 20
     },
 
     "game":

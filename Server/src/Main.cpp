@@ -55,6 +55,7 @@ int main()
 	{
 		static double gameTickTimer = 0.0;
 		static double serverTickTimer = 0.0;
+		static double serverReplicateTimer = 0.0;
 
 		static double previousTime = getCurrentTime();
 		const double currentTime = getCurrentTime();
@@ -63,6 +64,7 @@ int main()
 
 		gameTickTimer += (elapsedTime * Game::Get().currentTimeScale);
 		serverTickTimer += elapsedTime * Config::Get().BASIC_TIME_SCALE;
+		serverReplicateTimer += elapsedTime * Config::Get().BASIC_TIME_SCALE;
 
 		while (gameTickTimer >= Config::Get().SERVER_FRAME_TIME)
 		{
@@ -77,6 +79,12 @@ int main()
 		{
 			Server::Get().tick(static_cast<float>(gameTickTimer));
 			serverTickTimer -= Config::Get().SERVER_FRAME_TIME;
+		}
+
+		while (serverReplicateTimer >= Config::Get().SERVER_REPLICATE_TIME)
+		{
+			Server::Get().replicateGameState();
+			serverReplicateTimer -= Config::Get().SERVER_REPLICATE_TIME;
 		}
 	}
 

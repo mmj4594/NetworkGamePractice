@@ -199,8 +199,10 @@ public:
 
 	int CLIENT_MAX_FPS = 60;
 	int SERVER_MAX_FPS = 60;
+	int SERVER_REPLICATE_RATE = 20;
 	float CLIENT_FRAME_TIME = 1.0f / CLIENT_MAX_FPS;
 	float SERVER_FRAME_TIME = 1.0f / SERVER_MAX_FPS;
+	float SERVER_REPLICATE_TIME = 1.0f / SERVER_REPLICATE_RATE;
 #pragma endregion
 
 #pragma region Config-Game
@@ -277,6 +279,8 @@ inline bool loadConfig(const std::string& fileName)
 		Config::Get().SCREEN_WIDTH = configJson["system"]["screenWidth"];
 		Config::Get().SCREEN_HEIGHT = configJson["system"]["screenHeight"];
 		Config::Get().CLIENT_MAX_FPS = configJson["system"]["clientMaxFPS"];
+		Config::Get().SERVER_MAX_FPS = configJson["system"]["serverMaxFPS"];
+		Config::Get().SERVER_REPLICATE_RATE = configJson["system"]["serverReplicateRate"];
 
 		Config::Get().MAX_SCORE = configJson["game"]["maxScore"];
 		Config::Get().BASIC_TIME_SCALE = configJson["game"]["timeScale"];
@@ -299,6 +303,7 @@ inline bool loadConfig(const std::string& fileName)
 	{
 		Config::Get().CLIENT_FRAME_TIME = 1.0f / Config::Get().CLIENT_MAX_FPS;
 		Config::Get().SERVER_FRAME_TIME = 1.0f / Config::Get().SERVER_MAX_FPS;
+		Config::Get().SERVER_REPLICATE_TIME = 1.0f / Config::Get().SERVER_REPLICATE_RATE;
 
 		Config::Get().GAME_WAIT_TIME = 5.0f * Config::Get().BASIC_TIME_SCALE;
 		Config::Get().ROUND_END_TIME_SCALE = Config::Get().BASIC_TIME_SCALE * 0.15f;

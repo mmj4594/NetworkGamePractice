@@ -170,6 +170,7 @@ void GameMode_Online::onKey(GLFWwindow* window, int key, int scancode, int actio
 
 void GameMode_Online::onConnected(int connectedPlayerID)
 {
+	LOG(LogGameModeOnline, LogVerbosity::Log, "Connected to Server!");
 	connected = true;
 	disConnected = false;
 	myPlayerID = connectedPlayerID;
@@ -177,6 +178,7 @@ void GameMode_Online::onConnected(int connectedPlayerID)
 
 void GameMode_Online::onDisconnected()
 {
+	LOG(LogGameModeOnline, LogVerbosity::Log, "Disconnected from Server");
 	connected = false;
 	disConnected = true;
 }
@@ -191,12 +193,13 @@ void GameMode_Online::receiveMessageFromServer()
 
 		// Get Message From Server
 		select(static_cast<int>(clientSocket) + 1, &readSet, nullptr, nullptr, nullptr);
-		if ( FD_ISSET(clientSocket, &readSet) )
+		if (FD_ISSET(clientSocket, &readSet))
 		{
 			char buffer[MAX_BUFFER_SIZE] = { 0 };
 			int bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
-			if ( bytesReceived <= 0 )
+			if (bytesReceived <= 0)
 			{
+				LOG(LogGameModeOnline, LogVerbosity::Warning, "Failed to Get Message from Server.");
 				onDisconnected();
 				break;
 			}
@@ -223,7 +226,6 @@ void GameMode_Online::messageHandler(char* buffer, int bytesReceived)
 		{
 			ConnectMessage connectMessage;
 			deserialize(buffer + sizeof(MessageHeader), connectMessage);
-			LOG(LogGameModeOnline, LogVerbosity::Log, "Connected to Server!");
 			onConnected(connectMessage.connectedPlayerID);
 		}
 		break;
@@ -231,7 +233,6 @@ void GameMode_Online::messageHandler(char* buffer, int bytesReceived)
 		{
 			DisconnectMessage disconnectMessage;
 			deserialize(buffer + sizeof(MessageHeader), disconnectMessage);
-			LOG(LogGameModeOnline, LogVerbosity::Log, "Disconnected from Server");
 			onDisconnected();
 		}
 		break;
@@ -288,6 +289,7 @@ void GameMode_Online::onReplicatedGameState(const ReplicatedGameState& replicate
 			break;
 		case GameStateType::End:
 			LOG(LogGameModeOnline, LogVerbosity::Log, "Game is Finished! Winner Player: %d", scorePlayer1 >= Config::Get().MAX_SCORE ? player1.getPlayerID() : player2.getPlayerID());
+			onDisconnected();
 			break;
 		default:
 			LOG(LogGameModeOnline, LogVerbosity::Error, "onReplicatedGameState: Unhandled Game State Type");

@@ -30,9 +30,9 @@ private:
 	void printExitText();
 
 public:
-	Player player1 = Player(1, Config::Get().INITIAL_PLAYER1_POSITION, 75.f, 75.f);
-	Player player2 = Player(2, Config::Get().INITIAL_PLAYER2_POSITION, 75.f, 75.f);
-	Ball ball = Ball(Config::Get().INITIAL_BALL_POSITION, 60.f, 60.f);
+	Player player1 = Player(1, Config::Get().INITIAL_PLAYER1_POSITION, Config::Get().PLAYER_SIZE.x, Config::Get().PLAYER_SIZE.y);
+	Player player2 = Player(2, Config::Get().INITIAL_PLAYER2_POSITION, Config::Get().PLAYER_SIZE.x, Config::Get().PLAYER_SIZE.y);
+	Ball ball = Ball(Config::Get().INITIAL_BALL_POSITION, Config::Get().BALL_SIZE.x, Config::Get().BALL_SIZE.y);
 	Net net = Net(Config::Get().INITIAL_NET_POSITION, (float)Config::Get().NET_WIDTH, (float)Config::Get().NET_HEIGHT);
 	Block leftWall = Block(Config::Get().INITIAL_LEFT_WALL_POSITION, (float)Config::Get().BLOCK_THICKNESS, (float)Config::Get().SCREEN_HEIGHT);
 	Block rightWall = Block(Config::Get().INITIAL_RIGHT_WALL_POSITION, (float)Config::Get().BLOCK_THICKNESS, (float)Config::Get().SCREEN_HEIGHT);
