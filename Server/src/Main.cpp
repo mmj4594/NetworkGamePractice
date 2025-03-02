@@ -77,7 +77,7 @@ int main()
 
 		while (serverTickTimer >= Config::Get().SERVER_FRAME_TIME)
 		{
-			Server::Get().tick(static_cast<float>(gameTickTimer));
+			Server::Get().tick(static_cast<float>(serverTickTimer));
 			serverTickTimer -= Config::Get().SERVER_FRAME_TIME;
 		}
 
