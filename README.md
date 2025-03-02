@@ -136,11 +136,17 @@ cd Release
 ## 스크린샷
 
 ### 로컬 모드 플레이
-<img src="screenshots/lobby.png" width="450">
-<img src="screenshots/local_1.png" width="450">
+<p align="center">
+    <img src="screenshots/lobby.png" width="45%">
+    <img src="screenshots/local_1.png" width="45%">
+</p>
 
 ### 온라인 모드 플레이  
-<img src="screenshots/online_1.png" width="450">
-<img src="screenshots/online_2.png" width="450">
+<p align="center">
+    <img src="screenshots/online_1.png" width="45%">
+    <img src="screenshots/online_2.png" width="45%">
+</p>
 
-<img src="screenshots/online_3.png" width="900">
+<p align="center">
+    <img src="screenshots/online_3.png" width="90%">
+</p>
