@@ -157,7 +157,8 @@ void Server::replicateGameState()
 	// Replicate Game State to Clients
 	for (int i = 1; i <= connectedPlayers; ++i)
 	{
-		sendMessage(playerIDToClientSocket[i], MessageType::ReplicateGameState, replicatedGameState);
+		if(playerIDToClientSocket.find(i) != playerIDToClientSocket.end())
+			sendMessage(playerIDToClientSocket[i], MessageType::ReplicateGameState, replicatedGameState);
 	}
 }
 
