@@ -49,7 +49,7 @@ bool Graphics::initializeGraphics()
 
 	// Create a window
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-	window = glfwCreateWindow(Config::Get().SCREEN_WIDTH, Config::Get().SCREEN_HEIGHT, "OpenGL Window", nullptr, nullptr);
+	window = glfwCreateWindow(Config::Get().SCREEN_WIDTH, Config::Get().SCREEN_HEIGHT, "NetworkGamePractice", nullptr, nullptr);
 	if (!window)
 	{
 		LOG(LogGraphics, LogVerbosity::Error, "initializeGraphics: Failed to create GLFW window!");

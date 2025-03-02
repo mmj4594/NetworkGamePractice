@@ -15,6 +15,7 @@ set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/../include)
 set(LIBRARY_DIR ${CMAKE_SOURCE_DIR}/lib)
 set(RESOURCES_DIR ${CMAKE_SOURCE_DIR}/resources)
 set(SHADERS_DIR ${CMAKE_SOURCE_DIR}/shaders)
+set(CONFIG_DIR ${CMAKE_SOURCE_DIR}/../)
 include_directories(
     ${INCLUDE_DIR}/Shared
     ${INCLUDE_DIR}/Client
@@ -41,7 +42,7 @@ add_custom_command(TARGET Client POST_BUILD
 # config 파일 복사
 add_custom_command(TARGET Client POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    ${CMAKE_SOURCE_DIR}/config.json
+    ${CONFIG_DIR}/config.json
     $<TARGET_FILE_DIR:Client>
 )
 

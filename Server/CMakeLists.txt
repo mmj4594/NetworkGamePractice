@@ -13,6 +13,7 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 # 파일 경로 정의
 set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/../include)
 set(LIBRARY_DIR ${CMAKE_SOURCE_DIR}/lib)
+set(CONFIG_DIR ${CMAKE_SOURCE_DIR}/../)
 include_directories(
     ${INCLUDE_DIR}/Shared
     ${INCLUDE_DIR}/Server
@@ -37,6 +38,6 @@ add_custom_command(TARGET Server POST_BUILD
 # config 파일 복사
 add_custom_command(TARGET Server POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    ${CMAKE_SOURCE_DIR}/config.json
+    ${CONFIG_DIR}/config.json
     $<TARGET_FILE_DIR:Server>
 )

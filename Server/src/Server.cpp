@@ -77,7 +77,6 @@ void Server::tick(float elapsedTime)
 	if (isShutdownReserved())
 	{
 		shutdownTimer += elapsedTime;
-		LOG(LogServer, LogVerbosity::Log, "shutdownTimer: %f", shutdownTimer);
 		if(shutdownTimer >= 0.5f)
 		{
 			endPlay();
